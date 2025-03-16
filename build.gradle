@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    //地图形状转物理形状依赖需要添加
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    //libgdx
+    implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+    //box2d及光线
+    implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+    implementation "com.badlogicgames.box2dlights:box2dlights:$box2dlightsVersion"
+    //ECS及插件
+    implementation "net.onedaybeard.artemis:artemis-odb:$artemisOdbVersion"
+    implementation "net.mostlyoriginal.artemis-odb:contrib-core:$contribVersion"
+    implementation "net.mostlyoriginal.artemis-odb:contrib-eventbus:$contribVersion"
+    implementation "net.mostlyoriginal.artemis-odb:contrib-plugin-singleton:$contribVersion"
+    implementation "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$contribVersion"
+    //地图形状转物理形状
+    implementation "com.github.lyze237:gdx-projecttriangleplatforming:$ptpVersion"
+    implementation "com.github.lyze237:gdx-Clipper2:$clipperVersion"
+    //类反射工具
+    implementation "org.reflections:reflections:$reflectionsVersion"
+    //ai
+    implementation "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+}
+
+test {
+    useJUnitPlatform()
+}
