@@ -1,13 +1,12 @@
 package org.ltae;
 
-import lombok.Getter;
+
 
 /**
  * @Auther WenLong
  * @Date 2025/3/17 17:05
  * @Description
  **/
-@Getter
 public class LtaeBuilder {
     private float windowWidth = 640;      // 默认窗口宽度
     private float windowHeight = 480;     // 默认窗口高度
@@ -86,5 +85,50 @@ public class LtaeBuilder {
     public LtaeBuilder build() {
         // 可以在这里进行一些验证或初始化操作
         return this;
+    }
+
+    // Getter 方法
+    public float getWindowWidth() {
+        return windowWidth;
+    }
+
+    public float getWindowHeight() {
+        return windowHeight;
+    }
+
+    public float getCameraZoom() {
+        return cameraZoom;
+    }
+
+    public float getWorldScale() {
+        return worldScale;
+    }
+
+    public float getGx() {
+        return gx;
+    }
+
+    public float getGy() {
+        return gy;
+    }
+
+    public String getTileMapPath() {
+        return tileMapPath;
+    }
+
+    public String getMapName() {
+        return mapName;
+    }
+
+    public String[] getPhyLayerNames() {
+        return phyLayerNames;
+    }
+
+    public String getEntityLayerName() {
+        return entityLayerName;
+    }
+
+    public String getCompPackagePath() {
+        return compPackagePath;
     }
 }
