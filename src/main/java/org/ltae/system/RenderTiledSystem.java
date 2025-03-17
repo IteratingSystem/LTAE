@@ -32,7 +32,7 @@ public class RenderTiledSystem extends BaseSystem {
     }
     @Override
     protected void initialize() {
-        tiledMap = tiledMapManager.curMap;
+        tiledMap = tiledMapManager.currentMap;
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap,worldScale);
 
         camera = cameraSystem.camera;

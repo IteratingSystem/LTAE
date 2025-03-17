@@ -29,7 +29,7 @@ public class TiledEntityFactory extends BaseSystem {
             .scale(worldScale)
             .world(world)
             .box2DWorld(b2DSystem.box2DWorld)
-            .tiledMap(tiledMapManager.curMap)
+            .tiledMap(tiledMapManager.currentMap)
             .entityLayerName("ENTITIES")
             .addAutoInitComp(Pos.class)
             .addAutoInitComp(ZIndex.class)
