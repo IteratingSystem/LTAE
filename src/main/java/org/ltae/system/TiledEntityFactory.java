@@ -16,11 +16,14 @@ public class TiledEntityFactory extends BaseSystem {
 
     private float worldScale;
     private String compPackagePath;
+    private String entityLayerName;
     private B2dSystem b2DSystem;
     private TiledMapManager tiledMapManager;
 
-    public TiledEntityFactory(float worldScale,String compPackagePath){
+    public TiledEntityFactory(String compPackagePath,String entityLayerName,float worldScale){
         this.worldScale = worldScale;
+        this.compPackagePath = compPackagePath;
+        this.entityLayerName = entityLayerName;
     }
     @Override
     protected void initialize() {
@@ -30,7 +33,7 @@ public class TiledEntityFactory extends BaseSystem {
             .world(world)
             .box2DWorld(b2DSystem.box2DWorld)
             .tiledMap(tiledMapManager.currentMap)
-            .entityLayerName("ENTITIES")
+            .entityLayerName(entityLayerName)
             .addAutoInitComp(Pos.class)
             .addAutoInitComp(ZIndex.class)
             .addAutoInitComp(Render.class)

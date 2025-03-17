@@ -14,28 +14,31 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 public class TiledMapManager extends BaseSystem {
     private final static String TAG = TiledMapManager.class.getSimpleName();
     //物理形状图层的名字
-    private final static String[] PHY_LAYER_NAME = {"BRICK"};
+    private String[] phyLayerNames;
     private String mapName;
     public TiledMap currentMap;
     public Bag<TiledMapTileLayer> phyLayers;
 
     private AssetSystem assetSystem;
-    public TiledMapManager(String mapName){
+    public TiledMapManager(String mapName,String[] phyLayerNames){
         this.mapName = mapName;
+        this.phyLayerNames = phyLayerNames;
     }
 
     @Override
     protected void initialize() {
+        phyLayers = new Bag<>();
         currentMap = assetSystem.tiledData.get(mapName);
         if (currentMap == null){
-            Gdx.app.log(TAG,"Unable to tiledMap map, please confirm tiledMap name:"+mapName);
+            Gdx.app.debug(TAG,"Unable to tiledMap map, please confirm tiledMap name:"+mapName);
             return;
         }
-
-
+        if (phyLayerNames == null){
+            Gdx.app.log(TAG,"To specify the physical layer!phyLayerNames is null!");
+            return;
+        }
         //需要获取物理形状的图层对象
-        phyLayers = new Bag<>();
-        for (String layerName : PHY_LAYER_NAME) {
+        for (String layerName : phyLayerNames) {
             MapLayer mapLayer = currentMap.getLayers().get(layerName);
             if (mapLayer == null) {
                 continue;
