@@ -1,7 +1,9 @@
 package org.engine.system;
 
 import com.artemis.BaseSystem;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.utils.Logger;
 
 /**
  * @Auther WenLong
@@ -9,13 +11,12 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
  * @Description 渲染物理系统(debug)
  **/
 public class RenderPhysicsSystem extends BaseSystem {
-    private boolean debug;
     private Box2DDebugRenderer debugRenderer;
 
     private B2dSystem b2DSystem;
     private CameraSystem cameraSystem;
-    public RenderPhysicsSystem(boolean debug){
-        this.debug = debug;
+    public RenderPhysicsSystem(){
+
     }
 
     @Override
@@ -26,8 +27,7 @@ public class RenderPhysicsSystem extends BaseSystem {
 
     @Override
     protected void processSystem() {
-
-        if (debug){
+        if (Gdx.app.getLogLevel() == Logger.DEBUG){
             debugRenderer.render(b2DSystem.box2DWorld,cameraSystem.camera.combined);
         }
     }
