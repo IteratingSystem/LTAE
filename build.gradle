@@ -9,7 +9,7 @@ java {
 }
 
 group = 'org.ltae'
-version = '1.0.3'
+version = '$projectVersion'
 
 repositories {
     //国内源

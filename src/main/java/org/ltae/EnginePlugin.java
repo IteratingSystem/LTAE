@@ -23,17 +23,19 @@ public class EnginePlugin implements ArtemisPlugin {
     private float cameraZoom;             // 缩放比例
     private float worldScale;       // 世界缩放比例
     private String tileMapPath;     // 瓦片地图路径
+    private String mapName;     //需要加载的地图名称
     private String compPackagePath; // 组件包路径
 
     public EnginePlugin(float windowWidth,float windowHeight,
                         float cameraZoom,float worldScale,
-                        String tileMapPath,
+                        String tileMapPath,String mapName,
                         String compPackagePath){
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
         this.cameraZoom = cameraZoom;
         this.worldScale = worldScale;
         this.tileMapPath = tileMapPath;
+        this.mapName = mapName;
         this.compPackagePath = compPackagePath;
     }
     @Override
@@ -49,7 +51,7 @@ public class EnginePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.dependsOn(EventSystem.class);//事件总线
         //初始系统
         worldConfigurationBuilder.with(new AssetSystem(tileMapPath));//资源系统
-        worldConfigurationBuilder.with(new TiledMapManager());//地图管理系统
+        worldConfigurationBuilder.with(new TiledMapManager(mapName));//地图管理系统
         worldConfigurationBuilder.with(new B2dSystem(worldScale));//物理世界初始化
         //渲染前更新
         worldConfigurationBuilder.with(new PosFollowSystem(worldScale)); //坐标跟随物理身体
