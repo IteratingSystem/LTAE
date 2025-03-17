@@ -172,6 +172,10 @@ public class TiledObjectToArtemis {
         }
 
         public TiledObjectToArtemis build() {
+            if (tiledMap == null) {
+                Gdx.app.error(TAG,"tiledMap is null,Confirm if the correct map name has been passed in!");
+                return null;
+            }
             MapLayer mapLayer = tiledMap.getLayers().get(entityLayerName);
             if (mapLayer == null){
                 Gdx.app.error(TAG,"No layer with this name found:"+entityLayerName);
