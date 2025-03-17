@@ -2,8 +2,14 @@ plugins {
     id 'java'
 }
 
-group = 'org.example'
-version = '1.0-SNAPSHOT'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+group = 'org.ltae'
+version = '1.0.2'
 
 repositories {
     //国内源
