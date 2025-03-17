@@ -24,7 +24,7 @@ dependencies {
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
     //box2d及光线
     implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-    implementation "com.badlogicgames.box2dlights:box2dlights:$box2dlightsVersion"
+    implementation "com.badlogicgames.box2dlights:box2dlights:$box2dLightsVersion"
     //ECS及插件
     implementation "net.onedaybeard.artemis:artemis-odb:$artemisOdbVersion"
     implementation "net.mostlyoriginal.artemis-odb:contrib-core:$contribVersion"
