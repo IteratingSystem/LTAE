@@ -6,9 +6,14 @@ group = 'org.example'
 version = '1.0-SNAPSHOT'
 
 repositories {
-    mavenCentral()
+    //国内源
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    maven { url 'https://maven.aliyun.com/repository/spring' }
+    maven { url 'https://maven.aliyun.com/repository/spring-plugin' }
+    maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
     //地图形状转物理形状依赖需要添加
     maven { url 'https://jitpack.io' }
+    mavenCentral()
 }
 
 dependencies {
