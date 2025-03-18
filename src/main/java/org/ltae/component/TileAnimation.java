@@ -21,9 +21,9 @@ import java.util.Arrays;
  **/
 public class TileAnimation extends Component implements TileCompLoader {
     @TileParam
-    private String name;
+    public String name;
     @TileParam
-    private String playModeName;
+    public String playModeName;
 
     protected TextureRegion[] keyFrames;
     //状态运行时间
