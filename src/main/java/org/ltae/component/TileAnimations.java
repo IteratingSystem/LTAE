@@ -61,8 +61,11 @@ public class TileAnimations extends Component implements TileCompLoader {
         }
     }
 
+    public TileAnimation getTileAnimation(){
+        return table.get(current);
+    }
     public TextureRegion getKeyFrame() {
-        TileAnimation tileAnimation = table.get(current);
+        TileAnimation tileAnimation = getTileAnimation();
         int frameNumber = tileAnimation.getKeyFrameIndex(stateTime);
         return tileAnimation.keyFrames[frameNumber];
     }
@@ -71,7 +74,11 @@ public class TileAnimations extends Component implements TileCompLoader {
         stateTime = 0;
     }
     public boolean isAnimationFinished(){
-        TileAnimation tileAnimation = table.get(current);
+        TileAnimation tileAnimation = getTileAnimation();
         return tileAnimation.isAnimationFinished(stateTime);
+    }
+    public boolean isLast(int lastCount){
+        TileAnimation tileAnimation = getTileAnimation();
+        return tileAnimation.isLast(lastCount);
     }
 }

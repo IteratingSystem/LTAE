@@ -82,6 +82,18 @@ public class TileAnimation extends Component implements TileCompLoader {
 
 
     /**
+     * 判断送否是倒数第n帧之一
+     * 一般用于控制动画切换时机
+     * @param lastCount
+     * @return
+     */
+    public boolean isLast(int lastCount){
+        int frameNumber = this.getKeyFrameIndex(stateTime);
+        int length = keyFrames.length;
+        return length - frameNumber <= lastCount;
+    }
+
+    /**
      * 获取特定时刻时的帧
      *
      * @return keyFrame
