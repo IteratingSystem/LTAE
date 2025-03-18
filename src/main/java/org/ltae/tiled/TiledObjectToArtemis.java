@@ -41,16 +41,17 @@ public class TiledObjectToArtemis {
         for (MapObject mapObject : mapObjects) {
             int entityId = world.create();
             MapProperties compProps = mapObject.getProperties();
+            //就算没有维护到tiled中也要初始化的组件
+            for (Class<? extends Component> autoCompClass : builder.autoInitCompClasses) {
+                String simpleName = autoCompClass.getSimpleName();
+                if (compProps.containsKey(simpleName)) {
+                    continue;
+                }
+                compProps.put(simpleName,"");
+            }
 
             for (Class<? extends Component> compClass : compClasses) {
-                //就算没有维护到tiled中也要初始化的组件
-                for (Class<? extends Component> autoCompClass : builder.autoInitCompClasses) {
-                    String simpleName = autoCompClass.getSimpleName();
-                    if (compProps.containsKey(simpleName)) {
-                        continue;
-                    }
-                    compProps.put(simpleName,"");
-                }
+
                 //属性列表中没有此组件
                 if (!compProps.containsKey(compClass.getSimpleName())) {
                     continue;
@@ -61,8 +62,6 @@ public class TiledObjectToArtemis {
                     continue;
                 }
                 Component comp = mapper.create(entityId);
-
-
 
 
                 //利用反射给配置了@TiledParam的属性赋值
