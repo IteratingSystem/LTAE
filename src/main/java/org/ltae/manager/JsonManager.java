@@ -1,4 +1,4 @@
-package org.ltae.singleton;
+package org.ltae.manager;
 
 import com.badlogic.gdx.utils.Json;
 

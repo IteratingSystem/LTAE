@@ -1,4 +1,4 @@
-package org.ltae.singleton;
+package org.ltae.manager;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;

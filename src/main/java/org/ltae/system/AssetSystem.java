@@ -4,7 +4,7 @@ import com.artemis.BaseSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.ObjectMap;
-import org.ltae.singleton.AssetManager;
+import org.ltae.manager.AssetManager;
 
 /**
  * @Author: WenLong
