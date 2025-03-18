@@ -5,10 +5,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.World;
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapObjects;
-import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.*;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import org.reflections.Reflections;
@@ -176,7 +173,8 @@ public class TiledObjectToArtemis {
                 Gdx.app.error(TAG,"tiledMap is null,Confirm if the correct map name has been passed in!");
                 return null;
             }
-            MapLayer mapLayer = tiledMap.getLayers().get(entityLayerName);
+            MapLayers layers = tiledMap.getLayers();
+            MapLayer mapLayer = layers.get(entityLayerName);
             if (mapLayer == null){
                 Gdx.app.error(TAG,"No layer with this name found:"+entityLayerName);
                 return null;
