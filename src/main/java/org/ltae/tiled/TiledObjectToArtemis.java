@@ -20,6 +20,7 @@ import java.util.Set;
  **/
 public class TiledObjectToArtemis {
     private final static String TAG = TiledObjectToArtemis.class.getSimpleName();
+    private final static String THIS_COMP_PACKAGE = "org.ltae.component";
     private Builder builder;
     private TiledObjectToArtemis() {}
 
@@ -33,8 +34,10 @@ public class TiledObjectToArtemis {
         World world = builder.world;
 
         Reflections reflections = new Reflections(builder.compPackage);
+        Reflections thisReflections = new Reflections(THIS_COMP_PACKAGE);
         Set<Class<? extends Component>> compClasses = reflections.getSubTypesOf(Component.class);
-
+        Set<Class<? extends Component>> thisCompClasses = thisReflections.getSubTypesOf(Component.class);
+        compClasses.addAll(thisCompClasses);
         for (MapObject mapObject : mapObjects) {
             int entityId = world.create();
             MapProperties compProps = mapObject.getProperties();
@@ -74,10 +77,6 @@ public class TiledObjectToArtemis {
                     Object porpObject = compProps.get(compClass.getSimpleName());
                     if (!(porpObject instanceof MapProperties compParams)) {
                         continue;
-                    }
-                    if (compParams == null) {
-                        Gdx.app.log(TAG, "The current component parameter is empty!");
-                        return;
                     }
                     //判断是否必填,非必填同时没有这个数据则相安无事
                     if (!compParams.containsKey(fieldName)) {
