@@ -70,4 +70,8 @@ public class TileAnimations extends Component implements TileCompLoader {
         current = animationName;
         stateTime = 0;
     }
+    public boolean isAnimationFinished(){
+        TileAnimation tileAnimation = table.get(current);
+        return tileAnimation.isAnimationFinished(stateTime);
+    }
 }
