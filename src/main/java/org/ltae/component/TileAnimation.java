@@ -161,6 +161,7 @@ public class TileAnimation extends Component implements TileCompLoader {
                         adder += frameDurations[i];
                         if (stateTime <= adder){
                             frameNumber = i;
+                            break;
                         }
                     }
                 }
@@ -172,6 +173,7 @@ public class TileAnimation extends Component implements TileCompLoader {
                     adder += frameDurations[i];
                     if (remainder <= adder){
                         frameNumber = i;
+                        break;
                     }
                 }
                 break;
@@ -182,6 +184,7 @@ public class TileAnimation extends Component implements TileCompLoader {
                     adder += frameDurations[i];
                     if (pingRemainder <= adder){
                         frameNumber = i % frameDurations.length;
+                        break;
                     }
                 }
                 break;
@@ -190,10 +193,11 @@ public class TileAnimation extends Component implements TileCompLoader {
                 int lastFrameNumber = (int)(this.lastStateTime / this.randomDuration);
                 if (lastFrameNumber != frameNumber) {
                     frameNumber = MathUtils.random(this.keyFrames.length - 1);
+                    break;
                 } else {
                     frameNumber = this.lastFrameNumber;
+                    break;
                 }
-                break;
             //反向播放一次后停止
             case REVERSED:
                 if (stateTime < animationDuration){
@@ -202,6 +206,7 @@ public class TileAnimation extends Component implements TileCompLoader {
                         adder += frameDurations[i];
                         if (stateTime <= adder){
                             frameNumber = i;
+                            break;
                         }
                     }
                 }
@@ -214,6 +219,7 @@ public class TileAnimation extends Component implements TileCompLoader {
                         adder += frameDurations[i];
                         if (remainder <= adder){
                             frameNumber = i;
+                            break;
                         }
                     }
                 }
