@@ -65,7 +65,8 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
                 new TiledEntityFactory(
-                        ltaeBuilder.getCompPackagePath(),
+                        ltaeBuilder.getCompPackage(),
+                        ltaeBuilder.getStatePackage(),
                         ltaeBuilder.getEntityLayerName(),
                         ltaeBuilder.getWorldScale()));
     }

@@ -18,7 +18,8 @@ public class LtaeBuilder {
     private String mapName = "defaultMap"; // 默认加载的地图名称
     private String[] phyLayerNames = {"physicsLayer"}; // 默认物理图层
     private String entityLayerName = "entities";       // 默认实体图层
-    private String compPackagePath = "com.game.component";    // 默认组件包路径
+    private String compPackage = "com.game.component";    // 默认组件包路径
+    private String statePackage = "com.game.state";    // 默认组件包路径
 
     // 构造器
     public LtaeBuilder() {
@@ -76,8 +77,12 @@ public class LtaeBuilder {
         return this;
     }
 
-    public LtaeBuilder setCompPackagePath(String compPackagePath) {
-        this.compPackagePath = compPackagePath;
+    public LtaeBuilder setCompPackage(String compPackage) {
+        this.compPackage = compPackage;
+        return this;
+    }
+    public LtaeBuilder setStatePackage(String statePackage) {
+        this.statePackage = statePackage;
         return this;
     }
 
@@ -128,7 +133,10 @@ public class LtaeBuilder {
         return entityLayerName;
     }
 
-    public String getCompPackagePath() {
-        return compPackagePath;
+    public String getCompPackage() {
+        return compPackage;
+    }
+    public String getStatePackage() {
+        return statePackage;
     }
 }

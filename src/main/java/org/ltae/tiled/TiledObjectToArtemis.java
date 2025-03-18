@@ -108,6 +108,7 @@ public class TiledObjectToArtemis {
                 tileDetails.mapObject = mapObject;
                 tileDetails.tiledMap = builder.tiledMap;
                 tileDetails.worldScale = builder.worldScale;
+                tileDetails.statePackage = builder.statePackage;
                 if (mapObject instanceof TiledMapTileMapObject tileMapObject) {
                     tileDetails.tiledMapTile = tileMapObject.getTile();
                 }
