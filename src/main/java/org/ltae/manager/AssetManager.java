@@ -16,53 +16,91 @@ import org.ltae.tiled.loader.DefMapLoader;
  **/
 public class AssetManager {
     private static final String TAG = AssetManager.class.getSimpleName();
-    private static com.badlogic.gdx.assets.AssetManager instance;
+    private static AssetManager instance;
+    private com.badlogic.gdx.assets.AssetManager gdxAssetManager;
 
-    private AssetManager() {}
+    private AssetManager() {
+        // 私有构造器，防止外部直接实例化
+    }
 
     /**
-     * 此单例类在使用前需要先初始化
-     *
-     * @param propTypePath
+     * 获取单例实例
+     * @return AssetManager 实例
      */
-    public static void initialize(String propTypePath){
-        FileHandleResolver resolver = new AbsoluteFileHandleResolver();
-        instance = new com.badlogic.gdx.assets.AssetManager(resolver);
-        instance.setLoader(TiledMap.class, new DefMapLoader(propTypePath));
-    }
-    public static com.badlogic.gdx.assets.AssetManager getInstance() {
+    public static AssetManager getInstance() {
         if (instance == null) {
-            Gdx.app.log(TAG,"Not initialized, please execute the method:initialize(String propTypePath)");
-            return null;
+            throw new IllegalStateException("AssetManager not initialized. Call initialize() first.");
         }
         return instance;
     }
 
-    //将文件夹下所有传入后缀名的文件加载为指定的类
-    public static <T> void loadAssets(String path,String suffix,Class<T> aClass){
+    /**
+     * 初始化 AssetManager
+     * @param propTypePath MapLoader 的路径
+     */
+    public static AssetManager initialize(String propTypePath) {
+        if (instance != null) {
+            throw new IllegalStateException("AssetManager already initialized.");
+        }
+        instance = new AssetManager();
+        instance.gdxAssetManagerInit(propTypePath);
+        return instance;
+    }
+
+    private void gdxAssetManagerInit(String propTypePath) {
+        FileHandleResolver resolver = new AbsoluteFileHandleResolver();
+        gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(resolver);
+        gdxAssetManager.setLoader(TiledMap.class, new DefMapLoader(propTypePath));
+    }
+
+    /**
+     * 加载指定路径下所有指定后缀的文件为指定的类
+     * @param path 路径
+     * @param suffix 文件后缀
+     * @param aClass 类型
+     */
+    public <T> void loadAssets(String path, String suffix, Class<T> aClass) {
         FileHandle fileHandle = Gdx.files.internal(path);
         FileHandle[] fileHandles = fileHandle.list(suffix);
         for (FileHandle handle : fileHandles) {
             String completePath = handle.path();
-            getInstance().load(completePath,aClass);
+            gdxAssetManager.load(completePath, aClass);
         }
     }
-    //将路径载入为对象,文件名就是key(不包含后缀)
-    public static <T> ObjectMap<String, T> getData(String path, String suffix, Class<T> aClass){
-        ObjectMap<String,T> objectMap = new ObjectMap<>();
 
+    /**
+     * 将路径下的文件加载为指定类型的对象，文件名作为键（不包含后缀）
+     * @param path 路径
+     * @param suffix 文件后缀
+     * @param aClass 类型
+     * @return 加载的对象映射
+     */
+    public <T> ObjectMap<String, T> getData(String path, String suffix, Class<T> aClass) {
+        ObjectMap<String, T> objectMap = new ObjectMap<>();
         FileHandle fileHandle = Gdx.files.internal(path);
         FileHandle[] fileHandles = fileHandle.list(suffix);
         for (FileHandle file : fileHandles) {
-            String fileName = file.name();
-            String name = fileName.replace("."+suffix,"");
+            String fileName = file.nameWithoutExtension();
             String completePath = file.path();
-            objectMap.put(name,getInstance().get(completePath,aClass));
+            T asset = gdxAssetManager.get(completePath, aClass);
+            objectMap.put(fileName, asset);
         }
         return objectMap;
     }
 
-    public static void dispose(){
-        getInstance().dispose();
+    public void update(){
+        gdxAssetManager.update();
+    }
+    public float getProgress(){
+        return gdxAssetManager.getProgress();
+    }
+    /**
+     * 释放资源
+     */
+    public void dispose() {
+
+        if (gdxAssetManager != null) {
+            gdxAssetManager.dispose();
+        }
     }
 }
