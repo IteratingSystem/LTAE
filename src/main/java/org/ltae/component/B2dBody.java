@@ -23,11 +23,11 @@ import org.ltae.tiled.TileShapeToB2d;
  **/
 public class B2dBody extends Component implements TileCompLoader {
     @TileParam
-    public String defType;
+    public String defType;//动静态类型
     @TileParam
-    public boolean defFixed;
+    public boolean defFixed;//是否固定旋转
     @TileParam
-    public float linearDamping;
+    public float linearDamping;//线性阻尼
 
 
     public int entityId;
