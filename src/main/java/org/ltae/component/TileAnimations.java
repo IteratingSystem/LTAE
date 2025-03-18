@@ -44,6 +44,9 @@ public class TileAnimations extends Component implements TileCompLoader {
                     continue;
                 }
                 MapProperties props = animatedTile.getProperties();
+                if (!props.containsKey("TileAnimation")) {
+                    continue;
+                }
                 MapProperties animProp = props.get("TileAnimation",MapProperties.class);
                 String name = animProp.get("name", String.class);
                 String playModeName = animProp.get("playModeName", String.class);
