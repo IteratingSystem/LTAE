@@ -23,8 +23,12 @@ public class AssetSystem extends BaseSystem {
     @Override
     protected void initialize() {
         tiledData = AssetManager.getData(tiledMapPath, "tmx", TiledMap.class);
+        if (tiledData.isEmpty()) {
+            Gdx.app.log(TAG,"tiledData is empty,Please load the resources first!");
+        }else {
+            Gdx.app.log(TAG,"Loading resource object completed!");
+        }
 
-        Gdx.app.log(TAG,"Loading resource object completed!");
     }
 
     @Override
