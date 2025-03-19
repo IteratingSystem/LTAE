@@ -60,6 +60,10 @@ public class CameraSystem extends BaseSystem {
         }
 
         int followingId = world.getSystem(TagManager.class).getEntityId(followTarget.entityTag);
+        if (followingId == -1){
+            Gdx.app.error(TAG, "TagManager not has this tag:"+followTarget.entityTag);
+            return;
+        }
         if (!mPos.has(followingId)) {
             Gdx.app.log(TAG, "The following entity does not have a Pos component!");
             return;

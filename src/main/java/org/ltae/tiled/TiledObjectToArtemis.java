@@ -3,6 +3,7 @@ package org.ltae.tiled;
 import com.artemis.Component;
 import com.artemis.ComponentMapper;
 import com.artemis.World;
+import com.artemis.managers.TagManager;
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.*;
@@ -39,9 +40,27 @@ public class TiledObjectToArtemis {
         Set<Class<? extends Component>> thisCompClasses = thisReflections.getSubTypesOf(Component.class);
         compClasses.addAll(thisCompClasses);
         for (MapObject mapObject : mapObjects) {
+            //创建实体
             int entityId = world.create();
-            MapProperties compProps = mapObject.getProperties();
+            //创建公用参数
+            TileDetails tileDetails = new TileDetails();
+            tileDetails.entity = world.getEntity(entityId);
+            tileDetails.entityId = entityId;
+            tileDetails.b2dWorld = builder.b2dWorld;
+            tileDetails.mapObject = mapObject;
+            tileDetails.tiledMap = builder.tiledMap;
+            tileDetails.worldScale = builder.worldScale;
+            tileDetails.statePackage = builder.statePackage;
+            if (mapObject instanceof TiledMapTileMapObject tileMapObject) {
+                tileDetails.tiledMapTile = tileMapObject.getTile();
+            }
+            //注册TAG
+            if (!mapObject.getName().isEmpty()) {
+                world.getSystem(TagManager.class).register(mapObject.getName(),tileDetails.entity);
+            }
+
             //就算没有维护到tiled中也要初始化的组件
+            MapProperties compProps = mapObject.getProperties();
             for (Class<? extends Component> autoCompClass : builder.autoInitCompClasses) {
                 String simpleName = autoCompClass.getSimpleName();
                 if (compProps.containsKey(simpleName)) {
@@ -50,8 +69,8 @@ public class TiledObjectToArtemis {
                 compProps.put(simpleName,"");
             }
 
+            //遍历所有组件及初始化
             for (Class<? extends Component> compClass : compClasses) {
-
                 //属性列表中没有此组件
                 if (!compProps.containsKey(compClass.getSimpleName())) {
                     continue;
@@ -98,19 +117,6 @@ public class TiledObjectToArtemis {
                     } catch (IllegalAccessException e) {
                         Gdx.app.error(TAG, "IllegalAccessException!", e);
                     }
-                }
-
-
-                TileDetails tileDetails = new TileDetails();
-                tileDetails.entity = world.getEntity(entityId);
-                tileDetails.entityId = entityId;
-                tileDetails.b2dWorld = builder.b2dWorld;
-                tileDetails.mapObject = mapObject;
-                tileDetails.tiledMap = builder.tiledMap;
-                tileDetails.worldScale = builder.worldScale;
-                tileDetails.statePackage = builder.statePackage;
-                if (mapObject instanceof TiledMapTileMapObject tileMapObject) {
-                    tileDetails.tiledMapTile = tileMapObject.getTile();
                 }
 
                 if (comp instanceof TileCompLoader tileCompLoader) {
