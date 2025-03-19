@@ -19,7 +19,7 @@ import org.ltae.tiled.TileParam;
 public class StateComp extends Component implements TileCompLoader {
     private final static String TAG = StateComp.class.getSimpleName();
     @TileParam
-    public String sampleName;
+    public String simpleName;
     @TileParam
     public String current;
 
@@ -27,7 +27,7 @@ public class StateComp extends Component implements TileCompLoader {
 
     @Override
     public void loader(TileDetails tileDetails) {
-        String className = tileDetails.statePackage + "." + sampleName;
+        String className = tileDetails.statePackage + "." + simpleName;
         Class<?> stateClass;
         try {
             stateClass = Class.forName(className);
