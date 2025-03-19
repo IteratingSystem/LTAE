@@ -55,7 +55,7 @@ public class TiledObjectToArtemis {
                 tileDetails.tiledMapTile = tileMapObject.getTile();
             }
             //注册TAG
-            if (!mapObject.getName().isEmpty()) {
+            if (mapObject.getName() != null) {
                 world.getSystem(TagManager.class).register(mapObject.getName(),tileDetails.entity);
             }
 
