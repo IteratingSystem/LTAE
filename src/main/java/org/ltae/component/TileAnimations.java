@@ -22,14 +22,12 @@ import java.util.Iterator;
 public class TileAnimations extends Component implements TileCompLoader {
     private final static String TAG = TileAnimations.class.getSimpleName();
     public ObjectMap<String,TileAnimation> table;
-    public float stateTime;
 
     @TileParam
     public String current;
     @Override
     public void loader(TileDetails tileDetails) {
         table = new ObjectMap<>();
-        stateTime = 0;
         TiledMapTile tiledMapTile = tileDetails.tiledMapTile;
         int tileId = tiledMapTile.getId();
 
@@ -66,16 +64,16 @@ public class TileAnimations extends Component implements TileCompLoader {
     }
     public TextureRegion getKeyFrame() {
         TileAnimation tileAnimation = getTileAnimation();
-        int frameNumber = tileAnimation.getKeyFrameIndex(stateTime);
-        return tileAnimation.keyFrames[frameNumber];
+        return tileAnimation.getKeyFrame();
     }
     public void changeAnimation(String animationName){
         current = animationName;
-        stateTime = 0;
+        TileAnimation tileAnimation = getTileAnimation();
+        tileAnimation.stateTime = 0;
     }
     public boolean isAnimationFinished(){
         TileAnimation tileAnimation = getTileAnimation();
-        return tileAnimation.isAnimationFinished(stateTime);
+        return tileAnimation.isAnimationFinished();
     }
     public boolean isLast(int lastCount){
         TileAnimation tileAnimation = getTileAnimation();

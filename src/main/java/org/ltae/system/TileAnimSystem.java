@@ -20,16 +20,14 @@ public class TileAnimSystem extends IteratingSystem {
     @Override
     protected void process(int entityId) {
         Render render = mRender.get(entityId);
-        TileAnimation tileAnimation = mTileAnimation.get(entityId);
-        tileAnimation.stateTime += world.getDelta();
-
-        //有先使用动画表中的动画
+        TileAnimation tileAnimation;
         if (mTileAnimations.has(entityId)) {
             TileAnimations tileAnimations = mTileAnimations.get(entityId);
-            tileAnimations.stateTime += world.getDelta();
-            render.keyFrame = tileAnimations.getKeyFrame();
-            return;
+            tileAnimation = tileAnimations.getTileAnimation();
+        }else {
+            tileAnimation = mTileAnimation.get(entityId);
         }
+        tileAnimation.stateTime += world.getDelta();
         render.keyFrame = tileAnimation.getKeyFrame();
     }
 }

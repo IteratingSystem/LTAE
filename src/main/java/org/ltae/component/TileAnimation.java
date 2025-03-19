@@ -295,10 +295,9 @@ public class TileAnimation extends Component implements TileCompLoader {
     /**
      * 返回是否完成一便的播放
      *
-     * @param stateTime
      * @return
      */
-    public boolean isAnimationFinished(float stateTime) {
+    public boolean isAnimationFinished() {
         return stateTime >= animationDuration;
     }
 
