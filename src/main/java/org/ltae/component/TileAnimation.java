@@ -90,7 +90,7 @@ public class TileAnimation extends Component implements TileCompLoader {
     public boolean isLast(int lastCount){
         int frameNumber = this.getKeyFrameIndex(stateTime);
         int length = keyFrames.length;
-        return length - frameNumber <= lastCount;
+        return length - frameNumber - 1 <= lastCount;
     }
 
     /**
