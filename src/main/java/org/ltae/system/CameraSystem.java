@@ -77,15 +77,13 @@ public class CameraSystem extends BaseSystem {
         float activeHeight = followTarget.activeHeight;
 
         // 平滑过渡到目标位置
-        float targetX = centerX;
-        float targetY = centerY;
 
         // 如果目标实体超出摄像机的活动区域，则调整摄像机位置
-        if (camera.position.x < targetX - activeWidth / 2 || camera.position.x > targetX + activeWidth / 2) {
-            camera.position.x = MathUtils.lerp(camera.position.x, targetX, 0.1f); // 平滑过渡
+        if (camera.position.x < centerX - activeWidth / 2 || camera.position.x > centerX + activeWidth / 2) {
+            camera.position.x = MathUtils.lerp(camera.position.x, centerX, followTarget.progress); // 平滑过渡
         }
-        if (camera.position.y < targetY - activeHeight / 2 || camera.position.y > targetY + activeHeight / 2) {
-            camera.position.y = MathUtils.lerp(camera.position.y, targetY, 0.1f); // 平滑过渡
+        if (camera.position.y < centerY - activeHeight / 2 || camera.position.y > centerY + activeHeight / 2) {
+            camera.position.y = MathUtils.lerp(camera.position.y, centerY, followTarget.progress); // 平滑过渡
         }
     }
     public void setFollowTarget(FollowTarget followTarget){
