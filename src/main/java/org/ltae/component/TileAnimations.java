@@ -23,9 +23,6 @@ public class TileAnimations extends Component implements TileCompLoader {
     private final static String TAG = TileAnimations.class.getSimpleName();
     public ObjectMap<String,TileAnimation> table;
 
-    private boolean flipX;
-    private boolean flipY;
-
     @TileParam
     public String current;
     @Override
@@ -81,16 +78,5 @@ public class TileAnimations extends Component implements TileCompLoader {
     public boolean isLast(int lastCount){
         TileAnimation tileAnimation = getTileAnimation();
         return tileAnimation.isLast(lastCount);
-    }
-    public void flip(boolean flipX,boolean flipY){
-        this.flipX = flipX;
-        this.flipY = flipY;
-        getKeyFrame().flip(flipX,flipY);
-    }
-    public boolean isFlipX(){
-        return flipX;
-    }
-    public boolean isFlipY(){
-        return flipY;
     }
 }
