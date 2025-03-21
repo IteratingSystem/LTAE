@@ -85,9 +85,7 @@ public class TileAnimation extends Component implements TileCompLoader {
     public void flip(boolean flipX,boolean flipY){
         this.flipX = flipX;
         this.flipY = flipY;
-        for (TextureRegion keyFrame : keyFrames) {
-            keyFrame.flip(flipX,flipY);
-        }
+        getKeyFrame().flip(flipX,flipY);
     }
     public boolean isFlipX(){
         return flipX;
