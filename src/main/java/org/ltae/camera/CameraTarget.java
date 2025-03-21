@@ -1,13 +1,11 @@
 package org.ltae.camera;
 
-import com.badlogic.gdx.math.Rectangle;
-
 /**
  * @Auther WenLong
  * @Date 2025/3/19 11:31
  * @Description 用于设定相机跟随的目标及参数
  **/
-public class FollowTarget {
+public class CameraTarget {
     public String entityTag;
     public float eCenterX = 0;
     public float eCenterY = 0;
@@ -18,7 +16,7 @@ public class FollowTarget {
 
     //平滑过渡增量
     public float progress = 0.1f;
-    public FollowTarget(String entityTag){
+    public CameraTarget(String entityTag){
         this.entityTag = entityTag;
     }
 }

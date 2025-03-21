@@ -9,7 +9,7 @@ import com.artemis.managers.TeamManager;
 import net.mostlyoriginal.api.event.common.EventSystem;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.ExtendedComponentMapperPlugin;
 import net.mostlyoriginal.plugin.ProfilerPlugin;
-import org.ltae.camera.FollowTarget;
+import org.ltae.camera.CameraTarget;
 import org.ltae.system.*;
 
 /**
@@ -76,7 +76,7 @@ public class LtaePlugin implements ArtemisPlugin {
                         ltaeBuilder.getWorldScale()));
     }
 
-    public void setFollowTarget(FollowTarget followTarget){
-        cameraSystem.setFollowTarget(followTarget);
+    public void setFollowTarget(CameraTarget cameraTarget){
+        cameraSystem.setFollowTarget(cameraTarget);
     }
 }

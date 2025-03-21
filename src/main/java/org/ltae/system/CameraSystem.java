@@ -6,10 +6,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Logger;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
-import org.ltae.camera.FollowTarget;
+import org.ltae.camera.CameraTarget;
 import org.ltae.component.Pos;
 
 /**
@@ -23,7 +22,7 @@ public class CameraSystem extends BaseSystem {
     public OrthographicCamera camera;
     public M<Pos> mPos;
 
-    private FollowTarget followTarget;
+    private CameraTarget cameraTarget;
     private float worldScale;
     private float windowWidth;
     private float windowHeight;
@@ -49,19 +48,19 @@ public class CameraSystem extends BaseSystem {
     }
 
     private void followTarget() {
-        if (followTarget == null) {
+        if (cameraTarget == null) {
             return;
         }
 
 
-        if (followTarget.entityTag.isEmpty()) {
+        if (cameraTarget.entityTag.isEmpty()) {
             Gdx.app.log(TAG, "followTarget has no entity set!");
             return;
         }
 
-        int followingId = world.getSystem(TagManager.class).getEntityId(followTarget.entityTag);
+        int followingId = world.getSystem(TagManager.class).getEntityId(cameraTarget.entityTag);
         if (followingId == -1){
-            Gdx.app.error(TAG, "TagManager not has this tag:"+followTarget.entityTag);
+            Gdx.app.error(TAG, "TagManager not has this tag:"+ cameraTarget.entityTag);
             return;
         }
         if (!mPos.has(followingId)) {
@@ -70,24 +69,22 @@ public class CameraSystem extends BaseSystem {
         }
 
         Pos pos = mPos.get(followingId);
-        float centerX = pos.x + followTarget.eCenterX;
-        float centerY = pos.y + followTarget.eCenterY;
+        float centerX = pos.x + cameraTarget.eCenterX;
+        float centerY = pos.y + cameraTarget.eCenterY;
 
-        float activeWidth = followTarget.activeWidth;
-        float activeHeight = followTarget.activeHeight;
+        float activeWidth = cameraTarget.activeWidth;
+        float activeHeight = cameraTarget.activeHeight;
 
-        // 平滑过渡到目标位置
-
-        // 如果目标实体超出摄像机的活动区域，则调整摄像机位置
+        // 如果目标实体超出摄像机的活动区域，则调整摄像机位置,平滑过渡到目标位置
         if (camera.position.x < centerX - activeWidth / 2 || camera.position.x > centerX + activeWidth / 2) {
-            camera.position.x = MathUtils.lerp(camera.position.x, centerX, followTarget.progress); // 平滑过渡
+            camera.position.x = MathUtils.lerp(camera.position.x, centerX, cameraTarget.progress); // 平滑过渡
         }
         if (camera.position.y < centerY - activeHeight / 2 || camera.position.y > centerY + activeHeight / 2) {
-            camera.position.y = MathUtils.lerp(camera.position.y, centerY, followTarget.progress); // 平滑过渡
+            camera.position.y = MathUtils.lerp(camera.position.y, centerY, cameraTarget.progress); // 平滑过渡
         }
     }
-    public void setFollowTarget(FollowTarget followTarget){
-        this.followTarget = followTarget;
+    public void setFollowTarget(CameraTarget cameraTarget){
+        this.cameraTarget = cameraTarget;
     }
 
     /**
