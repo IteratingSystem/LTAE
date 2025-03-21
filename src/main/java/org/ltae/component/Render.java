@@ -32,18 +32,6 @@ public class Render extends Component implements TileCompLoader {
             keyFrame = textureMapObject.getTextureRegion();
             flipX = textureMapObject.getTextureRegion().isFlipX();
             flipY = textureMapObject.getTextureRegion().isFlipY();
-
-            //是否翻转
-//            MapProperties properties = textureMapObject.getProperties();
-//            boolean flipX = false;
-//            boolean flipY = false;
-//            if (properties.get("flipHorizontally")!=null){
-//                flipX = properties.get("flipHorizontally",boolean.class);
-//            }
-//            if (properties.get("flipVertically")!=null){
-//                flipY = properties.get("flipVertically",boolean.class);
-//            }
-//            keyFrame.flip(flipX,flipY);
         }
 
     }
