@@ -3,6 +3,7 @@ package org.ltae.component;
 import com.artemis.Component;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
 import org.ltae.tiled.TileCompLoader;
 import org.ltae.tiled.TileDetails;
@@ -19,6 +20,7 @@ public class Render extends Component implements TileCompLoader {
     public float scaleW = 1;
     public float scaleH = 1;
     public TextureRegion keyFrame;
+
 
     @Override
     public void loader(TileDetails tileDetails) {

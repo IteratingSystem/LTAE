@@ -60,8 +60,8 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
                 0, // 指定旋转角度
                 keyFrame.getRegionX(), keyFrame.getRegionY(), // 指定源纹理区域的起始坐标
                 keyFrame.getRegionWidth(), keyFrame.getRegionHeight(), // 指定源纹理区域的大小
-                false, // x轴翻转
-                false // y轴翻转
+                keyFrame.isFlipX(), // x轴翻转
+                keyFrame.isFlipY() // y轴翻转
         );
         batch.end();
     }
