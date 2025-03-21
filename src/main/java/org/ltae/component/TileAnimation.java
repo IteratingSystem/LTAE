@@ -25,6 +25,9 @@ public class TileAnimation extends Component implements TileCompLoader {
     @TileParam
     public String playModeName;
 
+    private boolean flipX;
+    private boolean flipY;
+
     protected TextureRegion[] keyFrames;
     //状态运行时间
     public float stateTime;
@@ -76,10 +79,22 @@ public class TileAnimation extends Component implements TileCompLoader {
         for (int i = 0; i < frameTiles.length; i++) {
             keyFrames[i] = frameTiles[i].getTextureRegion();
         }
-
         playMode = Animation.PlayMode.valueOf(playModeName);
     }
 
+    public void flip(boolean flipX,boolean flipY){
+        this.flipX = flipX;
+        this.flipY = flipY;
+        for (TextureRegion keyFrame : keyFrames) {
+            keyFrame.flip(flipX,flipY);
+        }
+    }
+    public boolean isFlipX(){
+        return flipX;
+    }
+    public boolean isFlipY(){
+        return flipY;
+    }
 
     /**
      * 判断送否是倒数第n帧之一
