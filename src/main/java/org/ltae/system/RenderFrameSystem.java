@@ -2,6 +2,7 @@ package org.ltae.system;
 
 import com.artemis.annotations.All;
 import com.artemis.annotations.Wire;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
@@ -51,20 +52,17 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         batch.begin();
 
         TextureRegion keyFrame = render.keyFrame;
-
         batch.draw(keyFrame.getTexture(), // 指定要绘制的纹理对象
                 worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY), // 指定绘制的起始位置（左下角）
                 0, 0, // 指定旋转的中心点（相对于绘制位置的偏移量）
                 keyFrame.getRegionWidth(), keyFrame.getRegionHeight(), // 指定目标绘制区域的大小
                 worldScale * render.scaleW, worldScale * render.scaleH, // 指定 X 轴和 Y 轴的缩放比例
                 0, // 指定旋转角度
-                0, 0, // 指定源纹理区域的起始坐标
+                keyFrame.getRegionX(), keyFrame.getRegionY(), // 指定源纹理区域的起始坐标
                 keyFrame.getRegionWidth(), keyFrame.getRegionHeight(), // 指定源纹理区域的大小
                 false, // x轴翻转
                 false // y轴翻转
         );
-
-
         batch.end();
     }
 }
