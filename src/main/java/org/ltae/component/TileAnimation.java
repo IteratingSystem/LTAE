@@ -24,7 +24,10 @@ public class TileAnimation extends Component implements TileCompLoader {
     public String name;
     @TileParam
     public String playModeName;
-
+    @TileParam
+    public float offsetX;
+    @TileParam
+    public float offsetY;
 
     protected TextureRegion[] keyFrames;
     //状态运行时间
@@ -49,7 +52,7 @@ public class TileAnimation extends Component implements TileCompLoader {
             return;
         }
 
-        initialize(animatedTile,playModeName);
+        initialize(animatedTile,playModeName,offsetX,offsetY);
     }
 
     /**
@@ -59,7 +62,7 @@ public class TileAnimation extends Component implements TileCompLoader {
      * @param animatedTile
      * @param playModeName
      */
-    public void initialize(AnimatedTiledMapTile animatedTile,String playModeName) {
+    public void initialize(AnimatedTiledMapTile animatedTile,String playModeName,float offsetX,float offsetY) {
         stateTime = 0;
         int[] animationIntervals = animatedTile.getAnimationIntervals();
         frameDurations = new float[animationIntervals.length];
@@ -78,6 +81,8 @@ public class TileAnimation extends Component implements TileCompLoader {
             keyFrames[i] = frameTiles[i].getTextureRegion();
         }
         playMode = Animation.PlayMode.valueOf(playModeName);
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
     }
 
 

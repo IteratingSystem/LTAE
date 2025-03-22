@@ -48,8 +48,10 @@ public class TileAnimations extends Component implements TileCompLoader {
                 MapProperties animProp = props.get("TileAnimation",MapProperties.class);
                 String name = animProp.get("name", String.class);
                 String playModeName = animProp.get("playModeName", String.class);
+                float offsetX = animProp.get("offsetX", float.class);
+                float offsetY = animProp.get("offsetY", float.class);
                 TileAnimation tileAnimation = new TileAnimation();
-                tileAnimation.initialize(animatedTile,playModeName);
+                tileAnimation.initialize(animatedTile,playModeName,offsetX,offsetY);
                 if (table.containsKey(name)){
                     Gdx.app.log(TAG,"Repetitive animation naming:"+name);
                     continue;
