@@ -119,7 +119,11 @@ public class B2dBody extends Component implements TileCompLoader {
             String categoryBit = fixDefProps.get("categoryBit", String.class);
             String maskBits = fixDefProps.get("maskBits", String.class);
             String aniName = fixDefProps.get("aniName", String.class);
-            int keyframeIndex = fixDefProps.get("keyframeIndex", Integer.class);
+            int keyframeIndex = 0;
+            if (fixDefProps.containsKey("keyframeIndex")){
+                keyframeIndex = fixDefProps.get("keyframeIndex", Integer.class);
+            }
+
 
             Shape shape = ShapeUtils.getShapeByMapObject(object, tileDetails.worldScale);
 
