@@ -19,7 +19,7 @@ public class Render extends Component implements TileCompLoader {
     public float offsetY = 0;
     public float scaleW = 1;
     public float scaleH = 1;
-    public TextureRegion keyFrame;
+    public TextureRegion keyframe;
 
     public boolean flipX = false;
     public boolean flipY = false;
@@ -29,7 +29,7 @@ public class Render extends Component implements TileCompLoader {
     public void loader(TileDetails tileDetails) {
         MapObject mapObject = tileDetails.mapObject;
         if (mapObject instanceof TextureMapObject textureMapObject) {
-            keyFrame = textureMapObject.getTextureRegion();
+            keyframe = textureMapObject.getTextureRegion();
             flipX = textureMapObject.getTextureRegion().isFlipX();
             flipY = textureMapObject.getTextureRegion().isFlipY();
         }

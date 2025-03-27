@@ -29,7 +29,7 @@ public class TileAnimation extends Component implements TileCompLoader {
     @TileParam
     public float offsetY;
 
-    protected TextureRegion[] keyFrames;
+    protected TextureRegion[] keyframes;
     //状态运行时间
     public float stateTime;
     //每一帧的间隔
@@ -76,9 +76,9 @@ public class TileAnimation extends Component implements TileCompLoader {
         randomDuration = animationDuration/frameDurations.length;
 
         StaticTiledMapTile[] frameTiles = animatedTile.getFrameTiles();
-        keyFrames = new TextureRegion[frameTiles.length];
+        keyframes = new TextureRegion[frameTiles.length];
         for (int i = 0; i < frameTiles.length; i++) {
-            keyFrames[i] = frameTiles[i].getTextureRegion();
+            keyframes[i] = frameTiles[i].getTextureRegion();
         }
         playMode = Animation.PlayMode.valueOf(playModeName);
         this.offsetX = offsetX;
@@ -93,8 +93,8 @@ public class TileAnimation extends Component implements TileCompLoader {
      * @return
      */
     public boolean isLast(int lastCount){
-        int frameNumber = this.getKeyFrameIndex(stateTime);
-        int length = keyFrames.length;
+        int frameNumber = this.getKeyframeIndex(stateTime);
+        int length = keyframes.length;
         return length - frameNumber - 1 <= lastCount;
     }
 
@@ -104,8 +104,8 @@ public class TileAnimation extends Component implements TileCompLoader {
      * @return keyFrame
      */
     public TextureRegion getKeyFrame() {
-        int frameNumber = this.getKeyFrameIndex(stateTime);
-        return this.keyFrames[frameNumber];
+        int frameNumber = this.getKeyframeIndex(stateTime);
+        return this.keyframes[frameNumber];
     }
 
     /**
@@ -144,19 +144,26 @@ public class TileAnimation extends Component implements TileCompLoader {
      * @return keyFrame
      */
     private TextureRegion getKeyFrame(float stateTime) {
-        int frameNumber = this.getKeyFrameIndex(stateTime);
-        return this.keyFrames[frameNumber];
+        int frameNumber = this.getKeyframeIndex(stateTime);
+        return this.keyframes[frameNumber];
     }
 
-
+    /**
+     * 获取传入时间的帧的索引
+     *
+     * @return
+     */
+    public int getKeyframeIndex() {
+        return getKeyframeIndex(stateTime);
+    }
     /**
      * 获取传入时间的帧的索引
      *
      * @param stateTime
      * @return
      */
-    public int getKeyFrameIndex(float stateTime) {
-        if (this.keyFrames.length == 1) {
+    public int getKeyframeIndex(float stateTime) {
+        if (this.keyframes.length == 1) {
             return 0;
         }
 
@@ -171,7 +178,7 @@ public class TileAnimation extends Component implements TileCompLoader {
             //播放一次后停止
             case NORMAL:
                 if (stateTime >= animationDuration){
-                    frameNumber = keyFrames.length - 1;
+                    frameNumber = keyframes.length - 1;
                 }else {
                     adder = 0;
                     for (int i = 0; i < frameDurations.length; i++) {
@@ -209,7 +216,7 @@ public class TileAnimation extends Component implements TileCompLoader {
             case LOOP_RANDOM:
                 int lastFrameNumber = (int)(this.lastStateTime / this.randomDuration);
                 if (lastFrameNumber != frameNumber) {
-                    frameNumber = MathUtils.random(this.keyFrames.length - 1);
+                    frameNumber = MathUtils.random(this.keyframes.length - 1);
                     break;
                 } else {
                     frameNumber = this.lastFrameNumber;
@@ -248,8 +255,8 @@ public class TileAnimation extends Component implements TileCompLoader {
     }
 
 
-    public TextureRegion[] getKeyFrames() {
-        return this.keyFrames;
+    public TextureRegion[] getkeyframes() {
+        return this.keyframes;
     }
 
 
@@ -258,13 +265,13 @@ public class TileAnimation extends Component implements TileCompLoader {
      * 设置帧间隔持续时间以及帧列表,所有间隔一致
      *
      * @param frameDuration
-     * @param keyFrames
+     * @param keyframes
      */
-    protected void setKeyFrames(float frameDuration,TextureRegion... keyFrames) {
+    protected void setkeyframes(float frameDuration,TextureRegion... keyframes) {
         //更新帧列表
-        this.keyFrames = keyFrames;
+        this.keyframes = keyframes;
         //更新每帧持续时间
-        frameDurations = new float[keyFrames.length];
+        frameDurations = new float[keyframes.length];
         Arrays.fill(frameDurations, frameDuration);
         //更新动画总持续时间
         updateAnimationDuration();
@@ -275,11 +282,11 @@ public class TileAnimation extends Component implements TileCompLoader {
      * 传入描述间隔时间的列表和帧列表
      *
      * @param frameDurations
-     * @param keyFrames
+     * @param keyframes
      */
-    protected void setKeyFrames(float[] frameDurations,TextureRegion... keyFrames) {
+    protected void setkeyframes(float[] frameDurations,TextureRegion... keyframes) {
         //更新帧列表
-        this.keyFrames = keyFrames;
+        this.keyframes = keyframes;
         //更新每帧持续时间
         this.frameDurations = frameDurations;
         //更新动画总持续时间

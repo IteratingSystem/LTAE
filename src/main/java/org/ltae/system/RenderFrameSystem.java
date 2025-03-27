@@ -41,7 +41,7 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
     protected void process(int entityId) {
         Render render = mRender.get(entityId);
         //判断是否需要显示
-        if (!render.visible || render.keyFrame.getTexture() == null) {
+        if (!render.visible || render.keyframe.getTexture() == null) {
             return;
         }
 
@@ -51,7 +51,7 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
 
         batch.begin();
 
-        TextureRegion keyFrame = render.keyFrame;
+        TextureRegion keyFrame = render.keyframe;
         batch.draw(keyFrame.getTexture(), // 指定要绘制的纹理对象
                 worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY), // 指定绘制的起始位置（左下角）
                 0, 0, // 指定旋转的中心点（相对于绘制位置的偏移量）

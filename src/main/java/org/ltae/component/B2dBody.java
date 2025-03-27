@@ -1,7 +1,6 @@
 package org.ltae.component;
 
 import com.artemis.Component;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
@@ -13,7 +12,8 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import org.ltae.b2d.CategoryBits;
-import org.ltae.b2d.FixData;
+import org.ltae.b2d.DefFixData;
+import org.ltae.b2d.KeyframeFixData;
 import org.ltae.b2d.SensorType;
 import org.ltae.tiled.TileCompLoader;
 import org.ltae.tiled.TileDetails;
@@ -87,12 +87,20 @@ public class B2dBody extends Component implements TileCompLoader {
                     continue;
                 }
                 StaticTiledMapTile[] frameTiles = animatedTile.getFrameTiles();
-                for (StaticTiledMapTile frameTile : frameTiles) {
+                MapProperties aniProp = animatedTile.getProperties();
+                String aniName = aniProp.get("name", String.class);
+                for (int i = 0; i < frameTiles.length; i++) {
+                    StaticTiledMapTile frameTile = frameTiles[i];
                     MapObjects frameTileObjects = frameTile.getObjects();
+
                     for (MapObject frameTileObject : frameTileObjects) {
+                        MapProperties properties = frameTileObject.getProperties();
+                        properties.put("keyframeIndex",i);
+                        properties.put("aniName",aniName);
                         allObjects.add(frameTileObject);
                     }
                 }
+
             }
         }
 
@@ -110,6 +118,8 @@ public class B2dBody extends Component implements TileCompLoader {
             String sensorType = fixDefProps.get("sensorType", String.class);
             String categoryBit = fixDefProps.get("categoryBit", String.class);
             String maskBits = fixDefProps.get("maskBits", String.class);
+            String aniName = fixDefProps.get("aniName", String.class);
+            int keyframeIndex = fixDefProps.get("keyframeIndex", Integer.class);
 
             Shape shape = ShapeUtils.getShapeByMapObject(object, tileDetails.worldScale);
 
@@ -121,6 +131,8 @@ public class B2dBody extends Component implements TileCompLoader {
             filter.categoryBits = CategoryBits.valueOf(categoryBit).getBit();
             filter.maskBits = CategoryBits.getMask(maskBits);
 
+
+
             FixtureDef fixtureDef = new FixtureDef();
             fixtureDef.density = density;
             fixtureDef.friction = friction;
@@ -130,11 +142,22 @@ public class B2dBody extends Component implements TileCompLoader {
             fixtureDef.shape = shape;
 
             Fixture fixture = body.createFixture(fixtureDef);
-            FixData fixData = new FixData();
-            fixData.entityId = entityId;
-            fixData.entity = tileDetails.entity;
-            fixData.sensorType = SensorType.valueOf(sensorType);
-            fixture.setUserData(fixData);
+
+            if (aniName != null) {
+                KeyframeFixData keyframeFixData = new KeyframeFixData();
+                keyframeFixData.entityId = entityId;
+                keyframeFixData.entity = tileDetails.entity;
+                keyframeFixData.sensorType = SensorType.valueOf(sensorType);
+                keyframeFixData.aniName = aniName;
+                keyframeFixData.keyframeIndex = keyframeIndex;
+                fixture.setUserData(keyframeFixData);
+            } else {
+                DefFixData defFixData = new DefFixData();
+                defFixData.entityId = entityId;
+                defFixData.entity = tileDetails.entity;
+                defFixData.sensorType = SensorType.valueOf(sensorType);
+                fixture.setUserData(defFixData);
+            }
         }
     }
     public boolean isOnFloor(){
@@ -147,23 +170,23 @@ public class B2dBody extends Component implements TileCompLoader {
             Fixture fixtureA = contact.getFixtureA();
             Fixture fixtureB = contact.getFixtureB();
 
-            if (fixtureA.getUserData() instanceof FixData fixDataA
-                && fixtureB.getUserData() instanceof FixData fixDataB
-                && fixDataA.entityId == fixDataB.entityId){
+            if (fixtureA.getUserData() instanceof DefFixData defFixDataA
+                && fixtureB.getUserData() instanceof DefFixData defFixDataB
+                && defFixDataA.entityId == defFixDataB.entityId){
                 continue;
             }
 
 
-            if (fixtureA.getUserData() instanceof FixData fixData
-                && fixData.entityId == entityId
-                && fixData.sensorType == SensorType.ON_FLOOR
+            if (fixtureA.getUserData() instanceof DefFixData defFixData
+                && defFixData.entityId == entityId
+                && defFixData.sensorType == SensorType.ON_FLOOR
                 && fixtureB.getBody().getType() == BodyDef.BodyType.StaticBody) {
                     return true;
             }
 
-            if (fixtureB.getUserData() instanceof FixData fixData
-                && fixData.entityId == entityId
-                && fixData.sensorType == SensorType.ON_FLOOR
+            if (fixtureB.getUserData() instanceof DefFixData defFixData
+                && defFixData.entityId == entityId
+                && defFixData.sensorType == SensorType.ON_FLOOR
                 && fixtureA.getBody().getType() == BodyDef.BodyType.StaticBody) {
                 return true;
             }
