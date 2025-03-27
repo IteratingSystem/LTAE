@@ -8,5 +8,5 @@ public enum SensorType {
     //攻击与被攻击
     //脚(判断是否接触地面)
     //手(判断是否接触墙面)
-    NULL,INTER,BE_INTER,ATK,BE_ATK,FOOT
+    NULL,INTER,BE_INTER,ATK,BE_ATK,ON_FLOOR
 }

@@ -14,7 +14,7 @@ import org.ltae.b2d.SensorType;
 import org.ltae.tiled.TileCompLoader;
 import org.ltae.tiled.TileDetails;
 import org.ltae.tiled.TileParam;
-import org.ltae.tiled.TileShapeToB2d;
+import org.ltae.utils.ShapeUtils;
 
 
 /**
@@ -76,7 +76,7 @@ public class B2dBody extends Component implements TileCompLoader {
             String categoryBit = fixDefProps.get("categoryBit", String.class);
             String maskBits = fixDefProps.get("maskBits", String.class);
 
-            Shape shape = TileShapeToB2d.getShape(object, tileDetails.worldScale);
+            Shape shape = ShapeUtils.getShapeByMapObject(object, tileDetails.worldScale);
 
             if (shape == null){
                 continue;
@@ -121,14 +121,14 @@ public class B2dBody extends Component implements TileCompLoader {
 
             if (fixtureA.getUserData() instanceof FixData fixData
                 && fixData.entityId == entityId
-                && fixData.sensorType == SensorType.FOOT
+                && fixData.sensorType == SensorType.ON_FLOOR
                 && fixtureB.getBody().getType() == BodyDef.BodyType.StaticBody) {
                     return true;
             }
 
             if (fixtureB.getUserData() instanceof FixData fixData
                 && fixData.entityId == entityId
-                && fixData.sensorType == SensorType.FOOT
+                && fixData.sensorType == SensorType.ON_FLOOR
                 && fixtureA.getBody().getType() == BodyDef.BodyType.StaticBody) {
                 return true;
             }

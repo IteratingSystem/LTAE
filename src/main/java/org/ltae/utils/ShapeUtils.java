@@ -1,4 +1,4 @@
-package org.ltae.tiled;
+package org.ltae.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
@@ -11,14 +11,14 @@ import com.badlogic.gdx.physics.box2d.Shape;
 /**
  * @Auther WenLong
  * @Date 2025/2/19 11:11
- * @Description
+ * @Description 形状工具
  **/
-public class TileShapeToB2d {
-    private final static String TAG = TileShapeToB2d.class.getSimpleName();
-    public static Shape getShape (MapObject mapObject){
-        return getShape(mapObject,1);
+public class ShapeUtils {
+    private final static String TAG = ShapeUtils.class.getSimpleName();
+    public static Shape getShapeByMapObject (MapObject mapObject){
+        return getShapeByMapObject(mapObject,1);
     }
-    public static Shape getShape (MapObject mapObject,float worldScale){
+    public static Shape getShapeByMapObject (MapObject mapObject,float worldScale){
         Shape shape = null;
         if (mapObject instanceof RectangleMapObject shapeObject){
             Rectangle rectangle = shapeObject.getRectangle();
@@ -38,7 +38,7 @@ public class TileShapeToB2d {
 //                }
 
             for (int i = 0; i < vertices.length; i++) {
-                vertices[i]*=worldScale;
+                vertices[i] *= worldScale;
             }
             PolygonShape polygonShape = new PolygonShape();
             polygonShape.set(vertices);
