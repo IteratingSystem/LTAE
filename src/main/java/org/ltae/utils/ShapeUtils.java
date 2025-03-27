@@ -4,9 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.*;
 import com.badlogic.gdx.math.*;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.Shape;
+import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Auther WenLong
@@ -75,5 +77,54 @@ public class ShapeUtils {
             Gdx.app.error(TAG,"MapObject is not a shape object!");
         }
         return shape;
+    }
+
+
+    /**
+     * 水平翻转物理形状
+     * @param body
+     * @param width
+     */
+    public static void flipX(Body body,float width){
+        Array<Fixture> fixtureList = body.getFixtureList();
+        Array.ArrayIterator<Fixture> iterator = fixtureList.iterator();
+        for (Fixture fixture : iterator) {
+            Shape shape = fixture.getShape();
+            flipX(shape,width);
+        }
+    }
+    public static void flipX(Body body,float width,float worldScale){
+        Array<Fixture> fixtureList = body.getFixtureList();
+        Array.ArrayIterator<Fixture> iterator = fixtureList.iterator();
+        for (Fixture fixture : iterator) {
+            Shape shape = fixture.getShape();
+            flipX(shape,width,worldScale);
+        }
+    }
+    public static void flipX(Shape shape,float width){
+        flipX(shape,width,1);
+    }
+    public static void flipX(Shape shape,float width,float worldScale){
+        if (shape instanceof PolygonShape polygonShape){
+            int vertexCount = polygonShape.getVertexCount();
+            List<Float> verticeList = new ArrayList();
+            for (int i = 0; i < vertexCount; i++) {
+                Vector2 vector2 = new Vector2();
+                polygonShape.getVertex(i,vector2);
+                vector2.x = width*worldScale - vector2.x;
+                verticeList.add(vector2.x);
+                verticeList.add(vector2.y);
+            }
+
+            float[] vertices = new float[verticeList.size()];
+            for (int i = 0; i < verticeList.size(); i++) {
+                vertices[i] = verticeList.get(i);
+            }
+            polygonShape.set(vertices);
+        }else if (shape instanceof CircleShape circleShape){
+            Vector2 position = circleShape.getPosition();
+            position.x = width*worldScale-position.x;
+            circleShape.setPosition(position);
+        }
     }
 }
