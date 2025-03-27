@@ -8,6 +8,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
+import org.ltae.b2d.CategoryBits;
 import org.ltae.b2d.FixData;
 import org.ltae.b2d.SensorType;
 import org.ltae.tiled.TileCompLoader;
@@ -72,6 +73,8 @@ public class B2dBody extends Component implements TileCompLoader {
             float restitution = fixDefProps.get("restitution", float.class);
             boolean isSensor = fixDefProps.get("isSensor", boolean.class);
             String sensorType = fixDefProps.get("sensorType", String.class);
+            String categoryBit = fixDefProps.get("categoryBit", String.class);
+            String maskBits = fixDefProps.get("maskBits", String.class);
 
             Shape shape = TileShapeToB2d.getShape(object, tileDetails.worldScale);
 
@@ -80,8 +83,8 @@ public class B2dBody extends Component implements TileCompLoader {
             }
 
             Filter filter = new Filter();
-//            filter.categoryBits = CategoryBits.valueOf(shapeComp.categoryBits).getBit();
-//            filter.maskBits = CategoryBits.getMask(shapeComp.maskBits);
+            filter.categoryBits = CategoryBits.valueOf(categoryBit).getBit();
+            filter.maskBits = CategoryBits.getMask(maskBits);
 
             FixtureDef fixtureDef = new FixtureDef();
             fixtureDef.density = density;
