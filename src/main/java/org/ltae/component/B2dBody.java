@@ -1,11 +1,15 @@
 package org.ltae.component;
 
 import com.artemis.Component;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
+import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
+import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import org.ltae.b2d.CategoryBits;
@@ -15,6 +19,8 @@ import org.ltae.tiled.TileCompLoader;
 import org.ltae.tiled.TileDetails;
 import org.ltae.tiled.TileParam;
 import org.ltae.utils.ShapeUtils;
+
+import java.util.Iterator;
 
 
 /**
@@ -42,12 +48,12 @@ public class B2dBody extends Component implements TileCompLoader {
         if (!(mapObject instanceof TiledMapTileMapObject tileMapObject)) {
             return;
         }
-
         MapProperties props = mapObject.getProperties();
         float posX = props.get("x", float.class);
         float posY = props.get("y", float.class);
 
         TiledMapTile tile = tileMapObject.getTile();
+        MapObjects allObjects = new MapObjects();
         MapObjects objects = tile.getObjects();
 
         b2dWorld = tileDetails.b2dWorld;
@@ -62,7 +68,36 @@ public class B2dBody extends Component implements TileCompLoader {
         body = b2dWorld.createBody(bodyDef);
         body.setLinearDamping(linearDamping);
 
+        //tiled原本的对象
         for (MapObject object : objects) {
+            allObjects.add(object);
+        }
+
+        //动画帧中的形状对象
+        TiledMapTile tiledMapTile = tileDetails.tiledMapTile;
+        int tileId = tiledMapTile.getId();
+        for (TiledMapTileSet tileSet : tileDetails.tiledMap.getTileSets()) {
+            if (tileSet.getTile(tileId) != tiledMapTile) {
+                continue;
+            }
+            Iterator<TiledMapTile> tileSetItr = tileSet.iterator();
+            while (tileSetItr.hasNext()){
+                TiledMapTile oneTile = tileSetItr.next();
+                if (!(oneTile instanceof AnimatedTiledMapTile animatedTile)){
+                    continue;
+                }
+                StaticTiledMapTile[] frameTiles = animatedTile.getFrameTiles();
+                for (StaticTiledMapTile frameTile : frameTiles) {
+                    MapObjects frameTileObjects = frameTile.getObjects();
+                    for (MapObject frameTileObject : frameTileObjects) {
+                        allObjects.add(frameTileObject);
+                    }
+                }
+            }
+        }
+
+        //将所有对象中是形状的转换成shape
+        for (MapObject object : allObjects) {
             MapProperties shapeProps = object.getProperties();
             if (!shapeProps.containsKey("FixDef")) {
                 continue;
