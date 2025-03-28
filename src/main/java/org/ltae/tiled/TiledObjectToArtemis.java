@@ -51,6 +51,7 @@ public class TiledObjectToArtemis {
             tileDetails.tiledMap = builder.tiledMap;
             tileDetails.worldScale = builder.worldScale;
             tileDetails.statePackage = builder.statePackage;
+            tileDetails.contactListenerPackage = builder.contactListenerPackage;
             if (mapObject instanceof TiledMapTileMapObject tileMapObject) {
                 tileDetails.tiledMapTile = tileMapObject.getTile();
             }
@@ -136,6 +137,8 @@ public class TiledObjectToArtemis {
         private float worldScale;
         private String compPackage;
         private String statePackage;
+        private String contactListenerPackage;
+
         private Bag<Class<? extends Component>> autoInitCompClasses;
         public Builder scale(float worldScale) {
             this.worldScale = worldScale;
@@ -151,6 +154,10 @@ public class TiledObjectToArtemis {
         }
         public Builder statePackage(String statePackage) {
             this.statePackage = statePackage;
+            return this;
+        }
+        public Builder contactListenerPackage(String contactListenerPackage) {
+            this.contactListenerPackage = contactListenerPackage;
             return this;
         }
         public Builder box2DWorld(com.badlogic.gdx.physics.box2d.World box2DWorld) {

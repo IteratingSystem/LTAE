@@ -20,6 +20,7 @@ public class LtaeBuilder {
     private String entityLayerName = "entities";       // 默认实体图层
     private String compPackage = "com.game.component";    // 默认组件包路径
     private String statePackage = "com.game.state";    // 默认组件包路径
+    private String contactListenerPackage = "com.game.contact";    // 默认组件包路径
 
     // 构造器
     public LtaeBuilder() {
@@ -85,6 +86,10 @@ public class LtaeBuilder {
         this.statePackage = statePackage;
         return this;
     }
+    public LtaeBuilder setContactListenerPackage(String contactListenerPackage) {
+        this.contactListenerPackage = contactListenerPackage;
+        return this;
+    }
 
     // 构建方法
     public LtaeBuilder build() {
@@ -138,5 +143,8 @@ public class LtaeBuilder {
     }
     public String getStatePackage() {
         return statePackage;
+    }
+    public String getContactListenerPackage() {
+        return contactListenerPackage;
     }
 }

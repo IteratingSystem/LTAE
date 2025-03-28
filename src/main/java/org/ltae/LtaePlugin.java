@@ -72,6 +72,7 @@ public class LtaePlugin implements ArtemisPlugin {
                 new TiledEntityFactory(
                         ltaeBuilder.getCompPackage(),
                         ltaeBuilder.getStatePackage(),
+                        ltaeBuilder.getContactListenerPackage(),
                         ltaeBuilder.getEntityLayerName(),
                         ltaeBuilder.getWorldScale()));
     }

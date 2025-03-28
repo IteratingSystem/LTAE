@@ -24,4 +24,5 @@ public class TileDetails {
     public TiledMapTile tiledMapTile;
 
     public String statePackage;
+    public String contactListenerPackage;
 }

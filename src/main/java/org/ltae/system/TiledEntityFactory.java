@@ -17,15 +17,17 @@ public class TiledEntityFactory extends BaseSystem {
     private float worldScale;
     private String compPackage;
     private String statePackage;
+    private String contactListenerPackage;
     private String entityLayerName;
     private B2dSystem b2DSystem;
     private TiledMapManager tiledMapManager;
 
-    public TiledEntityFactory(String compPackage,String statePackage,String entityLayerName,float worldScale){
+    public TiledEntityFactory(String compPackage,String statePackage,String contactListenerPackage,String entityLayerName,float worldScale){
         this.worldScale = worldScale;
         this.compPackage = compPackage;
         this.statePackage = statePackage;
         this.entityLayerName = entityLayerName;
+        this.contactListenerPackage = contactListenerPackage;
     }
     @Override
     protected void initialize() {
@@ -41,6 +43,7 @@ public class TiledEntityFactory extends BaseSystem {
             .addAutoInitComp(Render.class)
             .compPackage(compPackage)
             .statePackage(statePackage)
+            .contactListenerPackage(contactListenerPackage)
             .build()
             .parse();
     }

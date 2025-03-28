@@ -1,6 +1,7 @@
 package org.ltae.component;
 
 import com.artemis.Component;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
@@ -11,15 +12,14 @@ import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
-import org.ltae.b2d.CategoryBits;
-import org.ltae.b2d.DefFixData;
-import org.ltae.b2d.KeyframeFixData;
-import org.ltae.b2d.SensorType;
+import org.ltae.b2d.*;
 import org.ltae.tiled.TileCompLoader;
 import org.ltae.tiled.TileDetails;
 import org.ltae.tiled.TileParam;
 import org.ltae.utils.ShapeUtils;
+import org.reflections.Reflections;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
 
@@ -29,12 +29,14 @@ import java.util.Iterator;
  * @Description Box2D身体
  **/
 public class B2dBody extends Component implements TileCompLoader {
+    private final static String TAG = B2dBody.class.getSimpleName();
     @TileParam
     public String defType;//动静态类型
     @TileParam
     public boolean defFixed;//是否固定旋转
     @TileParam
     public float linearDamping;//线性阻尼
+
 
 
     public int entityId;
@@ -118,10 +120,33 @@ public class B2dBody extends Component implements TileCompLoader {
             String sensorType = fixDefProps.get("sensorType", String.class);
             String categoryBit = fixDefProps.get("categoryBit", String.class);
             String maskBits = fixDefProps.get("maskBits", String.class);
+            String listenerSimpleName = fixDefProps.get("listenerSimpleName", String.class);
+            //帧动画数据
             String aniName = fixDefProps.get("aniName", String.class);
             int keyframeIndex = 0;
             if (fixDefProps.containsKey("keyframeIndex")){
                 keyframeIndex = fixDefProps.get("keyframeIndex", Integer.class);
+            }
+
+            //创建监听器
+            FixContactListener fixContactListener = null;
+            if (listenerSimpleName != null && !listenerSimpleName.isEmpty()) {
+                String contactListenerPackage = tileDetails.contactListenerPackage;
+                if (contactListenerPackage == null || contactListenerPackage.isEmpty()){
+                    Gdx.app.error(TAG,"contactListenerPackage is empty,please set contactListenerPackage by LtaeBuilder");
+                }else {
+                    String className = contactListenerPackage + "." + listenerSimpleName;
+                    Class<FixContactListener> contactClass;
+                    try {
+                        contactClass = (Class<FixContactListener>) Class.forName(className);
+                        fixContactListener = contactClass.getConstructor().newInstance(tileDetails.entity);
+                    } catch (ClassNotFoundException e) {
+                        Gdx.app.error(TAG,"Failed to get class with name:"+className);
+                    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                             InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
             }
 
 
@@ -152,6 +177,7 @@ public class B2dBody extends Component implements TileCompLoader {
                 keyframeFixData.entityId = entityId;
                 keyframeFixData.entity = tileDetails.entity;
                 keyframeFixData.sensorType = SensorType.valueOf(sensorType);
+                keyframeFixData.listener = fixContactListener;
                 keyframeFixData.aniName = aniName;
                 keyframeFixData.keyframeIndex = keyframeIndex;
                 fixture.setUserData(keyframeFixData);
@@ -160,6 +186,7 @@ public class B2dBody extends Component implements TileCompLoader {
                 defFixData.entityId = entityId;
                 defFixData.entity = tileDetails.entity;
                 defFixData.sensorType = SensorType.valueOf(sensorType);
+                defFixData.listener = fixContactListener;
                 fixture.setUserData(defFixData);
             }
         }
