@@ -12,7 +12,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
  * @Description 挂载在Fix中的监听器
  **/
 public class FixContactListener implements ContactListener {
-    private Entity entity;
+    public Entity entity;
     public FixContactListener(Entity entity){
         this.entity = entity;
     }
