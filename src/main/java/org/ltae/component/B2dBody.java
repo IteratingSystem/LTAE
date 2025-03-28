@@ -1,6 +1,7 @@
 package org.ltae.component;
 
 import com.artemis.Component;
+import com.artemis.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
@@ -139,7 +140,7 @@ public class B2dBody extends Component implements TileCompLoader {
                     Class<FixContactListener> contactClass;
                     try {
                         contactClass = (Class<FixContactListener>) Class.forName(className);
-                        fixContactListener = contactClass.getConstructor().newInstance(tileDetails.entity);
+                        fixContactListener = contactClass.getConstructor(Entity.class).newInstance(tileDetails.entity);
                     } catch (ClassNotFoundException e) {
                         Gdx.app.error(TAG,"Failed to get class with name:"+className);
                     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
