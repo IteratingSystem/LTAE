@@ -30,49 +30,6 @@ public class DefContactListener implements ContactListener {
                 defFixData.listener.preSolve(contact,manifold);
             }
         }
-//
-//        //判断碰撞时是否是指定的动画帧--start--
-//        if (userDataA instanceof KeyframeFixData keyframeFixData){
-//            Entity entity = keyframeFixData.entity;
-//            int entityId = keyframeFixData.entityId;
-//            World world = entity.getWorld();
-//            String aniName = keyframeFixData.aniName;
-//            int keyframeIndex = keyframeFixData.keyframeIndex;
-//
-//            ComponentMapper<TileAnimation> mTileAnimation = world.getMapper(TileAnimation.class);
-//            if (mTileAnimation.has(entityId)) {
-//                TileAnimation tileAnimation = mTileAnimation.get(entityId);
-//                if (!tileAnimation.name.equals(aniName)) {
-//                    contact.setEnabled(false);
-//                    return;
-//                }
-//                if (tileAnimation.getKeyframeIndex() != keyframeIndex) {
-//                    contact.setEnabled(false);
-//                    return;
-//                }
-//            }
-//        }
-//        if (userDataB instanceof KeyframeFixData keyframeFixData){
-//            Entity entity = keyframeFixData.entity;
-//            int entityId = keyframeFixData.entityId;
-//            World world = entity.getWorld();
-//            String aniName = keyframeFixData.aniName;
-//            int keyframeIndex = keyframeFixData.keyframeIndex;
-//
-//            ComponentMapper<TileAnimation> mTileAnimation = world.getMapper(TileAnimation.class);
-//            if (mTileAnimation.has(entityId)) {
-//                TileAnimation tileAnimation = mTileAnimation.get(entityId);
-//                if (!tileAnimation.name.equals(aniName)) {
-//                    contact.setEnabled(false);
-//                    return;
-//                }
-//                if (tileAnimation.getKeyframeIndex() != keyframeIndex) {
-//                    contact.setEnabled(false);
-//                    return;
-//                }
-//            }
-//        }
-//        //判断碰撞时是否是指定的动画帧--end--
     }
 
     @Override

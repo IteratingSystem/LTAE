@@ -13,9 +13,6 @@ import com.badlogic.gdx.physics.box2d.Manifold;
  **/
 public class FixContactListener implements ContactListener {
     public Entity entity;
-    public FixContactListener(){
-
-    }
     public FixContactListener(Entity entity){
         this.entity = entity;
     }
