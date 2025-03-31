@@ -10,7 +10,7 @@ import com.badlogic.gdx.physics.box2d.*;
 public class DefContactListener implements ContactListener {
 
     /**
-     * 碰撞之前
+     * 碰撞前处理
      * @param contact
      * @param manifold
      */
