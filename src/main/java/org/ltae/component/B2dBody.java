@@ -18,7 +18,6 @@ import org.ltae.tiled.TileCompLoader;
 import org.ltae.tiled.TileDetails;
 import org.ltae.tiled.TileParam;
 import org.ltae.utils.ShapeUtils;
-import org.reflections.Reflections;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
@@ -130,17 +129,17 @@ public class B2dBody extends Component implements TileCompLoader {
             }
 
             //创建监听器
-            FixContactListener fixContactListener = null;
+            EcsContactListener ecsContactListener = null;
             if (listenerSimpleName != null && !listenerSimpleName.isEmpty()) {
                 String contactListenerPackage = tileDetails.contactListenerPackage;
                 if (contactListenerPackage == null || contactListenerPackage.isEmpty()){
                     Gdx.app.error(TAG,"contactListenerPackage is empty,please set contactListenerPackage by LtaeBuilder");
                 }else {
                     String className = contactListenerPackage + "." + listenerSimpleName;
-                    Class<FixContactListener> contactClass;
+                    Class<EcsContactListener> contactClass;
                     try {
-                        contactClass = (Class<FixContactListener>) Class.forName(className);
-                        fixContactListener = contactClass.getConstructor(Entity.class).newInstance(tileDetails.entity);
+                        contactClass = (Class<EcsContactListener>) Class.forName(className);
+                        ecsContactListener = contactClass.getConstructor(Entity.class).newInstance(tileDetails.entity);
                     } catch (ClassNotFoundException e) {
                         Gdx.app.error(TAG,"Failed to get class with name:"+className);
                     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
@@ -178,7 +177,7 @@ public class B2dBody extends Component implements TileCompLoader {
                 keyframeFixData.entityId = entityId;
                 keyframeFixData.entity = tileDetails.entity;
                 keyframeFixData.sensorType = SensorType.valueOf(sensorType);
-                keyframeFixData.listener = fixContactListener;
+                keyframeFixData.listener = ecsContactListener;
                 keyframeFixData.aniName = aniName;
                 keyframeFixData.keyframeIndex = keyframeIndex;
                 fixture.setUserData(keyframeFixData);
@@ -187,7 +186,7 @@ public class B2dBody extends Component implements TileCompLoader {
                 defFixData.entityId = entityId;
                 defFixData.entity = tileDetails.entity;
                 defFixData.sensorType = SensorType.valueOf(sensorType);
-                defFixData.listener = fixContactListener;
+                defFixData.listener = ecsContactListener;
                 fixture.setUserData(defFixData);
             }
         }

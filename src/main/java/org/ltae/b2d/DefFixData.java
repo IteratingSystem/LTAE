@@ -1,7 +1,6 @@
 package org.ltae.b2d;
 
 import com.artemis.Entity;
-import com.badlogic.gdx.physics.box2d.ContactListener;
 
 
 /**
@@ -13,5 +12,5 @@ public class DefFixData {
     public int entityId;
     public Entity entity;
     public SensorType sensorType;
-    public FixContactListener listener;
+    public EcsContactListener listener;
 }

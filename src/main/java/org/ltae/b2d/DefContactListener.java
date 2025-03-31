@@ -5,7 +5,7 @@ import com.badlogic.gdx.physics.box2d.*;
 /**
  * @Auther WenLong
  * @Date 2025/3/27 16:47
- * @Description 自定义碰撞监听
+ * @Description 自定义碰撞监听,用于初始化给Box2D的World,实现的功能是触发每个形状给定的监听器逻辑
  **/
 public class DefContactListener implements ContactListener {
 
