@@ -89,7 +89,14 @@ public class B2dBody extends Component implements TileCompLoader {
                     continue;
                 }
                 StaticTiledMapTile[] frameTiles = animatedTile.getFrameTiles();
-                MapProperties aniProp = animatedTile.getProperties();
+                MapProperties allProps = animatedTile.getProperties();
+                if (!allProps.containsKey("TileAnimation")){
+                    continue;
+                }
+                MapProperties aniProp = allProps.get("TileAnimation", MapProperties.class);
+                if (!aniProp.containsKey("name")){
+                    continue;
+                }
                 String aniName = aniProp.get("name", String.class);
                 for (int i = 0; i < frameTiles.length; i++) {
                     StaticTiledMapTile frameTile = frameTiles[i];
