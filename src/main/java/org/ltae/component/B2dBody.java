@@ -88,7 +88,6 @@ public class B2dBody extends Component implements TileCompLoader {
                 if (!(oneTile instanceof AnimatedTiledMapTile animatedTile)){
                     continue;
                 }
-                StaticTiledMapTile[] frameTiles = animatedTile.getFrameTiles();
                 MapProperties allProps = animatedTile.getProperties();
                 if (!allProps.containsKey("TileAnimation")){
                     continue;
@@ -97,15 +96,20 @@ public class B2dBody extends Component implements TileCompLoader {
                 if (!aniProp.containsKey("name")){
                     continue;
                 }
+
+                StaticTiledMapTile[] frameTiles = animatedTile.getFrameTiles();
                 String aniName = aniProp.get("name", String.class);
                 for (int i = 0; i < frameTiles.length; i++) {
                     StaticTiledMapTile frameTile = frameTiles[i];
                     MapObjects frameTileObjects = frameTile.getObjects();
-
                     for (MapObject frameTileObject : frameTileObjects) {
                         MapProperties properties = frameTileObject.getProperties();
-                        properties.put("keyframeIndex",i);
-                        properties.put("aniName",aniName);
+                        if (!properties.containsKey("FixDef")) {
+                            continue;
+                        }
+                        MapProperties fixDefProps = properties.get("FixDef",MapProperties.class);
+                        fixDefProps.put("keyframeIndex",i);
+                        fixDefProps.put("aniName",aniName);
                         allObjects.add(frameTileObject);
                     }
                 }
