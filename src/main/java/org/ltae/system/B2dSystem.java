@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import dev.lyze.projectTrianglePlatforming.TiledTileCollisionToBox2d;
 import dev.lyze.projectTrianglePlatforming.TiledTileCollisionToBox2dOptions;
-import org.ltae.b2d.DefContactListener;
+import org.ltae.box2d.listener.DefContactListener;
 
 
 /**

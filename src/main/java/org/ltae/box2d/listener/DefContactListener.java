@@ -1,6 +1,7 @@
-package org.ltae.b2d;
+package org.ltae.box2d.listener;
 
 import com.badlogic.gdx.physics.box2d.*;
+import org.ltae.box2d.DefFixData;
 
 /**
  * @Auther WenLong

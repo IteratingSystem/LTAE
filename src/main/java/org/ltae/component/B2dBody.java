@@ -2,6 +2,7 @@ package org.ltae.component;
 
 import com.artemis.Component;
 import com.artemis.Entity;
+import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
@@ -13,7 +14,9 @@ import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
-import org.ltae.b2d.*;
+import org.ltae.box2d.*;
+import org.ltae.box2d.listener.EcsContactListener;
+import org.ltae.box2d.setup.FixtureSetup;
 import org.ltae.tiled.TileCompLoader;
 import org.ltae.tiled.TileDetails;
 import org.ltae.tiled.TileParam;
@@ -38,7 +41,7 @@ public class B2dBody extends Component implements TileCompLoader {
     public float linearDamping;//线性阻尼
 
 
-
+    public Bag<FixtureSetup> keyframeFixSetups;
     public int entityId;
     public World b2dWorld;
     public BodyDef bodyDef;
@@ -65,6 +68,7 @@ public class B2dBody extends Component implements TileCompLoader {
         bodyDef = new BodyDef();
         bodyDef.fixedRotation = defFixed;
         bodyDef.type = BodyDef.BodyType.valueOf(defType);
+        keyframeFixSetups = new Bag<>();
 
         bodyDef.position.set(tileDetails.worldScale*posX, tileDetails.worldScale*posY);
         body = b2dWorld.createBody(bodyDef);
@@ -98,7 +102,7 @@ public class B2dBody extends Component implements TileCompLoader {
                 }
 
                 StaticTiledMapTile[] frameTiles = animatedTile.getFrameTiles();
-                String aniName = aniProp.get("name", String.class);
+                String aniName = aniProp.get("name","", String.class);
                 for (int i = 0; i < frameTiles.length; i++) {
                     StaticTiledMapTile frameTile = frameTiles[i];
                     MapObjects frameTileObjects = frameTile.getObjects();
@@ -133,11 +137,8 @@ public class B2dBody extends Component implements TileCompLoader {
             String maskBits = fixDefProps.get("maskBits", String.class);
             String listenerSimpleName = fixDefProps.get("listenerSimpleName", String.class);
             //帧动画数据
-            String aniName = fixDefProps.get("aniName", String.class);
-            int keyframeIndex = 0;
-            if (fixDefProps.containsKey("keyframeIndex")){
-                keyframeIndex = fixDefProps.get("keyframeIndex", Integer.class);
-            }
+            String aniName = fixDefProps.get("aniName","", String.class);
+            int keyframeIndex = fixDefProps.get("keyframeIndex",0, Integer.class);
 
             //创建监听器
             EcsContactListener ecsContactListener = null;
@@ -172,7 +173,6 @@ public class B2dBody extends Component implements TileCompLoader {
             filter.maskBits = CategoryBits.getMask(maskBits);
 
 
-
             FixtureDef fixtureDef = new FixtureDef();
             fixtureDef.density = density;
             fixtureDef.friction = friction;
@@ -181,25 +181,30 @@ public class B2dBody extends Component implements TileCompLoader {
             fixtureDef.filter.set(filter);
             fixtureDef.shape = shape;
 
-            Fixture fixture = body.createFixture(fixtureDef);
+            //不是动画帧中的形状时,直接创建出来
+            if ("".equals(aniName)) {
+                Fixture fixture = body.createFixture(fixtureDef);
 
-            if (aniName != null) {
-                KeyframeFixData keyframeFixData = new KeyframeFixData();
-                keyframeFixData.entityId = entityId;
-                keyframeFixData.entity = tileDetails.entity;
-                keyframeFixData.sensorType = SensorType.valueOf(sensorType);
-                keyframeFixData.listener = ecsContactListener;
-                keyframeFixData.aniName = aniName;
-                keyframeFixData.keyframeIndex = keyframeIndex;
-                fixture.setUserData(keyframeFixData);
-            } else {
                 DefFixData defFixData = new DefFixData();
                 defFixData.entityId = entityId;
                 defFixData.entity = tileDetails.entity;
                 defFixData.sensorType = SensorType.valueOf(sensorType);
                 defFixData.listener = ecsContactListener;
+
                 fixture.setUserData(defFixData);
+
+                continue;
             }
+            //否则先保存起来,后期触发的时候再创建
+            KeyframeShapeData keyframeShapeData = new KeyframeShapeData();
+            keyframeShapeData.entityId = entityId;
+            keyframeShapeData.entity = tileDetails.entity;
+            keyframeShapeData.sensorType = SensorType.valueOf(sensorType);
+            keyframeShapeData.listener = ecsContactListener;
+            keyframeShapeData.aniName = aniName;
+            keyframeShapeData.keyframeIndex = keyframeIndex;
+            FixtureSetup fixtureSetup = new FixtureSetup(fixtureDef,keyframeShapeData);
+            keyframeFixSetups.add(fixtureSetup);
         }
     }
     public boolean isOnFloor(){
@@ -234,5 +239,32 @@ public class B2dBody extends Component implements TileCompLoader {
             }
         }
         return false;
+    }
+
+    /**
+     * 传入用户对象获取keyframeFixSetups中对应的那个FixSetup
+     * @param keyframeShapeData
+     * @return
+     */
+    public FixtureSetup getKeyframeFixSetup(KeyframeShapeData keyframeShapeData){
+        for (FixtureSetup keyframeFixSetup : keyframeFixSetups) {
+            if (keyframeFixSetup.fixtureData != keyframeShapeData) {
+                continue;
+            }
+            return keyframeFixSetup;
+        }
+        return null;
+    }
+    /**
+     * 传入用户对象获取keyframeFixSetups中对应的那个FixSetup中的FixtureDef
+     * @param keyframeShapeData
+     * @return
+     */
+    public FixtureDef getKeyframeFixDef(KeyframeShapeData keyframeShapeData){
+        FixtureSetup keyframeFixSetup = getKeyframeFixSetup(keyframeShapeData);
+        if(keyframeFixSetup == null){
+            return null;
+        }
+        return keyframeFixSetup.FixtureDef;
     }
 }

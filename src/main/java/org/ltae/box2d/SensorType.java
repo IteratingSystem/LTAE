@@ -1,4 +1,4 @@
-package org.ltae.b2d;
+package org.ltae.box2d;
 
 
 //传感器形状的业务类型

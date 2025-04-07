@@ -1,4 +1,4 @@
-package org.ltae.b2d;
+package org.ltae.box2d.listener;
 
 import com.artemis.Entity;
 import com.badlogic.gdx.physics.box2d.Contact;

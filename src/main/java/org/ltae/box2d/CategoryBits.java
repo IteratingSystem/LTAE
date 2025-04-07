@@ -1,4 +1,4 @@
-package org.ltae.b2d;
+package org.ltae.box2d;
 
 import com.artemis.utils.Bag;
 
