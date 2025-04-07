@@ -20,16 +20,18 @@ public class B2dSystem extends BaseSystem {
     private float worldScale;
     private float gx;   //横向重力
     private float gy;   //纵向重力
+    private boolean doSleep;
     public World box2DWorld;
 
-    public B2dSystem(float gx,float gy,float worldScale){
+    public B2dSystem(float gx,float gy,boolean doSleep,float worldScale){
         this.worldScale = worldScale;
         this.gx = gx;
         this.gy = gy;
+        this.doSleep = doSleep;
     }
     @Override
     protected void initialize() {
-        box2DWorld = new World(new Vector2(gx,gy),true);
+        box2DWorld = new World(new Vector2(gx,gy),doSleep);
         box2DWorld.setContinuousPhysics(true);
         box2DWorld.setContactListener(new DefContactListener());
         //绑定tiled中的物理形状

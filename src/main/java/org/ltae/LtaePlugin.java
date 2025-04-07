@@ -51,6 +51,7 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(new B2dSystem(
                 ltaeBuilder.getGx(),
                 ltaeBuilder.getGy(),
+                ltaeBuilder.getDoSleep(),
                 ltaeBuilder.getWorldScale()));//物理世界初始化
         //渲染前更新
         worldConfigurationBuilder.with(new PosFollowSystem(ltaeBuilder.getWorldScale())); //坐标跟随物理身体

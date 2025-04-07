@@ -14,6 +14,7 @@ public class LtaeBuilder {
     private float worldScale = 1.0f;      // 默认世界缩放比例
     private float gx = 0.0f;              // 默认横向重力
     private float gy = -9.8f;             // 默认纵向重力（模拟地球重力）
+    private boolean doSleep = false;         //box2d
     private String tileMapPath = "tiled/"; // 默认瓦片地图路径
     private String mapName = "defaultMap"; // 默认加载的地图名称
     private String[] phyLayerNames = {"physicsLayer"}; // 默认物理图层
@@ -40,6 +41,10 @@ public class LtaeBuilder {
 
     public LtaeBuilder setCameraZoom(float cameraZoom) {
         this.cameraZoom = cameraZoom;
+        return this;
+    }
+    public LtaeBuilder setDoSleep(boolean doSleep) {
+        this.doSleep = doSleep;
         return this;
     }
 
@@ -146,5 +151,9 @@ public class LtaeBuilder {
     }
     public String getContactListenerPackage() {
         return contactListenerPackage;
+    }
+
+    public boolean getDoSleep() {
+        return doSleep;
     }
 }
