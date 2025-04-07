@@ -55,12 +55,13 @@ public class KeyframeShapeSystem extends IteratingSystem {
             KeyframeShapeData fixtureData = (KeyframeShapeData)keyframeFixSetup.fixtureData;
             if (aniName.equals(fixtureData.aniName) && keyframeIndex == fixtureData.keyframeIndex) {
                 FixtureDef keyframeFixDef = b2dBody.getKeyframeFixDef(fixtureData);
-                if(b2dBody.cFlipX){
-                    Shape shape = keyframeFixDef.shape;
-                    ShapeUtils.flipX(shape,regionWidth);
-                }
                 Fixture fixture = body.createFixture(keyframeFixDef);
                 fixture.setUserData(fixtureData);
+
+                if (b2dBody.cFlipX){
+                    Shape shape = fixture.getShape();
+                    ShapeUtils.flipX(shape,regionWidth);
+                }
             }
         }
     }
