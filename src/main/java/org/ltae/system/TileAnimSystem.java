@@ -28,6 +28,7 @@ public class TileAnimSystem extends IteratingSystem {
             tileAnimation = tileAnimations.getTileAnimation();
             if (tileAnimation == null){
                 Gdx.app.error(TAG,"The current animation does not exist in tileAnimations: "+tileAnimations.current+",Please confirm the animation name: "+tileAnimations.current);
+                return;
             }
         }else {
             tileAnimation = mTileAnimation.get(entityId);
