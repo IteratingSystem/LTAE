@@ -8,7 +8,6 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -108,20 +107,15 @@ public class ShapeUtils {
     public static void flipX(Shape shape,float width,float worldScale){
         if (shape instanceof PolygonShape polygonShape){
             int vertexCount = polygonShape.getVertexCount();
-            List<Float> verticeList = new ArrayList();
+            float[] vertices = new float[vertexCount*2];
             for (int i = 0; i < vertexCount; i++) {
                 Vector2 vector2 = new Vector2();
                 polygonShape.getVertex(i,vector2);
                 vector2.x = width*worldScale - vector2.x;
-                verticeList.add(vector2.x);
-                verticeList.add(vector2.y);
-            }
-            Collections.reverse(verticeList);
-            float[] vertices = new float[verticeList.size()];
-            for (int i = 0; i < verticeList.size(); i++) {
-                vertices[i] = verticeList.get(i);
-            }
 
+                vertices[i*2] = vector2.x;
+                vertices[i*2+1] = vector2.y;
+            }
 
             polygonShape.set(vertices);
         }else if (shape instanceof CircleShape circleShape){
