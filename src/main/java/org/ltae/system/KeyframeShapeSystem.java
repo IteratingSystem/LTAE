@@ -57,7 +57,6 @@ public class KeyframeShapeSystem extends IteratingSystem {
                 FixtureDef keyframeFixDef = b2dBody.getKeyframeFixDef(fixtureData);
                 Fixture fixture = body.createFixture(keyframeFixDef);
                 fixture.setUserData(fixtureData);
-
                 if (b2dBody.cFlipX){
                     Shape shape = fixture.getShape();
                     ShapeUtils.flipX(shape,regionWidth);

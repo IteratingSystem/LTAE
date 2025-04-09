@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -115,11 +116,13 @@ public class ShapeUtils {
                 verticeList.add(vector2.x);
                 verticeList.add(vector2.y);
             }
-
+            Collections.reverse(verticeList);
             float[] vertices = new float[verticeList.size()];
             for (int i = 0; i < verticeList.size(); i++) {
                 vertices[i] = verticeList.get(i);
             }
+
+
             polygonShape.set(vertices);
         }else if (shape instanceof CircleShape circleShape){
             Vector2 position = circleShape.getPosition();
