@@ -56,6 +56,7 @@ public class LtaePlugin implements ArtemisPlugin {
         //渲染前更新
         worldConfigurationBuilder.with(new PosFollowSystem(ltaeBuilder.getWorldScale())); //坐标跟随物理身体
         worldConfigurationBuilder.with(new StateSystem());//状态机系统
+        worldConfigurationBuilder.with(new BTreeSystem());//行为树系统
         worldConfigurationBuilder.with(cameraSystem);//摄像机系统
         worldConfigurationBuilder.with(new KeyframeShapeSystem());//动画帧形状系统
         worldConfigurationBuilder.with(new TileAnimSystem());//动画系统
