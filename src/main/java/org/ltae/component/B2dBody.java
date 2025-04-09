@@ -49,7 +49,9 @@ public class B2dBody extends Component implements TileCompLoader {
 
     //创建阶段是否翻转,用于给需要随时创建和删除的形状标记创建时的初始位置
     //目前使用的地方未KeyframeShapeSystem
-    public boolean cFlipX = false;
+    //需要翻转与当前翻转状态
+    public boolean needFlipX = false;
+    public boolean isFlipX = false;
     @Override
     public void loader(TileDetails tileDetails) {
         //获取传入参数的属性

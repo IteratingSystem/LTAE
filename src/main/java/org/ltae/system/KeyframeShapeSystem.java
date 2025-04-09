@@ -46,10 +46,7 @@ public class KeyframeShapeSystem extends IteratingSystem {
             Fixture fixture = iterator.next();
             Object userData = fixture.getUserData();
             if (userData instanceof KeyframeShapeData keyframeShapeData) {
-                if (!aniName.equals(keyframeShapeData.aniName)
-                        || keyframeIndex == keyframeShapeData.keyframeIndex) {
-                    body.destroyFixture(fixture);
-                }
+                body.destroyFixture(fixture);
             }
         }
 
@@ -57,29 +54,13 @@ public class KeyframeShapeSystem extends IteratingSystem {
         //创建响应的帧形状
         for (FixtureSetup keyframeFixSetup : keyframeFixSetups) {
             KeyframeShapeData fixtureData = (KeyframeShapeData)keyframeFixSetup.fixtureData;
-            if (aniName.equals(fixtureData.aniName)
-                    && keyframeIndex == fixtureData.keyframeIndex) {
-
-                boolean isCreated = false;
-                iterator.reset();
-                while (iterator.hasNext()) {
-                    Fixture fixture = iterator.next();
-                    Object userData = fixture.getUserData();
-                    if (userData == fixtureData) {
-                        body.destroyFixture(fixture);
-                        isCreated = true;
-                        break;
-                    }
-                }
-                if (isCreated){
-                    continue;
-                }
-
-
+            if (aniName.equals(fixtureData.aniName)  && keyframeIndex == fixtureData.keyframeIndex) {
                 FixtureDef keyframeFixDef = b2dBody.getKeyframeFixDef(fixtureData);
-                if (b2dBody.cFlipX){
+                //是否需要翻转与当前的翻转情况
+                if (b2dBody.needFlipX != b2dBody.isFlipX){
                     Shape shape = keyframeFixDef.shape;
                     ShapeUtils.flipX(shape,regionWidth);
+                    b2dBody.isFlipX = b2dBody.needFlipX;
                 }
                 Fixture fixture = body.createFixture(keyframeFixDef);
                 fixture.setUserData(fixtureData);
