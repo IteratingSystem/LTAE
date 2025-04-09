@@ -2,6 +2,7 @@ package org.ltae.system;
 
 import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
+import com.badlogic.gdx.Gdx;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.component.Render;
 import org.ltae.component.TileAnimation;
@@ -14,6 +15,7 @@ import org.ltae.component.TileAnimations;
  **/
 @All({TileAnimation.class, Render.class})
 public class TileAnimSystem extends IteratingSystem {
+    private final static String TAG = TileAnimSystem.class.getSimpleName();
     private M<TileAnimations> mTileAnimations;
     private M<TileAnimation> mTileAnimation;
     private M<Render> mRender;
@@ -24,6 +26,9 @@ public class TileAnimSystem extends IteratingSystem {
         if (mTileAnimations.has(entityId)) {
             TileAnimations tileAnimations = mTileAnimations.get(entityId);
             tileAnimation = tileAnimations.getTileAnimation();
+            if (tileAnimation == null){
+                Gdx.app.error(TAG,"The current animation does not exist in tileAnimations: "+tileAnimations.current+",Please confirm the animation name: "+tileAnimations.current);
+            }
         }else {
             tileAnimation = mTileAnimation.get(entityId);
         }
