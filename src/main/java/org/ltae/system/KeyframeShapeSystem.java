@@ -50,10 +50,29 @@ public class KeyframeShapeSystem extends IteratingSystem {
             }
         }
 
+
         //创建响应的帧形状
         for (FixtureSetup keyframeFixSetup : keyframeFixSetups) {
             KeyframeShapeData fixtureData = (KeyframeShapeData)keyframeFixSetup.fixtureData;
-            if (aniName.equals(fixtureData.aniName) && keyframeIndex == fixtureData.keyframeIndex) {
+            if (aniName.equals(fixtureData.aniName)
+                    && keyframeIndex == fixtureData.keyframeIndex) {
+
+                boolean isCreated = false;
+                iterator.reset();
+                while (iterator.hasNext()) {
+                    Fixture fixture = iterator.next();
+                    Object userData = fixture.getUserData();
+                    if (userData == fixtureData) {
+                        body.destroyFixture(fixture);
+                        isCreated = true;
+                        break;
+                    }
+                }
+                if (isCreated){
+                    continue;
+                }
+
+
                 FixtureDef keyframeFixDef = b2dBody.getKeyframeFixDef(fixtureData);
                 if (b2dBody.cFlipX){
                     Shape shape = keyframeFixDef.shape;
