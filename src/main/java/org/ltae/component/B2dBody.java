@@ -51,7 +51,7 @@ public class B2dBody extends Component implements TileCompLoader {
     //目前使用的地方未KeyframeShapeSystem
     //需要翻转与当前翻转状态
     public boolean needFlipX = false;
-    public boolean isFlipX = false;
+
     @Override
     public void loader(TileDetails tileDetails) {
         //获取传入参数的属性

@@ -12,4 +12,6 @@ import org.ltae.box2d.listener.EcsContactListener;
 public class KeyframeShapeData extends DefFixData{
     public String aniName;
     public int keyframeIndex;
+    public boolean isFlipX = false;
+    public boolean isFinish = false;
 }

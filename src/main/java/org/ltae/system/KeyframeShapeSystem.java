@@ -56,11 +56,12 @@ public class KeyframeShapeSystem extends IteratingSystem {
             KeyframeShapeData fixtureData = (KeyframeShapeData)keyframeFixSetup.fixtureData;
             if (aniName.equals(fixtureData.aniName)  && keyframeIndex == fixtureData.keyframeIndex) {
                 FixtureDef keyframeFixDef = b2dBody.getKeyframeFixDef(fixtureData);
+
                 //是否需要翻转与当前的翻转情况
-                if (b2dBody.needFlipX != b2dBody.isFlipX){
+                if (b2dBody.needFlipX != fixtureData.isFlipX){
                     Shape shape = keyframeFixDef.shape;
                     ShapeUtils.flipX(shape,regionWidth);
-                    b2dBody.isFlipX = b2dBody.needFlipX;
+                    fixtureData.isFlipX = b2dBody.needFlipX;
                 }
                 Fixture fixture = body.createFixture(keyframeFixDef);
                 fixture.setUserData(fixtureData);
