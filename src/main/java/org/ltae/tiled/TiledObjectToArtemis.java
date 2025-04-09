@@ -9,6 +9,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.*;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
+import org.ltae.system.AssetSystem;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Field;
@@ -46,12 +47,15 @@ public class TiledObjectToArtemis {
             TileDetails tileDetails = new TileDetails();
             tileDetails.entity = world.getEntity(entityId);
             tileDetails.entityId = entityId;
+            tileDetails.world = world;
+            tileDetails.assetSystem = world.getSystem(AssetSystem.class);
             tileDetails.b2dWorld = builder.b2dWorld;
             tileDetails.mapObject = mapObject;
             tileDetails.tiledMap = builder.tiledMap;
             tileDetails.worldScale = builder.worldScale;
             tileDetails.statePackage = builder.statePackage;
             tileDetails.contactListenerPackage = builder.contactListenerPackage;
+
             if (mapObject instanceof TiledMapTileMapObject tileMapObject) {
                 tileDetails.tiledMapTile = tileMapObject.getTile();
             }

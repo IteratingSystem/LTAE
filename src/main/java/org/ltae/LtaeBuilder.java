@@ -15,9 +15,11 @@ public class LtaeBuilder {
     private float gx = 0.0f;              // 默认横向重力
     private float gy = -9.8f;             // 默认纵向重力（模拟地球重力）
     private boolean doSleep = false;         //box2d
-    private String tileMapPath = "tiled/"; // 默认瓦片地图路径
+
     private String mapName = "defaultMap"; // 默认加载的地图名称
     private String[] phyLayerNames = {"physicsLayer"}; // 默认物理图层
+    private String tileMapPath = "tiled/"; // 默认瓦片地图路径
+    private String bTreePath = "tree/"; // 默认行为树路径
     private String entityLayerName = "entities";       // 默认实体图层
     private String compPackage = "com.game.component";    // 默认组件包路径
     private String statePackage = "com.game.state";    // 默认组件包路径
@@ -65,6 +67,10 @@ public class LtaeBuilder {
 
     public LtaeBuilder setTileMapPath(String tileMapPath) {
         this.tileMapPath = tileMapPath;
+        return this;
+    }
+    public LtaeBuilder setBTreePathPath(String bTreePath) {
+        this.bTreePath = bTreePath;
         return this;
     }
 
@@ -155,5 +161,9 @@ public class LtaeBuilder {
 
     public boolean getDoSleep() {
         return doSleep;
+    }
+
+    public String getBTreePath() {
+        return bTreePath;
     }
 }

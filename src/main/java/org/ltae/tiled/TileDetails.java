@@ -1,9 +1,11 @@
 package org.ltae.tiled;
 
 import com.artemis.Entity;
+import com.artemis.World;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import org.ltae.system.AssetSystem;
 
 
 /**
@@ -14,9 +16,11 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 public class TileDetails {
     public int entityId;
     public Entity entity;
-
-//    public World world;
     public float worldScale;
+    public World world;
+
+    public AssetSystem assetSystem;
+
     public com.badlogic.gdx.physics.box2d.World b2dWorld;
 
     public TiledMap tiledMap;
