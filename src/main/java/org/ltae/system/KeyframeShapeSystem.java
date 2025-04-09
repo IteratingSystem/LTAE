@@ -46,7 +46,10 @@ public class KeyframeShapeSystem extends IteratingSystem {
             Fixture fixture = iterator.next();
             Object userData = fixture.getUserData();
             if (userData instanceof KeyframeShapeData keyframeShapeData) {
-                body.destroyFixture(fixture);
+                if (!aniName.equals(keyframeShapeData.aniName)
+                        || keyframeIndex == keyframeShapeData.keyframeIndex) {
+                    body.destroyFixture(fixture);
+                }
             }
         }
 
