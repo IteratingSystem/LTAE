@@ -3,6 +3,7 @@ package org.ltae.manager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLoader;
+import com.badlogic.gdx.assets.loaders.AssetLoader;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
@@ -19,7 +20,8 @@ import org.ltae.tiled.loader.DefMapLoader;
 public class AssetManager {
     private static final String TAG = AssetManager.class.getSimpleName();
     private static AssetManager instance;
-    private com.badlogic.gdx.assets.AssetManager gdxAssetManager;
+    private static FileHandleResolver resolver;
+    private static com.badlogic.gdx.assets.AssetManager gdxAssetManager;
 
     private AssetManager() {
         // 私有构造器，防止外部直接实例化
@@ -31,29 +33,21 @@ public class AssetManager {
      */
     public static AssetManager getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("AssetManager not initialized. Call initialize() first.");
+            resolver = new AbsoluteFileHandleResolver();
+            instance = new AssetManager();
         }
         return instance;
     }
 
-    /**
-     * 初始化 AssetManager
-     * @param propTypePath MapLoader 的路径
-     */
-    public static AssetManager initialize(String propTypePath) {
-        if (instance != null) {
-            throw new IllegalStateException("AssetManager already initialized.");
-        }
-        instance = new AssetManager();
-        instance.gdxAssetManagerInit(propTypePath);
-        return instance;
-    }
 
-    private void gdxAssetManagerInit(String propTypePath) {
-        FileHandleResolver resolver = new AbsoluteFileHandleResolver();
+    public void setLoaders(String propTypePath) {
         gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(resolver);
         gdxAssetManager.setLoader(TiledMap.class, new DefMapLoader(propTypePath));
         gdxAssetManager.setLoader(BehaviorTree.class, new BehaviorTreeLoader(resolver));
+    }
+
+    public com.badlogic.gdx.assets.AssetManager getGdxAssetManager(){
+        return gdxAssetManager;
     }
 
     /**
