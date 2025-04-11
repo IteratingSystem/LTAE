@@ -62,13 +62,30 @@ public class TileAnimations extends Component implements TileCompLoader {
     }
 
     public TileAnimation getTileAnimation(){
-        return table.get(current);
+        return getTileAnimation(current);
+    }
+    private TileAnimation getTileAnimation(String animationName){
+        if (!hasAnimation(animationName)){
+            Gdx.app.error(TAG,"Failed to getTileAnimation,There is no animation named: "+animationName);
+            return null;
+        }
+        return table.get(animationName);
     }
     public TextureRegion getKeyFrame() {
         TileAnimation tileAnimation = getTileAnimation();
         return tileAnimation.getKeyFrame();
     }
+
+    /**
+     * 直接改变动画,在改变动画的过程中stateTime会清零
+     * @param animationName
+     */
     public void changeAnimation(String animationName){
+        //判断是否存在这个动画
+        if (!hasAnimation(animationName)){
+            Gdx.app.error(TAG,"Failed to changeAnimation,There is no animation named: "+animationName);
+            return;
+        }
         current = animationName;
         TileAnimation tileAnimation = getTileAnimation();
         tileAnimation.stateTime = 0;
@@ -80,5 +97,11 @@ public class TileAnimations extends Component implements TileCompLoader {
     public boolean isLast(int lastCount){
         TileAnimation tileAnimation = getTileAnimation();
         return tileAnimation.isLast(lastCount);
+    }
+    public boolean hasAnimation(String animationName){
+        if (table.containsKey(animationName)){
+            return true;
+        }
+        return false;
     }
 }
