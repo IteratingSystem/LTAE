@@ -2,6 +2,8 @@ package org.ltae.system;
 
 import com.artemis.BaseSystem;
 import com.artemis.systems.IteratingSystem;
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 /**
@@ -21,6 +23,10 @@ public class RenderShapeSystem extends BaseSystem {
 
     @Override
     protected void processSystem() {
+        if (Gdx.app.getLogLevel() != Application.LOG_DEBUG){
+            return;
+        }
+
         shapeRenderer.setTransformMatrix(cameraSystem.camera.combined);
         shapeRenderer.begin();
 

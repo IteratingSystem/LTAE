@@ -104,12 +104,12 @@ public class CameraSystem extends BaseSystem {
         int followingId = world.getSystem(TagManager.class).getEntityId(cameraTarget.entityTag);
         Pos pos = mPos.get(followingId);
 
-        float eCenterX = pos.x + cameraTarget.eCenterX;
-        float eCenterY = pos.y + cameraTarget.eCenterY;
-        float centerX = camera.position.x;
-        float centerY = camera.position.y;
-        float activeWidth = cameraTarget.activeWidth;
-        float activeHeight = cameraTarget.activeHeight;
+        float eCenterX = pos.x + cameraTarget.eCenterX / zoom;
+        float eCenterY = pos.y + cameraTarget.eCenterY / zoom;
+        float centerX = camera.position.x / zoom;
+        float centerY = camera.position.y / zoom;
+        float activeWidth = cameraTarget.activeWidth / zoom;
+        float activeHeight = cameraTarget.activeHeight / zoom;
         shapeRenderer.setColor(Color.BLUE);
         shapeRenderer.circle(eCenterX,eCenterY,3);
         shapeRenderer.rect(centerX-activeWidth/2,centerY-activeHeight/2,activeWidth,activeHeight);
