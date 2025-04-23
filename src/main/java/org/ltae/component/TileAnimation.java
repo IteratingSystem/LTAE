@@ -37,7 +37,7 @@ public class TileAnimation extends Component implements TileCompLoader {
     //随机播放模式时,每一帧持续的时间
     private float randomDuration;
     //动画的总持续事件
-    private float animationDuration;
+    private float totalDuration;
     //上一帧索引
     private int lastFrameNumber;
     //上一帧的时间戳
@@ -71,9 +71,9 @@ public class TileAnimation extends Component implements TileCompLoader {
         }
 
         for (float duration : frameDurations) {
-            animationDuration += duration;
+            totalDuration += duration;
         }
-        randomDuration = animationDuration/frameDurations.length;
+        randomDuration = totalDuration/frameDurations.length;
 
         StaticTiledMapTile[] frameTiles = animatedTile.getFrameTiles();
         keyframes = new TextureRegion[frameTiles.length];
@@ -169,47 +169,34 @@ public class TileAnimation extends Component implements TileCompLoader {
 
         int frameNumber = 0;
         //动画循环n遍,最终的余数
-        float remainder = stateTime % animationDuration;
+        float remainder = stateTime % totalDuration;
         //往返动画循环n遍,最终的余数
-        float pingRemainder = stateTime % (2*animationDuration);
+        float pingRemainder = stateTime % (2*totalDuration);
         float adder;
 
         switch (this.playMode) {
             //播放一次后停止
             case NORMAL:
-                if (stateTime >= animationDuration){
+                if (stateTime >= totalDuration){
                     frameNumber = keyframes.length - 1;
-                }else {
-                    adder = 0;
-                    for (int i = 0; i < frameDurations.length; i++) {
-                        adder += frameDurations[i];
-                        if (stateTime <= adder){
-                            frameNumber = i;
-                            break;
-                        }
-                    }
+                    break;
                 }
+                frameNumber = findIndex(stateTime, frameDurations);
                 break;
+
             //循环播放
             case LOOP:
-                adder = 0;
-                for (int i = 0; i < frameDurations.length; i++) {
-                    adder += frameDurations[i];
-                    if (adder >= remainder){
-                        frameNumber = i;
-                        break;
-                    }
-                }
+                frameNumber = findIndex(remainder, frameDurations);
                 break;
             //往返播放
             case LOOP_PINGPONG:
-                if (pingRemainder < animationDuration) {
+                if (pingRemainder < totalDuration) {
                     // 正向播放
                     frameNumber = findIndex(pingRemainder, frameDurations);
                     break;
                 } else {
                     // 反向播放
-                    pingRemainder -= animationDuration;
+                    pingRemainder -= totalDuration;
                     frameNumber =  frameDurations.length - 1 - findIndex(pingRemainder, frameDurations);
                     break;
                 }
@@ -225,7 +212,7 @@ public class TileAnimation extends Component implements TileCompLoader {
                 }
             //反向播放一次后停止
             case REVERSED:
-                if (stateTime < animationDuration){
+                if (stateTime < totalDuration){
                     adder = 0;
                     for (int i = frameDurations.length-1; i >= 0; i--) {
                         adder += frameDurations[i];
@@ -238,7 +225,7 @@ public class TileAnimation extends Component implements TileCompLoader {
                 break;
             //反向循环播放
             case LOOP_REVERSED:
-                if (stateTime < animationDuration){
+                if (stateTime < totalDuration){
                     adder = 0;
                     for (int i = frameDurations.length-1; i >= 0; i--) {
                         adder += frameDurations[i];
@@ -311,7 +298,7 @@ public class TileAnimation extends Component implements TileCompLoader {
      * @return
      */
     public boolean isAnimationFinished() {
-        return stateTime >= animationDuration;
+        return stateTime >= totalDuration;
     }
 
 
@@ -326,7 +313,7 @@ public class TileAnimation extends Component implements TileCompLoader {
         for (int i = 0; i < frameDurations.length; i++) {
             frameDurations[i] = frameDuration;
         }
-        animationDuration = frameDurations.length * frameDuration;
+        totalDuration = frameDurations.length * frameDuration;
     }
 
     /**
@@ -364,18 +351,18 @@ public class TileAnimation extends Component implements TileCompLoader {
 
 
     public float getAnimationDuration() {
-        return this.animationDuration;
+        return this.totalDuration;
     }
 
     private void updateAnimationDuration(){
-        animationDuration = 0;
+        totalDuration = 0;
         for (float duration : frameDurations) {
-            animationDuration += duration;
+            totalDuration += duration;
         }
     }
     private int findIndex(float remainingTime, float[] frameDurations) {
         int index = 0;
-        double cumulativeTime = 0.0;
+        float cumulativeTime = 0.0f;
         for (int i = 0; i < frameDurations.length; i++) {
             cumulativeTime += frameDurations[i];
             if (remainingTime < cumulativeTime) {
