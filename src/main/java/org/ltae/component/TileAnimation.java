@@ -203,26 +203,16 @@ public class TileAnimation extends Component implements TileCompLoader {
                 break;
             //往返播放
             case LOOP_PINGPONG:
-
-                for (int i = 0; i < frameDurations.length; i++) {
-                    if (pingRemainder <= 0){
-                        frameNumber = i;
-                        break;
-                    }
-                    float frameDuration = frameDurations[i];
-                    pingRemainder -= frameDuration;
+                if (pingRemainder < animationDuration) {
+                    // 正向播放
+                    frameNumber = findIndex(pingRemainder, frameDurations);
+                    break;
+                } else {
+                    // 反向播放
+                    pingRemainder -= animationDuration;
+                    frameNumber =  frameDurations.length - 1 - findIndex(pingRemainder, frameDurations);
+                    break;
                 }
-                if(pingRemainder >= 0){
-                    for (int i = frameDurations.length-1;i >= 0;i--){
-                        if (pingRemainder <= 0){
-                            frameNumber = i;
-                            break;
-                        }
-                        float frameDuration = frameDurations[i];
-                        pingRemainder -= frameDuration;
-                    }
-                }
-                break;
             //循环播放,随机上一张或者下一张
             case LOOP_RANDOM:
                 int lastFrameNumber = (int)(this.lastStateTime / this.randomDuration);
@@ -382,5 +372,17 @@ public class TileAnimation extends Component implements TileCompLoader {
         for (float duration : frameDurations) {
             animationDuration += duration;
         }
+    }
+    private int findIndex(float remainingTime, float[] frameDurations) {
+        int index = 0;
+        double cumulativeTime = 0.0;
+        for (int i = 0; i < frameDurations.length; i++) {
+            cumulativeTime += frameDurations[i];
+            if (remainingTime < cumulativeTime) {
+                index = i;
+                break;
+            }
+        }
+        return index;
     }
 }
