@@ -195,7 +195,7 @@ public class TileAnimation extends Component implements TileCompLoader {
                 adder = 0;
                 for (int i = 0; i < frameDurations.length; i++) {
                     adder += frameDurations[i];
-                    if (remainder <= adder){
+                    if (adder >= remainder){
                         frameNumber = i;
                         break;
                     }
@@ -203,12 +203,23 @@ public class TileAnimation extends Component implements TileCompLoader {
                 break;
             //往返播放
             case LOOP_PINGPONG:
-                adder = 0;
-                for (int i = 0; i < frameDurations.length * 2; i++) {
-                    adder += frameDurations[i];
-                    if (pingRemainder <= adder){
-                        frameNumber = i % frameDurations.length;
+
+                for (int i = 0; i < frameDurations.length; i++) {
+                    if (pingRemainder <= 0){
+                        frameNumber = i;
                         break;
+                    }
+                    float frameDuration = frameDurations[i];
+                    pingRemainder -= frameDuration;
+                }
+                if(pingRemainder >= 0){
+                    for (int i = frameDurations.length-1;i >= 0;i--){
+                        if (pingRemainder <= 0){
+                            frameNumber = i+frameDurations.length-1;
+                            break;
+                        }
+                        float frameDuration = frameDurations[i];
+                        pingRemainder -= frameDuration;
                     }
                 }
                 break;
