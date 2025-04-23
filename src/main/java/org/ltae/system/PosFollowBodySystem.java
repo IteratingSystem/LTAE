@@ -14,12 +14,12 @@ import org.ltae.component.Pos;
  * @Description 坐标跟随b2dBody
  **/
 @All({Pos.class, B2dBody.class})
-public class PosFollowSystem extends IteratingSystem {
+public class PosFollowBodySystem extends IteratingSystem {
     private M<Pos> mPos;
     private M<B2dBody> mB2dBody;
 
     private float worldScale;
-    public PosFollowSystem(float worldScale){
+    public PosFollowBodySystem(float worldScale){
         this.worldScale = worldScale;
     }
     @Override
