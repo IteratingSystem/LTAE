@@ -45,15 +45,16 @@ public class CameraSystem extends BaseSystem {
 //        camera.setToOrtho(false, worldScale * SystemConstants.winWidth /4f,worldScale * SystemConstants.winHeight/4f);
         camera.setToOrtho(false, worldScale * windowWidth / zoom,worldScale * windowHeight / zoom);
         shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setAutoShapeType(true);
     }
 
     @Override
     protected void processSystem() {
         if (Gdx.app.getLogLevel() == Application.LOG_DEBUG){
             renderTarget();
+            cameraCtrl();
         }
         followTarget();
-        cameraCtrl();
         camera.update();
     }
 
