@@ -215,7 +215,7 @@ public class TileAnimation extends Component implements TileCompLoader {
                 if(pingRemainder >= 0){
                     for (int i = frameDurations.length-1;i >= 0;i--){
                         if (pingRemainder <= 0){
-                            frameNumber = i+frameDurations.length-1;
+                            frameNumber = i;
                             break;
                         }
                         float frameDuration = frameDurations[i];
