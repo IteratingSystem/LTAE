@@ -46,6 +46,7 @@ public class CameraSystem extends BaseSystem {
         camera.setToOrtho(false, worldScale * windowWidth / zoom,worldScale * windowHeight / zoom);
         shapeRenderer = new ShapeRenderer();
         shapeRenderer.setAutoShapeType(true);
+        shapeRenderer.setTransformMatrix(camera.combined);
     }
 
     @Override
