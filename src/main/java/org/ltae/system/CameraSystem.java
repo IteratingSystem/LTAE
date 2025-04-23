@@ -5,6 +5,7 @@ import com.artemis.managers.TagManager;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.PolygonBatch;
@@ -46,7 +47,6 @@ public class CameraSystem extends BaseSystem {
         camera.setToOrtho(false, worldScale * windowWidth / zoom,worldScale * windowHeight / zoom);
         shapeRenderer = new ShapeRenderer();
         shapeRenderer.setAutoShapeType(true);
-        shapeRenderer.setTransformMatrix(camera.combined);
     }
 
     @Override
@@ -112,7 +112,8 @@ public class CameraSystem extends BaseSystem {
         float centerY = pos.y + cameraTarget.eCenterY;
         float activeWidth = cameraTarget.activeWidth;
         float activeHeight = cameraTarget.activeHeight;
-
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.setColor(Color.BLACK);
         shapeRenderer.begin();
         shapeRenderer.circle(centerX,centerY,3);
         shapeRenderer.rect(centerX-activeWidth/2,centerY-activeHeight/2,activeWidth,activeHeight);
