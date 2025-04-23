@@ -28,7 +28,6 @@ public class CameraSystem extends BaseSystem {
     public OrthographicCamera camera;
     public M<Pos> mPos;
 
-    private ShapeRenderer shapeRenderer;
     private CameraTarget cameraTarget;
     private float worldScale;
     private float windowWidth;
@@ -45,14 +44,11 @@ public class CameraSystem extends BaseSystem {
         camera = new OrthographicCamera();
 //        camera.setToOrtho(false, worldScale * SystemConstants.winWidth /4f,worldScale * SystemConstants.winHeight/4f);
         camera.setToOrtho(false, worldScale * windowWidth / zoom,worldScale * windowHeight / zoom);
-        shapeRenderer = new ShapeRenderer();
-        shapeRenderer.setAutoShapeType(true);
     }
 
     @Override
     protected void processSystem() {
         if (Gdx.app.getLogLevel() == Application.LOG_DEBUG){
-            renderTarget();
             cameraCtrl();
         }
         followTarget();
@@ -100,7 +96,7 @@ public class CameraSystem extends BaseSystem {
             camera.position.y = MathUtils.lerp(camera.position.y, centerY, cameraTarget.progress); // 平滑过渡
         }
     }
-    private void renderTarget(){
+    public void renderTarget(ShapeRenderer shapeRenderer){
         if (!verifyTarget()){
             return;
         }
@@ -108,16 +104,15 @@ public class CameraSystem extends BaseSystem {
         int followingId = world.getSystem(TagManager.class).getEntityId(cameraTarget.entityTag);
         Pos pos = mPos.get(followingId);
 
-        float centerX = pos.x + cameraTarget.eCenterX;
-        float centerY = pos.y + cameraTarget.eCenterY;
+        float eCenterX = pos.x + cameraTarget.eCenterX;
+        float eCenterY = pos.y + cameraTarget.eCenterY;
+        float centerX = camera.position.x;
+        float centerY = camera.position.y;
         float activeWidth = cameraTarget.activeWidth;
         float activeHeight = cameraTarget.activeHeight;
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.begin();
-        shapeRenderer.circle(centerX,centerY,3);
+        shapeRenderer.setColor(Color.BLUE);
+        shapeRenderer.circle(eCenterX,eCenterY,3);
         shapeRenderer.rect(centerX-activeWidth/2,centerY-activeHeight/2,activeWidth,activeHeight);
-        shapeRenderer.end();
     }
     public void setFollowTarget(CameraTarget cameraTarget){
         this.cameraTarget = cameraTarget;
@@ -127,9 +122,6 @@ public class CameraSystem extends BaseSystem {
      * 在开发过程中,如果日志等级为DEBUG,则可以通过上下左右来移动摄像头
      */
     private void cameraCtrl(){
-        if (Gdx.app.getLogLevel() != Logger.DEBUG){
-            return;
-        }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
             camera.position.x = camera.position.x+MOVE_SPEED;
         }else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
