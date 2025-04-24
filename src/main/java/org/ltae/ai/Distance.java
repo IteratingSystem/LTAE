@@ -12,7 +12,7 @@ import org.ltae.component.Pos;
 /**
  * @Auther WenLong
  * @Date 2025/4/10 15:50
- * @Description 时间休眠任务
+ * @Description 距离
  **/
 public class Distance extends EcsLeafTask {
 
@@ -45,7 +45,7 @@ public class Distance extends EcsLeafTask {
         Pos targetPos = mPos.get(target);
         Pos pos = mPos.get(entityId);
         float dst = new Vector2(pos.x, pos.y).dst(targetPos.x, targetPos.y);
-        if (distance > dst){
+        if (distance >= dst){
             return Status.SUCCEEDED;
         }
         return Status.FAILED;
