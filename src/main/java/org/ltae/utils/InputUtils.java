@@ -9,17 +9,17 @@ import com.badlogic.gdx.Gdx;
  **/
 public class InputUtils {
     //禁用输入
-    public static boolean disable = false;
+    public static boolean DISABLE = false;
 
     public static boolean isKeyPressed(int key){
-        if (disable){
+        if (DISABLE){
             return false;
         }
 
         return Gdx.input.isKeyPressed(key);
     }
     public static boolean isKeyPressed(int[] keys){
-        if (disable){
+        if (DISABLE){
             return false;
         }
         for (int key : keys) {
