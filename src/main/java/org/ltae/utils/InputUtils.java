@@ -8,10 +8,20 @@ import com.badlogic.gdx.Gdx;
  * @Description 输入工具
  **/
 public class InputUtils {
+    //禁用输入
+    public static boolean disable = false;
+
     public static boolean isKeyPressed(int key){
+        if (disable){
+            return false;
+        }
+
         return Gdx.input.isKeyPressed(key);
     }
     public static boolean isKeyPressed(int[] keys){
+        if (disable){
+            return false;
+        }
         for (int key : keys) {
             if (!Gdx.input.isKeyPressed(key)) {
                 return false;
