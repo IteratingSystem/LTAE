@@ -16,6 +16,7 @@ public class EcsLeafTask extends LeafTask<Entity> {
 
     public World world;
     public Entity entity;
+    public String entityTag;
     public int entityId;
     public TagManager tagManager;
     private void initialize(){
@@ -23,6 +24,7 @@ public class EcsLeafTask extends LeafTask<Entity> {
         world = entity.getWorld();
         entityId = entity.getId();
         tagManager = world.getSystem(TagManager.class);
+        entityTag = tagManager.getTag(entityId);
     }
 
     @Override
