@@ -69,8 +69,6 @@ public class LtaePlugin implements ArtemisPlugin {
                 ltaeBuilder.getWorldScale()));
         //渲染物理效果系统(debug)
         worldConfigurationBuilder.with(new RenderPhysicsSystem());
-        //渲染形状(Debug)
-        worldConfigurationBuilder.with(new RenderShapeSystem());
         //创建实体
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,

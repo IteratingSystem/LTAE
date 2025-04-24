@@ -89,31 +89,14 @@ public class CameraSystem extends BaseSystem {
         float activeHeight = cameraTarget.activeHeight;
 
         // 如果目标实体超出摄像机的活动区域，则调整摄像机位置,平滑过渡到目标位置
-        if (camera.position.x < centerX - activeWidth / 2 || camera.position.x > centerX + activeWidth / 2) {
+        if (camera.position.x < centerX - activeWidth / 2 + cameraTarget.offsetX || camera.position.x > centerX + activeWidth / 2 + cameraTarget.offsetX) {
             camera.position.x = MathUtils.lerp(camera.position.x, centerX, cameraTarget.progress); // 平滑过渡
         }
-        if (camera.position.y < centerY - activeHeight / 2 || camera.position.y > centerY + activeHeight / 2) {
+        if (camera.position.y < centerY - activeHeight / 2 + cameraTarget.offsetY || camera.position.y > centerY + activeHeight / 2 + cameraTarget.offsetY) {
             camera.position.y = MathUtils.lerp(camera.position.y, centerY, cameraTarget.progress); // 平滑过渡
         }
     }
-    public void renderTarget(ShapeRenderer shapeRenderer){
-        if (!verifyTarget()){
-            return;
-        }
 
-        int followingId = world.getSystem(TagManager.class).getEntityId(cameraTarget.entityTag);
-        Pos pos = mPos.get(followingId);
-
-        float eCenterX = pos.x + cameraTarget.eCenterX / zoom;
-        float eCenterY = pos.y + cameraTarget.eCenterY / zoom;
-        float centerX = camera.position.x / zoom;
-        float centerY = camera.position.y / zoom;
-        float activeWidth = cameraTarget.activeWidth / zoom;
-        float activeHeight = cameraTarget.activeHeight / zoom;
-        shapeRenderer.setColor(Color.BLUE);
-        shapeRenderer.circle(eCenterX,eCenterY,3);
-        shapeRenderer.rect(centerX-activeWidth/2,centerY-activeHeight/2,activeWidth,activeHeight);
-    }
     public void setFollowTarget(CameraTarget cameraTarget){
         this.cameraTarget = cameraTarget;
     }

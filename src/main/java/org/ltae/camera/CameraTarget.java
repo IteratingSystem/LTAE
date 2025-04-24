@@ -14,6 +14,10 @@ public class CameraTarget {
     public float activeWidth = 0;
     public float activeHeight = 0;
 
+    //偏移量,表示活动控件的位置可以进行偏倚
+    public float offsetX = 0;
+    public float offsetY = 0;
+
     //平滑过渡增量
     public float progress = 0.1f;
     public CameraTarget(String entityTag){
