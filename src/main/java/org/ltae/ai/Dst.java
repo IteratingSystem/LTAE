@@ -43,7 +43,6 @@ public class Dst extends EcsLeafTask {
         Pos targetPos = mPos.get(target);
         Pos pos = mPos.get(entityId);
         float dst = new Vector2(pos.x, pos.y).dst(targetPos.x, targetPos.y);
-        System.out.println(dst);
         if (distance >= dst){
             return Status.SUCCEEDED;
         }
