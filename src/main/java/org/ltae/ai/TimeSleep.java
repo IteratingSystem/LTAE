@@ -30,9 +30,4 @@ public class TimeSleep extends EcsLeafTask {
         }
         return Status.RUNNING;
     }
-
-    @Override
-    protected Task copyTo(Task task) {
-        return task;
-    }
 }
