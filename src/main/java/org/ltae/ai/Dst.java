@@ -2,9 +2,7 @@ package org.ltae.ai;
 
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
-import com.artemis.managers.TagManager;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
 import com.badlogic.gdx.math.Vector2;
 import org.ltae.component.Pos;
@@ -14,7 +12,7 @@ import org.ltae.component.Pos;
  * @Date 2025/4/10 15:50
  * @Description 距离
  **/
-public class Distance extends EcsLeafTask {
+public class Dst extends EcsLeafTask {
 
     //对方的TAG
     @TaskAttribute
@@ -45,6 +43,7 @@ public class Distance extends EcsLeafTask {
         Pos targetPos = mPos.get(target);
         Pos pos = mPos.get(entityId);
         float dst = new Vector2(pos.x, pos.y).dst(targetPos.x, targetPos.y);
+        System.out.println(dst);
         if (distance >= dst){
             return Status.SUCCEEDED;
         }
