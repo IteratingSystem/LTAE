@@ -26,6 +26,12 @@ public class KeyframeShapeSystem extends IteratingSystem {
     private M<B2dBody> mB2dBody;
     private M<TileAnimations> mTileAnimations;
     private M<Render> mRender;
+
+
+    /**
+     * 每一帧处理,会删除所有的帧形状再重新创建,在此基础上KeyframeShapeData会保持不变,因为其存于keyframeFixSetups中
+     * @param entityId
+     */
     @Override
     protected void process(int entityId) {
         B2dBody b2dBody = mB2dBody.get(entityId);

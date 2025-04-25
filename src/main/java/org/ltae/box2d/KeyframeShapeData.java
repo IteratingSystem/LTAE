@@ -13,5 +13,6 @@ public class KeyframeShapeData extends DefFixData{
     public String aniName;
     public int keyframeIndex;
     public boolean isFlipX = false;
-    public boolean isFinish = false;
+    //是否处理,用于一些判断中,只能处理一次,虽然会有很多帧
+    public boolean isProcessed = false;
 }
