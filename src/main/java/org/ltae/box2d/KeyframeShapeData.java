@@ -1,9 +1,5 @@
 package org.ltae.box2d;
 
-import com.artemis.Entity;
-import org.ltae.box2d.listener.EcsContactListener;
-
-
 /**
  * @Auther WenLong
  * @Date 2025/2/18 11:03
