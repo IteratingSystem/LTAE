@@ -1,0 +1,25 @@
+package org.ltae.ui;
+
+import com.artemis.World;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import org.ltae.system.AssetSystem;
+
+
+/**
+ * @Auther WenLong
+ * @Date 2024/11/26 14:18
+ * @Description
+ **/
+public class BaseUI extends Table {
+    public World world;
+    public AssetSystem assetSystem;
+    public Skin skin;
+    public BaseUI(World world){
+        this.world = world;
+        assetSystem = world.getSystem(AssetSystem.class);
+    }
+    public String getTag(){
+        return getClass().getSimpleName();
+    }
+}
