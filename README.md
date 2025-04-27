@@ -7,6 +7,8 @@ libgdx使用tiled地图编辑器编辑实体关联至artemisECS框架的引擎�
 --gradle:8.8
 
 # 部分说明
+1.在tiled中导入propertytypes.json文件,即可使用此工具所有的组件(src/main/resources/propertytypes.json)
+
 
 # 开发中遇到的大坑
 Box2D中传感器只会触发BeginContact/EndContact回调,这是正常现象!
