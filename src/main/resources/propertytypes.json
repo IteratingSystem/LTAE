@@ -1,0 +1,372 @@
+[
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 4,
+        "members": [
+            {
+                "name": "defFixed",
+                "type": "bool",
+                "value": true
+            },
+            {
+                "name": "defType",
+                "propertyType": "BodyType",
+                "type": "string",
+                "value": "StaticBody"
+            },
+            {
+                "name": "linearDamping",
+                "type": "float",
+                "value": 0.5
+            }
+        ],
+        "name": "B2dBody",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "id": 5,
+        "name": "BodyType",
+        "storageType": "string",
+        "type": "enum",
+        "values": [
+            "StaticBody",
+            "KinematicBody",
+            "DynamicBody"
+        ],
+        "valuesAsFlags": false
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 16,
+        "members": [
+            {
+                "name": "treeName",
+                "type": "string",
+                "value": ""
+            }
+        ],
+        "name": "BTree",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "id": 14,
+        "name": "CategoryBits",
+        "storageType": "string",
+        "type": "enum",
+        "values": [
+            "I",
+            "II",
+            "III",
+            "IV",
+            "V",
+            "VI",
+            "VII",
+            "VIII",
+            "IX",
+            "X",
+            "XI",
+            "XII",
+            "XIII",
+            "XIV",
+            "XV",
+            "XVI"
+        ],
+        "valuesAsFlags": false
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 13,
+        "members": [
+            {
+                "name": "horizontalDir",
+                "propertyType": "HorizontalDir",
+                "type": "string",
+                "value": "NULL"
+            },
+            {
+                "name": "orthogonalDir",
+                "propertyType": "OrthogonalDir",
+                "type": "string",
+                "value": "NULL"
+            },
+            {
+                "name": "verticalDir",
+                "propertyType": "VerticalDir",
+                "type": "string",
+                "value": "NULL"
+            }
+        ],
+        "name": "Direction",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 6,
+        "members": [
+            {
+                "name": "categoryBit",
+                "propertyType": "CategoryBits",
+                "type": "string",
+                "value": "I"
+            },
+            {
+                "name": "density",
+                "type": "float",
+                "value": 0.5
+            },
+            {
+                "name": "friction",
+                "type": "float",
+                "value": 0.5
+            },
+            {
+                "name": "isSensor",
+                "type": "bool",
+                "value": true
+            },
+            {
+                "name": "listenerSimpleName",
+                "type": "string",
+                "value": ""
+            },
+            {
+                "name": "maskBits",
+                "propertyType": "MaskBits",
+                "type": "string",
+                "value": "I"
+            },
+            {
+                "name": "restitution",
+                "type": "float",
+                "value": 0.5
+            },
+            {
+                "name": "sensorType",
+                "propertyType": "SensorType",
+                "type": "string",
+                "value": "NULL"
+            }
+        ],
+        "name": "FixDef",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "id": 10,
+        "name": "HorizontalDir",
+        "storageType": "string",
+        "type": "enum",
+        "values": [
+            "NULL",
+            "LEFT",
+            "RIGHT"
+        ],
+        "valuesAsFlags": false
+    },
+    {
+        "id": 15,
+        "name": "MaskBits",
+        "storageType": "string",
+        "type": "enum",
+        "values": [
+            "I",
+            "II",
+            "III",
+            "IV",
+            "V",
+            "VI",
+            "VII",
+            "VIII",
+            "IX",
+            "X",
+            "XI",
+            "XII",
+            "XIII",
+            "XIV",
+            "XV",
+            "XVI"
+        ],
+        "valuesAsFlags": true
+    },
+    {
+        "id": 11,
+        "name": "OrthogonalDir",
+        "storageType": "string",
+        "type": "enum",
+        "values": [
+            "NULL",
+            "LEFT",
+            "RIGHT",
+            "UP",
+            "DOWN"
+        ],
+        "valuesAsFlags": false
+    },
+    {
+        "id": 3,
+        "name": "PlayMode",
+        "storageType": "string",
+        "type": "enum",
+        "values": [
+            "NORMAL",
+            "REVERSED",
+            "LOOP",
+            "LOOP_REVERSED",
+            "LOOP_PINGPONG",
+            "LOOP_RANDOM"
+        ],
+        "valuesAsFlags": false
+    },
+    {
+        "id": 7,
+        "name": "SensorType",
+        "storageType": "string",
+        "type": "enum",
+        "values": [
+            "NULL",
+            "INTER",
+            "BE_INTER",
+            "ATK",
+            "BE_ATK",
+            "ON_FLOOR"
+        ],
+        "valuesAsFlags": false
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 9,
+        "members": [
+            {
+                "name": "current",
+                "type": "string",
+                "value": ""
+            },
+            {
+                "name": "simpleName",
+                "type": "string",
+                "value": ""
+            }
+        ],
+        "name": "StateComp",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 2,
+        "members": [
+            {
+                "name": "name",
+                "type": "string",
+                "value": ""
+            },
+            {
+                "name": "offsetX",
+                "type": "float",
+                "value": 0
+            },
+            {
+                "name": "offsetY",
+                "type": "float",
+                "value": 0
+            },
+            {
+                "name": "playModeName",
+                "propertyType": "PlayMode",
+                "type": "string",
+                "value": "NORMAL"
+            }
+        ],
+        "name": "TileAnimation",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 8,
+        "members": [
+            {
+                "name": "current",
+                "type": "string",
+                "value": ""
+            }
+        ],
+        "name": "TileAnimations",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "id": 12,
+        "name": "VerticalDir",
+        "storageType": "string",
+        "type": "enum",
+        "values": [
+            "NULL",
+            "UP",
+            "DOWN"
+        ],
+        "valuesAsFlags": false
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 1,
+        "members": [
+            {
+                "name": "index",
+                "type": "float",
+                "value": 0
+            },
+            {
+                "name": "offset",
+                "type": "float",
+                "value": 0
+            }
+        ],
+        "name": "ZIndex",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    }
+]
