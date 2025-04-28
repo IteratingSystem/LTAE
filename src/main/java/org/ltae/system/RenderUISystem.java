@@ -14,20 +14,19 @@ import org.ltae.ui.BaseUI;
  * @Description ui系统
  **/
 public class RenderUISystem extends BaseSystem {
-    private ScreenViewport uiViewport;
     private Stage mainStage;
-    public Stack stack;
-
-
-
+    private Stack stack;
+    private ExtendViewport extendViewport;
+    public RenderUISystem(int width,int height){
+        extendViewport = new ExtendViewport(width,height);
+    }
 
     @Override
     protected void initialize() {
         stack = new Stack();
         stack.setFillParent(true);
 
-        uiViewport = new ScreenViewport();
-        ExtendViewport extendViewport = new ExtendViewport(320,180);
+
         mainStage = new Stage(extendViewport);
         mainStage.addActor(stack);
         Gdx.input.setInputProcessor(mainStage);

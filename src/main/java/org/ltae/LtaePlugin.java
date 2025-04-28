@@ -70,7 +70,7 @@ public class LtaePlugin implements ArtemisPlugin {
         //渲染物理效果系统(debug)
         worldConfigurationBuilder.with(new RenderPhysicsSystem());
         //绘制UI
-        worldConfigurationBuilder.with(new RenderUISystem());
+        worldConfigurationBuilder.with(new RenderUISystem(ltaeBuilder.getUIWidth(),ltaeBuilder.getUIHeight()));
         //创建实体
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
@@ -80,9 +80,5 @@ public class LtaePlugin implements ArtemisPlugin {
                         ltaeBuilder.getContactListenerPackage(),
                         ltaeBuilder.getEntityLayerName(),
                         ltaeBuilder.getWorldScale()));
-    }
-
-    public void setFollowTarget(CameraTarget cameraTarget){
-        cameraSystem.setFollowTarget(cameraTarget);
     }
 }

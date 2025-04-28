@@ -8,6 +8,9 @@ package org.ltae;
  * @Description
  **/
 public class LtaeBuilder {
+    //ui视图宽高
+    private int uiWidth = 640;
+    private int uiHeight = 480;
     private float windowWidth = 640;      // 默认窗口宽度
     private float windowHeight = 480;     // 默认窗口高度
     private float cameraZoom = 1.0f;      // 默认缩放比例
@@ -54,7 +57,20 @@ public class LtaeBuilder {
         this.worldScale = worldScale;
         return this;
     }
-
+    public LtaeBuilder setUIWidth(int uiWidth) {
+        this.uiWidth = uiWidth;
+        return this;
+    }
+    public LtaeBuilder setUIHeight(int uiHeight) {
+        this.uiHeight = uiHeight;
+        return this;
+    }
+    public int getUIWidth() {
+        return uiWidth;
+    }
+    public int getUIHeight() {
+        return uiHeight;
+    }
     public LtaeBuilder setGx(float gx) {
         this.gx = gx;
         return this;
