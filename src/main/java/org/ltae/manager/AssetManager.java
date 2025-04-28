@@ -35,13 +35,13 @@ public class AssetManager {
         if (instance == null) {
             resolver = new AbsoluteFileHandleResolver();
             instance = new AssetManager();
+            gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(resolver);
         }
         return instance;
     }
 
 
     public void setLoaders(String propTypePath) {
-        gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(resolver);
         gdxAssetManager.setLoader(TiledMap.class, new DefMapLoader(propTypePath));
         gdxAssetManager.setLoader(BehaviorTree.class, new BehaviorTreeLoader(resolver));
     }

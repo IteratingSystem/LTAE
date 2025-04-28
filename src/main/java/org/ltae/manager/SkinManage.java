@@ -22,7 +22,7 @@ public class SkinManage {
         }
         return instance;
     }
-    public static void initialize(String skinPath){
+    public static Skin initialize(String skinPath){
         AssetManager assetManager = AssetManager.getInstance();
         assetManager.loadAsset(skinPath,Skin.class);
         assetManager.getGdxAssetManager().finishLoading();
@@ -32,5 +32,6 @@ public class SkinManage {
         for (Texture texture : textures) {
             texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         }
+        return instance;
     }
 }
