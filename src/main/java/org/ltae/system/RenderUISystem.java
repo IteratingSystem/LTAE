@@ -26,6 +26,8 @@ public class RenderUISystem extends BaseSystem {
 
     @Override
     protected void initialize() {
+        uiMap = new ObjectMap<>();
+
         stack = new Stack();
         stack.setFillParent(true);
 
