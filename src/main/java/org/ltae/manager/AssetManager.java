@@ -3,6 +3,7 @@ package org.ltae.manager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLoader;
+import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.assets.loaders.AssetLoader;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
@@ -44,6 +45,9 @@ public class AssetManager {
     public void setLoaders(String propTypePath) {
         gdxAssetManager.setLoader(TiledMap.class, new DefMapLoader(propTypePath));
         gdxAssetManager.setLoader(BehaviorTree.class, new BehaviorTreeLoader(resolver));
+    }
+    public <T, P extends AssetLoaderParameters<T>> void setLoader(Class<T> type, AssetLoader<T, P> loader) {
+        gdxAssetManager.setLoader(type,loader);
     }
 
     public com.badlogic.gdx.assets.AssetManager getGdxAssetManager(){
