@@ -3,10 +3,14 @@ package org.ltae.system;
 import com.artemis.BaseSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import org.ltae.manager.AssetManager;
+
+import javax.xml.crypto.dsig.spec.XPathType;
 
 /**
  * @Author: WenLong
@@ -31,15 +35,29 @@ public class AssetSystem extends BaseSystem {
 
     @Override
     protected void initialize() {
+        //加载skin
         skin = AssetManager.getInstance().getData(skinPath,Skin.class);
-        tiledData = AssetManager.getInstance().getData(tiledMapPath, "tmx", TiledMap.class);
-        bTreeData = AssetManager.getInstance().getData(bTreePath,"tree",BehaviorTree.class);
-        if (tiledData.isEmpty()) {
-            Gdx.app.log(TAG,"tiledData is empty,Please load the resources first!");
+        //将皮肤中的内容改为临近采样
+        if (skin != null){
+            ObjectSet<Texture> textures = skin.getAtlas().getTextures();
+            for (Texture texture : textures) {
+                texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            }
         }else {
-            Gdx.app.log(TAG,"Loading resource object completed!");
+            Gdx.app.log(TAG,"skin object is null!");
         }
 
+        //瓦片地图数据
+        tiledData = AssetManager.getInstance().getData(tiledMapPath, "tmx", TiledMap.class);
+        if (tiledData.isEmpty()) {
+            Gdx.app.log(TAG,"tiledData is empty,Please load the resources first!");
+        }
+
+        //行为树
+        bTreeData = AssetManager.getInstance().getData(bTreePath,"tree",BehaviorTree.class);
+        if (bTreeData.isEmpty()){
+            Gdx.app.log(TAG,"bTreeData is empty,Please load the resources first!");
+        }
     }
 
     @Override

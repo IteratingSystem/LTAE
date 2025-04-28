@@ -95,6 +95,11 @@ public class AssetManager {
         return objectMap;
     }
     public <T> T getData(String path,Class<T> aClass) {
+        FileHandle fileHandle = Gdx.files.internal(path);
+        if (!fileHandle.exists()) {
+            Gdx.app.error(TAG,"Failed to getData,fileHandle not is exists!Path: "+path);
+            return null;
+        }
         T asset = gdxAssetManager.get(path, aClass);
         return asset;
     }
