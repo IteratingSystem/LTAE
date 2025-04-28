@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import org.ltae.manager.AssetManager;
+import org.ltae.manager.SkinManage;
 
 import javax.xml.crypto.dsig.spec.XPathType;
 
@@ -36,16 +37,12 @@ public class AssetSystem extends BaseSystem {
     @Override
     protected void initialize() {
         //加载skin
-        skin = AssetManager.getInstance().getData(skinPath,Skin.class);
-        //将皮肤中的内容改为临近采样
-        if (skin != null){
-            ObjectSet<Texture> textures = skin.getAtlas().getTextures();
-            for (Texture texture : textures) {
-                texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-            }
-        }else {
-            Gdx.app.log(TAG,"skin object is null!");
+        skin = SkinManage.getInstance();
+        if (skin == null){
+            SkinManage.initialize(skinPath);
+            skin = SkinManage.getInstance();
         }
+
 
         //瓦片地图数据
         tiledData = AssetManager.getInstance().getData(tiledMapPath, "tmx", TiledMap.class);
