@@ -18,6 +18,7 @@ public class BaseUI extends Table {
     public BaseUI(World world){
         this.world = world;
         assetSystem = world.getSystem(AssetSystem.class);
+        skin = assetSystem.skin;
     }
     public String getTag(){
         return getClass().getSimpleName();
