@@ -94,6 +94,10 @@ public class AssetManager {
         }
         return objectMap;
     }
+    public <T> T getData(String path,Class<T> aClass) {
+        T asset = gdxAssetManager.get(path, aClass);
+        return asset;
+    }
 
     public void update(){
         gdxAssetManager.update();

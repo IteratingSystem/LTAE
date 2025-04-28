@@ -4,6 +4,7 @@ import com.artemis.BaseSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.manager.AssetManager;
 
@@ -14,19 +15,23 @@ import org.ltae.manager.AssetManager;
  */
 public class AssetSystem extends BaseSystem {
     private final static String TAG = AssetSystem.class.getSimpleName();
-    private final String tiledMapPath;
-    private final String bTreePath;
+    private String tiledMapPath;
+    private String bTreePath;
+    private String skinPath;
     //地图数据
     public ObjectMap<String,TiledMap> tiledData;
     //行为树数据
     public ObjectMap<String, BehaviorTree> bTreeData;
-    public AssetSystem (String tiledMapPath, String bTreePath){
+    public Skin skin;
+    public AssetSystem (String tiledMapPath, String bTreePath,String skinPath){
         this.tiledMapPath = tiledMapPath;
         this.bTreePath = bTreePath;
+        this.skinPath = skinPath;
     }
 
     @Override
     protected void initialize() {
+        skin = AssetManager.getInstance().getData(skinPath,Skin.class);
         tiledData = AssetManager.getInstance().getData(tiledMapPath, "tmx", TiledMap.class);
         bTreeData = AssetManager.getInstance().getData(bTreePath,"tree",BehaviorTree.class);
         if (tiledData.isEmpty()) {

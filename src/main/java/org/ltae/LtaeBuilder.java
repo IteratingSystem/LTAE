@@ -23,6 +23,7 @@ public class LtaeBuilder {
     private String[] phyLayerNames = {"physicsLayer"}; // 默认物理图层
     private String tileMapPath = "tiled/"; // 默认瓦片地图路径
     private String bTreePath = "tree/"; // 默认行为树路径
+    private String skinPath = "skin/main.json";
     private String entityLayerName = "entities";       // 默认实体图层
     private String compPackage = "com.game.component";    // 默认组件包路径
     private String statePackage = "com.game.state";    // 默认组件包路径
@@ -63,6 +64,10 @@ public class LtaeBuilder {
     }
     public LtaeBuilder setUIHeight(int uiHeight) {
         this.uiHeight = uiHeight;
+        return this;
+    }
+    public LtaeBuilder setSkinPath(String skinPath) {
+        this.skinPath = skinPath;
         return this;
     }
     public int getUIWidth() {
@@ -181,5 +186,9 @@ public class LtaeBuilder {
 
     public String getBTreePath() {
         return bTreePath;
+    }
+
+    public String getSkinPath() {
+        return skinPath;
     }
 }
