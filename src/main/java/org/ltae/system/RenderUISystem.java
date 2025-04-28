@@ -17,7 +17,6 @@ import org.ltae.ui.BaseUI;
 public class RenderUISystem extends BaseSystem {
     private final static String TAG = RenderUISystem.class.getSimpleName();
     private Stage mainStage;
-    private Stack stack;
     private ExtendViewport extendViewport;
     private ObjectMap<String,BaseUI> uiMap;
     public RenderUISystem(int width,int height){
@@ -27,13 +26,7 @@ public class RenderUISystem extends BaseSystem {
     @Override
     protected void initialize() {
         uiMap = new ObjectMap<>();
-
-        stack = new Stack();
-        stack.setFillParent(true);
-
-
         mainStage = new Stage(extendViewport);
-        mainStage.addActor(stack);
         Gdx.input.setInputProcessor(mainStage);
     }
 
@@ -51,7 +44,7 @@ public class RenderUISystem extends BaseSystem {
             return;
         }
         uiMap.put(name,ui);
-        stack.addActor(ui);
+        mainStage.addActor(ui);
     }
     public BaseUI getUI(String name){
         if (!uiMap.containsKey(name)) {
