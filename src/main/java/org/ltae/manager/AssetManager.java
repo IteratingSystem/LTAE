@@ -51,6 +51,16 @@ public class AssetManager {
     }
 
     /**
+     * 加载载指定文件到类型
+     * @param path
+     * @param aClass
+     * @param <T>
+     */
+    public <T> void loadAsset(String path, Class<T> aClass) {
+        gdxAssetManager.load(path, aClass);
+    }
+
+    /**
      * 加载指定路径下所有指定后缀的文件为指定的类
      * @param path 路径
      * @param suffix 文件后缀
@@ -61,7 +71,7 @@ public class AssetManager {
         FileHandle[] fileHandles = fileHandle.list(suffix);
         for (FileHandle handle : fileHandles) {
             String completePath = handle.path();
-            gdxAssetManager.load(completePath, aClass);
+            loadAsset(completePath, aClass);
         }
     }
 
