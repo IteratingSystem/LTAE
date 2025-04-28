@@ -51,7 +51,7 @@ public class RenderUISystem extends BaseSystem {
             return;
         }
         uiMap.put(name,ui);
-        stack.add(ui);
+        stack.addActor(ui);
     }
     public BaseUI getUI(String name){
         if (!uiMap.containsKey(name)) {
