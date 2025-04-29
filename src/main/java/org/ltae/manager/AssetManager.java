@@ -86,6 +86,7 @@ public class AssetManager {
     public <T> void loadAssets(String path, String suffix, Class<T> aClass) {
         FileHandle fileHandle = Gdx.files.internal(path);
         FileHandle[] fileHandles = fileHandle.list(suffix);
+        Gdx.app.log(TAG,"loadAssets fileHandle: "+path+",fileHandle list size: "+suffix);
         for (FileHandle handle : fileHandles) {
             String completePath = handle.path();
             Gdx.app.log(TAG,"loadAssets filehandles list: "+completePath);
@@ -100,7 +101,7 @@ public class AssetManager {
      * @param aClass 类型
      * @return 加载的对象映射
      */
-    public <T> ObjectMap<String, T> getData(String path, String suffix, Class<T> aClass) {
+    public <T> ObjectMap<String, T> getDatas(String path, String suffix, Class<T> aClass) {
 
         ObjectMap<String, T> objectMap = new ObjectMap<>();
         FileHandle fileHandle = Gdx.files.internal(path);
