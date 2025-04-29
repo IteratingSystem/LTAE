@@ -6,6 +6,7 @@ import com.artemis.link.EntityLinkManager;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.TeamManager;
+import com.badlogic.gdx.Gdx;
 import net.mostlyoriginal.api.event.common.EventSystem;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.ExtendedComponentMapperPlugin;
 import net.mostlyoriginal.plugin.ProfilerPlugin;
@@ -83,5 +84,9 @@ public class LtaePlugin implements ArtemisPlugin {
                         ltaeBuilder.getContactListenerPackage(),
                         ltaeBuilder.getEntityLayerName(),
                         ltaeBuilder.getWorldScale()));
+    }
+
+    public void setLogLevel(int i){
+        Gdx.app.setLogLevel(i);
     }
 }
