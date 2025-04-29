@@ -73,6 +73,10 @@ public class AssetManager {
     }
 
 
+    /**
+     * 自动加载默认资源,目前包含地图与行为树文件,逻辑是靠识别特定的文件后缀,因此没有特别后缀的文件需要手动加载
+     * 依赖于assets模块中的assets.txt
+     */
     public void loadAssets() {
         if (!assetsHandle.exists()) {
             Gdx.app.error(TAG,"assets.txt is not exists!");
@@ -93,8 +97,13 @@ public class AssetManager {
     }
 
 
-
-
+    /**
+     * gdxAssetManager.get的套娃,用于获取已经加载过的资源得到对象
+     * @param path
+     * @param aClass
+     * @return
+     * @param <T>
+     */
     public <T> T getObejct(String path,Class<T> aClass) {
         return gdxAssetManager.get(path, aClass);
     }
