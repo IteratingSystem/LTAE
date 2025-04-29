@@ -137,7 +137,7 @@ public class AssetManager {
         for (String path : assetPath) {
             if (path.endsWith(suffix)) {
                 fileHandle = Gdx.files.internal(path);
-                if (fileHandle.exists()){
+                if (!fileHandle.exists()){
                     Gdx.app.log(TAG,"getObjects continue: fileHandle is exists,path: "+path);
                     continue;
                 }
