@@ -38,13 +38,13 @@ public class AssetManager {
      */
     public static AssetManager getInstance() {
         if (instance == null) {
-            //以jar包运行时
-            if(Main.class.getResource("").getProtocol().equals("jar")){
-                resolver = new ClasspathFileHandleResolver();
-            }else {
-                resolver = new AbsoluteFileHandleResolver();
-            }
-
+//            //以jar包运行时
+//            if(AssetManager.class.getResource("").getProtocol().equals("jar")){
+//                resolver = new ClasspathFileHandleResolver();
+//            }else {
+//                resolver = new AbsoluteFileHandleResolver();
+//            }
+            resolver = new ClasspathFileHandleResolver();
             instance = new AssetManager();
             gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(resolver);
         }
