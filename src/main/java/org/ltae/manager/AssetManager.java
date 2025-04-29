@@ -7,10 +7,14 @@ import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.assets.loaders.AssetLoader;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.AbsoluteFileHandleResolver;
+import com.badlogic.gdx.assets.loaders.resolvers.ClasspathFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.sun.tools.javac.Main;
 import org.ltae.tiled.loader.DefMapLoader;
+
+import java.util.Objects;
 
 
 /**
@@ -34,7 +38,13 @@ public class AssetManager {
      */
     public static AssetManager getInstance() {
         if (instance == null) {
-            resolver = new AbsoluteFileHandleResolver();
+            //以jar包运行时
+            if(Main.class.getResource("").getProtocol().equals("jar")){
+                resolver = new ClasspathFileHandleResolver();
+            }else {
+                resolver = new AbsoluteFileHandleResolver();
+            }
+
             instance = new AssetManager();
             gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(resolver);
         }
