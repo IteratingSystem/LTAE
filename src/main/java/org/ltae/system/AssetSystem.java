@@ -47,13 +47,13 @@ public class AssetSystem extends BaseSystem {
         //瓦片地图数据
         tiledData = AssetManager.getInstance().getData(tiledMapPath, "tmx", TiledMap.class);
         if (tiledData.isEmpty()) {
-            Gdx.app.log(TAG,"tiledData is empty,Please load the resources first!");
+            Gdx.app.log(TAG,"tiledData is empty,Please load the resources first!tiledMapPath: "+tiledMapPath);
         }
 
         //行为树
         bTreeData = AssetManager.getInstance().getData(bTreePath,"tree",BehaviorTree.class);
         if (bTreeData.isEmpty()){
-            Gdx.app.log(TAG,"bTreeData is empty,Please load the resources first!");
+            Gdx.app.log(TAG,"bTreeData is empty,Please load the resources first!bTreePath: "+bTreePath);
         }
     }
 
