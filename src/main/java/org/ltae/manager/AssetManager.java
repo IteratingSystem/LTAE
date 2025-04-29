@@ -86,7 +86,7 @@ public class AssetManager {
     public <T> void loadAssets(String path, String suffix, Class<T> aClass) {
         FileHandle fileHandle = Gdx.files.internal(path);
         FileHandle[] fileHandles = fileHandle.list(suffix);
-        Gdx.app.log(TAG,"loadAssets fileHandle: "+path+",fileHandle list size: "+suffix);
+        Gdx.app.log(TAG,"loadAssets fileHandle: "+path+",fileHandle list length: "+fileHandles.length);
         for (FileHandle handle : fileHandles) {
             String completePath = handle.path();
             Gdx.app.log(TAG,"loadAssets filehandles list: "+completePath);
