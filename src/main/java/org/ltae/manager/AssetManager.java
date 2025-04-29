@@ -84,15 +84,11 @@ public class AssetManager {
      * @param aClass 类型
      */
     public <T> void loadAssets(String path, String suffix, Class<T> aClass) {
-        if (!path.trim().endsWith("/")){
-            path = path.trim()+"/";
-        }
-
         FileHandle fileHandle = Gdx.files.internal(path);
         FileHandle[] fileHandles = fileHandle.list(suffix);
         for (FileHandle handle : fileHandles) {
-            String completePath = path+handle.path();
-            Gdx.app.debug(TAG,"loadAssets filehandles list: "+completePath);
+            String completePath = handle.path();
+            Gdx.app.log(TAG,"loadAssets filehandles list: "+completePath);
             loadAsset(completePath, aClass);
         }
     }
@@ -105,16 +101,13 @@ public class AssetManager {
      * @return 加载的对象映射
      */
     public <T> ObjectMap<String, T> getData(String path, String suffix, Class<T> aClass) {
-        if (!path.trim().endsWith("/")){
-            path = path.trim()+"/";
-        }
 
         ObjectMap<String, T> objectMap = new ObjectMap<>();
         FileHandle fileHandle = Gdx.files.internal(path);
         FileHandle[] fileHandles = fileHandle.list(suffix);
         for (FileHandle file : fileHandles) {
             String fileName = file.nameWithoutExtension();
-            String completePath = path+file.path();
+            String completePath = file.path();
             T asset = gdxAssetManager.get(completePath, aClass);
             objectMap.put(fileName, asset);
         }
