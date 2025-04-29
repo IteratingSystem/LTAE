@@ -26,7 +26,7 @@ public class SkinManage {
         AssetManager assetManager = AssetManager.getInstance();
         assetManager.loadAsset(skinPath,Skin.class);
         assetManager.getGdxAssetManager().finishLoading();
-        instance = assetManager.getData(skinPath,Skin.class);
+        instance = assetManager.getObejct(skinPath,Skin.class);
         //将皮肤中的内容改为临近采样
         ObjectSet<Texture> textures = instance.getAtlas().getTextures();
         for (Texture texture : textures) {

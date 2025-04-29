@@ -11,6 +11,7 @@ import com.badlogic.gdx.assets.loaders.resolvers.ClasspathFileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.sun.tools.javac.Main;
 import org.ltae.tiled.loader.DefMapLoader;
@@ -27,6 +28,7 @@ public class AssetManager {
     private static final String TAG = AssetManager.class.getSimpleName();
     private static AssetManager instance;
     private static FileHandleResolver resolver;
+    private static FileHandle assetsHandle;
     private static com.badlogic.gdx.assets.AssetManager gdxAssetManager;
 
     private AssetManager() {
@@ -39,14 +41,7 @@ public class AssetManager {
      */
     public static AssetManager getInstance() {
         if (instance == null) {
-//            //以jar包运行时
-//            if(AssetManager.class.getResource("").getProtocol().equals("jar")){
-//                resolver = new ClasspathFileHandleResolver();
-//            }else {
-//                resolver = new AbsoluteFileHandleResolver();
-//            }
-//            resolver = new ClasspathFileHandleResolver();
-//            resolver = new AbsoluteFileHandleResolver();
+            assetsHandle = Gdx.files.internal("assets.txt");
             resolver = new InternalFileHandleResolver();
             instance = new AssetManager();
             gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(resolver);
@@ -77,56 +72,75 @@ public class AssetManager {
         gdxAssetManager.load(path, aClass);
     }
 
-    /**
-     * 加载指定路径下所有指定后缀的文件为指定的类
-     * @param path 路径,不允许传入带空格的路径
-     * @param suffix 文件后缀
-     * @param aClass 类型
-     */
-    public <T> void loadAssets(String path, String suffix, Class<T> aClass) {
-        FileHandle fileHandle = Gdx.files.internal(path);
-        boolean directory = fileHandle.isDirectory();
-        FileHandle[] fileHandles = fileHandle.list(suffix);
-        Gdx.app.log(TAG,"loadAssets fileHandle: "+path);
-        Gdx.app.log(TAG,"fileHandle.list(suffix).length: "+fileHandle.list(suffix).length);
-        Gdx.app.log(TAG,"fileHandle.list().length: "+fileHandle.list().length);
-        Gdx.app.log(TAG,"fileHandle.isDirectory(): "+directory);
-        for (FileHandle handle : fileHandles) {
-            String completePath = handle.path();
-            Gdx.app.log(TAG,"loadAssets filehandles list: "+completePath);
-            loadAsset(completePath, aClass);
+
+    public void loadAssets() {
+        if (!assetsHandle.exists()) {
+            Gdx.app.error(TAG,"assets.txt is not exists!");
+            return;
+        }
+        String assetsPath = assetsHandle.readString();
+        String[] assetPath = assetsPath.split("\n");
+        for (String path : assetPath) {
+            if (path.endsWith(".tmx")) {
+                loadAsset(path,TiledMap.class);
+                continue;
+            }
+            if (path.endsWith(".tree")) {
+                loadAsset(path,BehaviorTree.class);
+                continue;
+            }
         }
     }
 
-    /**
-     * 将路径下的文件加载为指定类型的对象，文件名作为键（不包含后缀）
-     * @param path 路径
-     * @param suffix 文件后缀
-     * @param aClass 类型
-     * @return 加载的对象映射
-     */
-    public <T> ObjectMap<String, T> getDatas(String path, String suffix, Class<T> aClass) {
 
-        ObjectMap<String, T> objectMap = new ObjectMap<>();
-        FileHandle fileHandle = Gdx.files.internal(path);
-        FileHandle[] fileHandles = fileHandle.list(suffix);
-        for (FileHandle file : fileHandles) {
-            String fileName = file.nameWithoutExtension();
-            String completePath = file.path();
-            T asset = gdxAssetManager.get(completePath, aClass);
-            objectMap.put(fileName, asset);
-        }
-        return objectMap;
+
+
+    public <T> T getObejct(String path,Class<T> aClass) {
+        return gdxAssetManager.get(path, aClass);
     }
-    public <T> T getData(String path,Class<T> aClass) {
-        FileHandle fileHandle = Gdx.files.internal(path);
-        if (!fileHandle.exists()) {
-            Gdx.app.error(TAG,"Failed to getData,fileHandle not is exists!Path: "+path);
+
+    /**
+     * 传入类型,获取已加载的所有此类型的对象,最后返回为ObjectMap<name, object>,其中name是文件名,非路径也无后缀
+     * @param aClass
+     * @return
+     * @param <T>
+     */
+    public <T> ObjectMap<String, T> getObjects(Class<T> aClass) {
+        if (!assetsHandle.exists()) {
+            Gdx.app.error(TAG,"assets.txt is not exists!");
             return null;
         }
-        T asset = gdxAssetManager.get(path, aClass);
-        return asset;
+
+        String suffix;
+        if (aClass == TiledMap.class) {
+            suffix = ".tmx";
+        }else if (aClass == BehaviorTree.class){
+            suffix = ".tree";
+        }else {
+            Gdx.app.error(TAG,"Filed to getObjects,aClass is unknown: " + aClass);
+            return null;
+        }
+
+        String assetsPath = assetsHandle.readString();
+        String[] assetPath = assetsPath.split("\n");
+        ObjectMap<String, T> objectMap = new ObjectMap<>();
+        FileHandle fileHandle;
+        for (String path : assetPath) {
+            if (path.endsWith(suffix)) {
+                fileHandle = Gdx.files.internal(path);
+                if (fileHandle.exists()){
+                    Gdx.app.log(TAG,"getObjects continue: fileHandle is exists,path: "+path);
+                    continue;
+                }
+                T obejct = getObejct(path, aClass);
+                String name = fileHandle.nameWithoutExtension();
+                objectMap.put(name,obejct);
+            }
+        }
+
+        return objectMap;
     }
+
 
     public void update(){
         gdxAssetManager.update();

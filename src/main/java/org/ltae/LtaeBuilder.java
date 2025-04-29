@@ -21,8 +21,6 @@ public class LtaeBuilder {
 
     private String mapName = "defaultMap"; // 默认加载的地图名称
     private String[] phyLayerNames = {"physicsLayer"}; // 默认物理图层
-    private String tileMapPath = "tiled/"; // 默认瓦片地图路径
-    private String bTreePath = "tree/"; // 默认行为树路径
     private String skinPath = "skin/main.json";
     private String entityLayerName = "entities";       // 默认实体图层
     private String compPackage = "com.game.component";    // 默认组件包路径
@@ -86,15 +84,6 @@ public class LtaeBuilder {
         return this;
     }
 
-    public LtaeBuilder setTileMapPath(String tileMapPath) {
-        this.tileMapPath = tileMapPath;
-        return this;
-    }
-    public LtaeBuilder setBTreePathPath(String bTreePath) {
-        this.bTreePath = bTreePath;
-        return this;
-    }
-
     public LtaeBuilder setMapName(String mapName) {
         this.mapName = mapName;
         return this;
@@ -154,9 +143,6 @@ public class LtaeBuilder {
         return gy;
     }
 
-    public String getTileMapPath() {
-        return tileMapPath;
-    }
 
     public String getMapName() {
         return mapName;
@@ -182,10 +168,6 @@ public class LtaeBuilder {
 
     public boolean getDoSleep() {
         return doSleep;
-    }
-
-    public String getBTreePath() {
-        return bTreePath;
     }
 
     public String getSkinPath() {

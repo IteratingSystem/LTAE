@@ -20,17 +20,13 @@ import javax.xml.crypto.dsig.spec.XPathType;
  */
 public class AssetSystem extends BaseSystem {
     private final static String TAG = AssetSystem.class.getSimpleName();
-    private String tiledMapPath;
-    private String bTreePath;
     private String skinPath;
     //地图数据
     public ObjectMap<String,TiledMap> tiledData;
     //行为树数据
     public ObjectMap<String, BehaviorTree> bTreeData;
     public Skin skin;
-    public AssetSystem (String tiledMapPath, String bTreePath,String skinPath){
-        this.tiledMapPath = tiledMapPath;
-        this.bTreePath = bTreePath;
+    public AssetSystem (String skinPath){
         this.skinPath = skinPath;
     }
 
@@ -43,17 +39,15 @@ public class AssetSystem extends BaseSystem {
             skin = SkinManage.getInstance();
         }
 
-
         //瓦片地图数据
-        tiledData = AssetManager.getInstance().getDatas(tiledMapPath, "tmx", TiledMap.class);
+        tiledData = AssetManager.getInstance().getObjects(TiledMap.class);
         if (tiledData.isEmpty()) {
-            Gdx.app.log(TAG,"tiledData is empty,Please load the resources first!tiledMapPath: "+tiledMapPath);
+            Gdx.app.log(TAG,"tiledData is empty,Please load the resources first!");
         }
-
         //行为树
-        bTreeData = AssetManager.getInstance().getDatas(bTreePath,"tree",BehaviorTree.class);
+        bTreeData = AssetManager.getInstance().getObjects(BehaviorTree.class);
         if (bTreeData.isEmpty()){
-            Gdx.app.log(TAG,"bTreeData is empty,Please load the resources first!bTreePath: "+bTreePath);
+            Gdx.app.log(TAG,"bTreeData is empty,Please load the resources first!");
         }
     }
 
