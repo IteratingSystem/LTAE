@@ -84,9 +84,11 @@ public class AssetManager {
      * @param aClass 类型
      */
     public <T> void loadAssets(String path, String suffix, Class<T> aClass) {
-        FileHandle fileHandle = Gdx.files.internal(path);
+        FileHandle fileHandle = Gdx.files.classpath(path);
         FileHandle[] fileHandles = fileHandle.list(suffix);
-        Gdx.app.log(TAG,"loadAssets fileHandle: "+path+",fileHandle list length: "+fileHandles.length);
+        if (fileHandles.length == 0){
+            Gdx.app.error(TAG,"loadAssets fileHandle: "+path+",fileHandle list length: "+fileHandles.length);
+        }
         for (FileHandle handle : fileHandles) {
             String completePath = handle.path();
             Gdx.app.log(TAG,"loadAssets filehandles list: "+completePath);
