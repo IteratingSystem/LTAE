@@ -129,3 +129,29 @@ libgdx使用tiled地图编辑器编辑实体关联至artemisECS框架的引擎�
     uiSystem.showUI("customUiName");
 ```
 来显示和隐藏相应名称的UI;
+
+
+##### 四.角色左右翻转
+1. 场景说明:在角色向左和向右移动时,通常用的是同一套素材,需要将素材左右翻转;不仅如此,还需要将其物理Body中的形状进行翻转;还有一点是动画帧中包含的翻转;
+2. 最佳实践如下:
+   1. 对于需要左右翻转的角色,判断是否需要翻转的最佳实践:
+      1. 给它挂载上Direction组件,将其horizontal设置为当前的方向(LEFT或者RIGHT)
+      2. 在状态机中改变方向后,同步修改Direction.horizontal
+      3. 判断是否需要翻转:当素材默认向右时`Direction.horizontal==HorizontalDir.LEFT`则需要翻转,反之亦然;
+   2. 对于纹理的翻转,直接设置`Render.flipX = true;`代表需要翻转,设置后纹理将以翻转X的状态实时渲染;
+   3. 对于物理Body中形状的翻转,使用B2dBody组件的flipX(float regionWidth)方法可翻转,其原理是将形状移动到翻转后的位置模拟的翻转,目前只对其内部的圆形和矩形生效:`B2dBody.flipX(float regionWidth);`
+   4. 动画帧中的形状(比如攻击帧的攻击传感器),其会在创建阶段自动翻转,需要设置`B2dBody.needFlipX=true`则创建时自动翻转;
+   5. 完整示例:
+   ```java
+        //假设素材默认是向右的方向
+        //则在Tiled中挂载Direction组件,配置其horizontal值为RIGHT
+        //在状态机中会改变方向的操作中同步修改Direction.horizontal,比如向左移动与向右移动中修改其方向
+        //使用Direction.horizontal与素材的方向对比判断是否需要翻转
+        boolean needFlipX = direction.horizontal==HorizontalDir.LEFT;
+        //翻转纹理
+        render.flipX = needFlipX;
+        //翻转物理Body
+        b2dBody.flipX(render.keyframe.getRegionWidth());
+        //设置needFlipX,帧形状生成时自动判断是否需要翻转
+        b2dBody.needFlipX = needFlipX;
+   ```

@@ -273,4 +273,23 @@ public class B2dBody extends Component implements TileCompLoader {
         }
         return keyframeFixSetup.FixtureDef;
     }
+
+    /**
+     * 左右翻转,假设角色左右翻转,所以他的Body也要左右翻转;
+     * 这里没有用强制性的翻转方向,而是将Body内部的所有矩形和圆形移动到翻转后的位置来模拟的翻转;
+     * 翻转逻辑会忽略动画帧形状中的翻转情况,因为动画帧形状的翻转状态会在创建时判断,通过needFlipX属性来判断是否需要翻转;
+     * @param regionWidth
+     */
+    public void flipX(float regionWidth){
+        Array<Fixture> fixtureList = body.getFixtureList();
+        for (Fixture fixture : fixtureList) {
+            Object userData = fixture.getUserData();
+            //不需要处理动画帧中的形状,因为其在创建阶段翻转
+            if (userData instanceof KeyframeShapeData keyframeShapeData) {
+                continue;
+            }
+            ShapeUtils.flipX(fixture.getShape(),regionWidth);
+        }
+    }
+
 }
