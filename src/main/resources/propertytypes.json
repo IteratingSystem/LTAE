@@ -241,6 +241,20 @@
         "valuesAsFlags": false
     },
     {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 18,
+        "members": [
+        ],
+        "name": "Prefabricated",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
         "id": 7,
         "name": "SensorType",
         "storageType": "string",

@@ -2,6 +2,7 @@ package org.ltae.tiled;
 
 import com.artemis.Component;
 import com.artemis.ComponentMapper;
+import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.managers.TagManager;
 import com.artemis.utils.Bag;
@@ -9,6 +10,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.*;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
+import jdk.jfr.Percentage;
+import org.ltae.component.Prefabricated;
 import org.ltae.system.AssetSystem;
 import org.reflections.Reflections;
 
@@ -25,15 +28,22 @@ import java.util.Set;
 public class TiledToECS {
     private final static String TAG = TiledToECS.class.getSimpleName();
     private final static String THIS_COMP_PACKAGE = "org.ltae.component";
-    private Builder builder;
-    private Set<Class<? extends Component>> compClasses;
-    private TileDetails tileDetails;
+    private static Builder builder;
+    private static Set<Class<? extends Component>> compClasses;
+    private static TileDetails tileDetails;
     private TiledToECS() {}
-
     public static Builder builder() {
         return new Builder();
     }
-    private void createEntity(MapObject mapObject){
+
+    /**
+     * 创建实体
+     * createMode == CreateMode.ENTITY 时创建常规实体,如果是预制件,则只创建带有预制件组件的实体
+     * createMode == CreateMode.PREFABRICATED 时由预制件创建实体(由预制件描述的实体),则不添加TAG,同时忽略其组件中的预制件组件
+     * @param mapObject
+     * @param createMode
+     */
+    public static Entity createEntity(MapObject mapObject, CreateMode createMode){
         //创建实体
         World world = builder.world;
         int entityId = world.create();
@@ -44,12 +54,19 @@ public class TiledToECS {
         if (mapObject instanceof TiledMapTileMapObject tileMapObject) {
             tileDetails.tiledMapTile = tileMapObject.getTile();
         }
+
+        //判断是否是预制件
+        MapProperties compProps = mapObject.getProperties();
+        boolean isPrefabricated = compProps.containsKey(Prefabricated.class.getSimpleName());
+
         //注册TAG
-        if (mapObject.getName() != null) {
+        if (!isPrefabricated
+        || (isPrefabricated && createMode == CreateMode.ENTITY)
+        && mapObject.getName() != null) {
             world.getSystem(TagManager.class).register(mapObject.getName(),tileDetails.entity);
         }
+
         //就算没有维护到tiled中也要初始化的组件
-        MapProperties compProps = mapObject.getProperties();
         for (Class<? extends Component> autoCompClass : builder.autoInitCompClasses) {
             String simpleName = autoCompClass.getSimpleName();
             if (compProps.containsKey(simpleName)) {
@@ -60,6 +77,20 @@ public class TiledToECS {
 
         //遍历所有组件及初始化
         for (Class<? extends Component> compClass : compClasses) {
+            //拥有预制件,同时为常规创建实体模式,则只需要预制件组件
+            if (isPrefabricated && createMode == CreateMode.ENTITY){
+                if (compClass != Percentage.class){
+                    continue;
+                }
+            }
+
+            //拥有预制件,同时为常规创建预制件模式,则不需要预制件组件
+            if (isPrefabricated && createMode == CreateMode.PREFABRICATED){
+                if (compClass == Percentage.class){
+                    continue;
+                }
+            }
+
             //属性列表中没有此组件
             if (!compProps.containsKey(compClass.getSimpleName())) {
                 continue;
@@ -112,6 +143,7 @@ public class TiledToECS {
                 tileCompLoader.loader(tileDetails);
             }
         }
+        return tileDetails.entity;
     }
     public void parse() {
         //组件类对象列表
@@ -132,10 +164,20 @@ public class TiledToECS {
         tileDetails.compClasses = compClasses;
 
         for (MapObject mapObject : builder.mapObjects) {
-            createEntity(mapObject);
+            createEntity(mapObject,CreateMode.ENTITY);
         }
     }
 
+
+    /**
+     * 创建实体时,其创建模式
+     */
+    public enum CreateMode{
+        //创建为常规实体,预制件对象创建出来的实体只拥有预制件组件
+        ENTITY,
+        //从预制件实体创建子实体,忽略预制件组件
+        PREFABRICATED;
+    }
 
     public static class Builder {
         private World world;
