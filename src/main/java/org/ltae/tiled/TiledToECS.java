@@ -13,6 +13,7 @@ import org.ltae.system.AssetSystem;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -116,6 +117,7 @@ public class TiledToECS {
         //组件类对象列表
         Reflections compPkg = new Reflections(builder.compPackage);
         Reflections thisCompPkg = new Reflections(THIS_COMP_PACKAGE);
+        compClasses = new HashSet<>();
         compClasses.addAll(compPkg.getSubTypesOf(Component.class));
         compClasses.addAll(thisCompPkg.getSubTypesOf(Component.class));
         //创建用于数据传输的中间对象

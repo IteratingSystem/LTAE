@@ -5,7 +5,8 @@ package org.ltae;
  * @Date 2025/3/17 17:05
  * @Description
  **/
-public class LtaeBuilder {
+public class LtaePluginRule {
+    private LtaePluginRule(){}
     //ui视图宽高
     public static int UI_WIDTH = 640;
     public static int UI_HEIGHT = 480;
