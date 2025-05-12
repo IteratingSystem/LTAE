@@ -13,6 +13,7 @@ import org.ltae.system.AssetSystem;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Field;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -24,44 +25,43 @@ public class TiledToECS {
     private final static String TAG = TiledToECS.class.getSimpleName();
     private final static String THIS_COMP_PACKAGE = "org.ltae.component";
     private Builder builder;
+    private Set<Class<? extends Component>> compClasses;
+    private TileDetails tileDetails;
     private TiledToECS() {}
 
     public static Builder builder() {
         return new Builder();
     }
 
-
     public void parse() {
-        MapObjects mapObjects = builder.mapObjects;
-        World world = builder.world;
+        //组件类对象列表
+        Reflections compPkg = new Reflections(builder.compPackage);
+        Reflections thisCompPkg = new Reflections(THIS_COMP_PACKAGE);
+        compClasses.addAll(compPkg.getSubTypesOf(Component.class));
+        compClasses.addAll(thisCompPkg.getSubTypesOf(Component.class));
+        //创建用于数据传输的中间对象
+        tileDetails = new TileDetails();
+        tileDetails.world = builder.world;
+        tileDetails.assetSystem = builder.world.getSystem(AssetSystem.class);
+        tileDetails.b2dWorld = builder.b2dWorld;
+        tileDetails.tiledMap = builder.tiledMap;
+        tileDetails.worldScale = builder.worldScale;
+        tileDetails.statePackage = builder.statePackage;
+        tileDetails.contactListenerPackage = builder.contactListenerPackage;
 
-        Reflections reflections = new Reflections(builder.compPackage);
-        Reflections thisReflections = new Reflections(THIS_COMP_PACKAGE);
-        Set<Class<? extends Component>> compClasses = reflections.getSubTypesOf(Component.class);
-        Set<Class<? extends Component>> thisCompClasses = thisReflections.getSubTypesOf(Component.class);
-        compClasses.addAll(thisCompClasses);
-        for (MapObject mapObject : mapObjects) {
+        for (MapObject mapObject : builder.mapObjects) {
             //创建实体
-            int entityId = world.create();
-            //创建公用参数
-            TileDetails tileDetails = new TileDetails();
-            tileDetails.entity = world.getEntity(entityId);
+            int entityId = tileDetails.world.create();
+            //每一个对象都是这几个参数发生改变
+            tileDetails.entity = tileDetails.world.getEntity(entityId);
             tileDetails.entityId = entityId;
-            tileDetails.world = world;
-            tileDetails.assetSystem = world.getSystem(AssetSystem.class);
-            tileDetails.b2dWorld = builder.b2dWorld;
             tileDetails.mapObject = mapObject;
-            tileDetails.tiledMap = builder.tiledMap;
-            tileDetails.worldScale = builder.worldScale;
-            tileDetails.statePackage = builder.statePackage;
-            tileDetails.contactListenerPackage = builder.contactListenerPackage;
-
             if (mapObject instanceof TiledMapTileMapObject tileMapObject) {
                 tileDetails.tiledMapTile = tileMapObject.getTile();
             }
             //注册TAG
             if (mapObject.getName() != null) {
-                world.getSystem(TagManager.class).register(mapObject.getName(),tileDetails.entity);
+                tileDetails.world.getSystem(TagManager.class).register(mapObject.getName(),tileDetails.entity);
             }
 
             //就算没有维护到tiled中也要初始化的组件
@@ -81,13 +81,13 @@ public class TiledToECS {
                     continue;
                 }
 
-                ComponentMapper<? extends Component> mapper = builder.world.getMapper(compClass);
+                //通过类对象创建组件Mapper
+                ComponentMapper<? extends Component> mapper = tileDetails.world.getMapper(compClass);
                 if (mapper == null) {
                     continue;
                 }
-                Component comp = mapper.create(entityId);
-
-
+                //通过组件Mapper创建组件
+                Component component = mapper.create(entityId);
                 //利用反射给配置了@TiledParam的属性赋值
                 Field[] fields = compClass.getDeclaredFields();
                 for (Field field : fields) {
@@ -118,13 +118,13 @@ public class TiledToECS {
                         // 获取字段的值
                         Object value = compParams.get(fieldName);
                         // 为字段设置值
-                        field.set(comp, value);
+                        field.set(component, value);
                     } catch (IllegalAccessException e) {
                         Gdx.app.error(TAG, "IllegalAccessException!", e);
                     }
                 }
 
-                if (comp instanceof TileCompLoader tileCompLoader) {
+                if (component instanceof TileCompLoader tileCompLoader) {
                     tileCompLoader.loader(tileDetails);
                 }
             }
