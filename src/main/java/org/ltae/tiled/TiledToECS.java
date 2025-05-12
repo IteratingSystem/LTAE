@@ -79,14 +79,14 @@ public class TiledToECS {
         for (Class<? extends Component> compClass : compClasses) {
             //拥有预制件,同时为常规创建实体模式,则只需要预制件组件
             if (isPrefabricated && createMode == CreateMode.ENTITY){
-                if (compClass != Percentage.class){
+                if (!Percentage.class.isAssignableFrom(compClass)){
                     continue;
                 }
             }
 
             //拥有预制件,同时为常规创建预制件模式,则不需要预制件组件
             if (isPrefabricated && createMode == CreateMode.PREFABRICATED){
-                if (compClass == Percentage.class){
+                if (Percentage.class.isAssignableFrom(compClass)){
                     continue;
                 }
             }
