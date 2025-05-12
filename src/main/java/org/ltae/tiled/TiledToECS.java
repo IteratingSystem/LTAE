@@ -32,7 +32,86 @@ public class TiledToECS {
     public static Builder builder() {
         return new Builder();
     }
+    private void createEntity(MapObject mapObject){
+        //创建实体
+        World world = builder.world;
+        int entityId = world.create();
+        //每一个对象都是这几个参数发生改变
+        tileDetails.entity = world.getEntity(entityId);
+        tileDetails.entityId = entityId;
+        tileDetails.mapObject = mapObject;
+        if (mapObject instanceof TiledMapTileMapObject tileMapObject) {
+            tileDetails.tiledMapTile = tileMapObject.getTile();
+        }
+        //注册TAG
+        if (mapObject.getName() != null) {
+            world.getSystem(TagManager.class).register(mapObject.getName(),tileDetails.entity);
+        }
+        //就算没有维护到tiled中也要初始化的组件
+        MapProperties compProps = mapObject.getProperties();
+        for (Class<? extends Component> autoCompClass : builder.autoInitCompClasses) {
+            String simpleName = autoCompClass.getSimpleName();
+            if (compProps.containsKey(simpleName)) {
+                continue;
+            }
+            compProps.put(simpleName,"");
+        }
 
+        //遍历所有组件及初始化
+        for (Class<? extends Component> compClass : compClasses) {
+            //属性列表中没有此组件
+            if (!compProps.containsKey(compClass.getSimpleName())) {
+                continue;
+            }
+
+            //通过类对象创建组件Mapper
+            ComponentMapper<? extends Component> mapper = world.getMapper(compClass);
+            if (mapper == null) {
+                continue;
+            }
+            //通过组件Mapper创建组件
+            Component component = mapper.create(entityId);
+            //利用反射给配置了@TiledParam的属性赋值
+            Field[] fields = compClass.getDeclaredFields();
+            for (Field field : fields) {
+                if (!field.isAnnotationPresent(TileParam.class)) {
+                    continue;
+                }
+
+                String fieldName = field.getName();
+                //组件中的参数
+                Object porpObject = compProps.get(compClass.getSimpleName());
+                if (!(porpObject instanceof MapProperties compParams)) {
+                    continue;
+                }
+                //判断是否必填,非必填同时没有这个数据则相安无事
+                if (!compParams.containsKey(fieldName)) {
+                    // 获取 @CompParam 注解实例
+                    TileParam tileParam = field.getAnnotation(TileParam.class);
+                    // 获取 nullable 属性的值
+                    boolean nullable = tileParam.nullable();
+                    if (nullable) {
+                        continue;
+                    }
+                    Gdx.app.error(TAG, "Missing key for field: " + fieldName);
+                    continue;
+                }
+
+                try {
+                    // 获取字段的值
+                    Object value = compParams.get(fieldName);
+                    // 为字段设置值
+                    field.set(component, value);
+                } catch (IllegalAccessException e) {
+                    Gdx.app.error(TAG, "IllegalAccessException!", e);
+                }
+            }
+
+            if (component instanceof TileCompLoader tileCompLoader) {
+                tileCompLoader.loader(tileDetails);
+            }
+        }
+    }
     public void parse() {
         //组件类对象列表
         Reflections compPkg = new Reflections(builder.compPackage);
@@ -48,86 +127,10 @@ public class TiledToECS {
         tileDetails.worldScale = builder.worldScale;
         tileDetails.statePackage = builder.statePackage;
         tileDetails.contactListenerPackage = builder.contactListenerPackage;
+        tileDetails.compClasses = compClasses;
 
         for (MapObject mapObject : builder.mapObjects) {
-            //创建实体
-            int entityId = tileDetails.world.create();
-            //每一个对象都是这几个参数发生改变
-            tileDetails.entity = tileDetails.world.getEntity(entityId);
-            tileDetails.entityId = entityId;
-            tileDetails.mapObject = mapObject;
-            if (mapObject instanceof TiledMapTileMapObject tileMapObject) {
-                tileDetails.tiledMapTile = tileMapObject.getTile();
-            }
-            //注册TAG
-            if (mapObject.getName() != null) {
-                tileDetails.world.getSystem(TagManager.class).register(mapObject.getName(),tileDetails.entity);
-            }
-
-            //就算没有维护到tiled中也要初始化的组件
-            MapProperties compProps = mapObject.getProperties();
-            for (Class<? extends Component> autoCompClass : builder.autoInitCompClasses) {
-                String simpleName = autoCompClass.getSimpleName();
-                if (compProps.containsKey(simpleName)) {
-                    continue;
-                }
-                compProps.put(simpleName,"");
-            }
-
-            //遍历所有组件及初始化
-            for (Class<? extends Component> compClass : compClasses) {
-                //属性列表中没有此组件
-                if (!compProps.containsKey(compClass.getSimpleName())) {
-                    continue;
-                }
-
-                //通过类对象创建组件Mapper
-                ComponentMapper<? extends Component> mapper = tileDetails.world.getMapper(compClass);
-                if (mapper == null) {
-                    continue;
-                }
-                //通过组件Mapper创建组件
-                Component component = mapper.create(entityId);
-                //利用反射给配置了@TiledParam的属性赋值
-                Field[] fields = compClass.getDeclaredFields();
-                for (Field field : fields) {
-                    if (!field.isAnnotationPresent(TileParam.class)) {
-                        continue;
-                    }
-
-                    String fieldName = field.getName();
-                    //组件中的参数
-                    Object porpObject = compProps.get(compClass.getSimpleName());
-                    if (!(porpObject instanceof MapProperties compParams)) {
-                        continue;
-                    }
-                    //判断是否必填,非必填同时没有这个数据则相安无事
-                    if (!compParams.containsKey(fieldName)) {
-                        // 获取 @CompParam 注解实例
-                        TileParam tileParam = field.getAnnotation(TileParam.class);
-                        // 获取 nullable 属性的值
-                        boolean nullable = tileParam.nullable();
-                        if (nullable) {
-                            continue;
-                        }
-                        Gdx.app.error(TAG, "Missing key for field: " + fieldName);
-                        continue;
-                    }
-
-                    try {
-                        // 获取字段的值
-                        Object value = compParams.get(fieldName);
-                        // 为字段设置值
-                        field.set(component, value);
-                    } catch (IllegalAccessException e) {
-                        Gdx.app.error(TAG, "IllegalAccessException!", e);
-                    }
-                }
-
-                if (component instanceof TileCompLoader tileCompLoader) {
-                    tileCompLoader.loader(tileDetails);
-                }
-            }
+            createEntity(mapObject);
         }
     }
 

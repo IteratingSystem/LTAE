@@ -1,11 +1,14 @@
 package org.ltae.tiled;
 
+import com.artemis.Component;
 import com.artemis.Entity;
 import com.artemis.World;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import org.ltae.system.AssetSystem;
+
+import java.util.Set;
 
 
 /**
@@ -29,4 +32,5 @@ public class TileDetails {
 
     public String statePackage;
     public String contactListenerPackage;
+    public Set<Class<? extends Component>> compClasses;
 }
