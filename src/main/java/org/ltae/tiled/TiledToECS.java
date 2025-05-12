@@ -20,11 +20,11 @@ import java.util.Set;
  * @Date 2025/2/12 16:27
  * @Description tiled中的对象传入为实体
  **/
-public class TiledObjectToArtemis {
-    private final static String TAG = TiledObjectToArtemis.class.getSimpleName();
+public class TiledToECS {
+    private final static String TAG = TiledToECS.class.getSimpleName();
     private final static String THIS_COMP_PACKAGE = "org.ltae.component";
     private Builder builder;
-    private TiledObjectToArtemis() {}
+    private TiledToECS() {}
 
     public static Builder builder() {
         return new Builder();
@@ -184,7 +184,7 @@ public class TiledObjectToArtemis {
             return this;
         }
 
-        public TiledObjectToArtemis build() {
+        public TiledToECS build() {
             if (tiledMap == null) {
                 Gdx.app.error(TAG,"tiledMap is null,Confirm if the correct map name has been passed in!");
                 return null;
@@ -197,7 +197,7 @@ public class TiledObjectToArtemis {
             }
             mapObjects = mapLayer.getObjects();
 
-            TiledObjectToArtemis instance = new TiledObjectToArtemis();
+            TiledToECS instance = new TiledToECS();
             instance.builder = this;
             return instance;
         }

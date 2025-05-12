@@ -4,7 +4,7 @@ import com.artemis.BaseSystem;
 import org.ltae.component.Pos;
 import org.ltae.component.Render;
 import org.ltae.component.ZIndex;
-import org.ltae.tiled.TiledObjectToArtemis;
+import org.ltae.tiled.TiledToECS;
 
 /**
  * @Auther WenLong
@@ -31,7 +31,7 @@ public class EntityFactory extends BaseSystem {
     }
     @Override
     protected void initialize() {
-        TiledObjectToArtemis
+        TiledToECS
             .builder()
             .scale(worldScale)
             .world(world)
