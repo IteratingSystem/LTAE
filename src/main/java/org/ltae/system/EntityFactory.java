@@ -11,7 +11,7 @@ import org.ltae.tiled.TiledObjectToArtemis;
  * @Date 2025/2/12 16:29
  * @Description
  **/
-public class TiledEntityFactory extends BaseSystem {
+public class EntityFactory extends BaseSystem {
 
 
     private float worldScale;
@@ -22,7 +22,7 @@ public class TiledEntityFactory extends BaseSystem {
     private B2dSystem b2DSystem;
     private TiledMapManager tiledMapManager;
 
-    public TiledEntityFactory(String compPackage,String statePackage,String contactListenerPackage,String entityLayerName,float worldScale){
+    public EntityFactory(String compPackage, String statePackage, String contactListenerPackage, String entityLayerName, float worldScale){
         this.worldScale = worldScale;
         this.compPackage = compPackage;
         this.statePackage = statePackage;
