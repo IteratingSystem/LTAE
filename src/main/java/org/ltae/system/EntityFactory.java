@@ -29,8 +29,6 @@ public class EntityFactory extends BaseSystem {
 
         systemDetails = new SystemDetails();
         systemDetails.worldScale = worldScale;
-        systemDetails.world = world;
-
         systemDetails.entityLayer = entityLayer;
         systemDetails.statePkg = statePkg;
         systemDetails.b2dListenerPkg = b2dListenerPkg;
@@ -40,6 +38,7 @@ public class EntityFactory extends BaseSystem {
     }
     @Override
     protected void initialize() {
+        systemDetails.world = world;
         systemDetails.tiledMap = tiledMapManager.currentMap;
         entityBuilder = new EntityBuilder(systemDetails);
         entityBuilder.createAllEntity();
