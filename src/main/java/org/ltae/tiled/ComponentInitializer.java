@@ -71,7 +71,7 @@ public class ComponentInitializer {
 
             try {
                 // 获取字段的值
-                Object value = compsProps.get(fieldName);
+                Object value = compProps.get(fieldName);
                 // 为字段设置值
                 field.set(component, value);
             } catch (IllegalAccessException e) {
