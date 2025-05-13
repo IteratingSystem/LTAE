@@ -30,17 +30,18 @@ public class EntityFactory extends BaseSystem {
         systemDetails = new SystemDetails();
         systemDetails.worldScale = worldScale;
         systemDetails.world = world;
-        systemDetails.tiledMap = tiledMapManager.currentMap;
+
         systemDetails.entityLayer = entityLayer;
         systemDetails.statePkg = statePkg;
         systemDetails.b2dListenerPkg = b2dListenerPkg;
         systemDetails.componentPkg = componentPkg;
         systemDetails.autoCompClasses = autoCompClasses;
 
-        entityBuilder = new EntityBuilder(systemDetails);
     }
     @Override
     protected void initialize() {
+        systemDetails.tiledMap = tiledMapManager.currentMap;
+        entityBuilder = new EntityBuilder(systemDetails);
         entityBuilder.createAllEntity();
     }
 
