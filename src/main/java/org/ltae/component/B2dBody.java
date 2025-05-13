@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
@@ -17,9 +18,11 @@ import com.badlogic.gdx.utils.Array;
 import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
 import org.ltae.box2d.setup.FixtureSetup;
-import org.ltae.tiled.TileCompLoader;
-import org.ltae.tiled.TileDetails;
+import org.ltae.system.B2dSystem;
+import org.ltae.tiled.ComponentLoader;
 import org.ltae.tiled.TileParam;
+import org.ltae.tiled.details.EntityDetails;
+import org.ltae.tiled.details.SystemDetails;
 import org.ltae.utils.ShapeUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -31,7 +34,7 @@ import java.util.Iterator;
  * @Date 2025/2/17 15:38
  * @Description Box2D身体
  **/
-public class B2dBody extends Component implements TileCompLoader {
+public class B2dBody extends Component implements ComponentLoader {
     private final static String TAG = B2dBody.class.getSimpleName();
     @TileParam
     public String defType;//动静态类型
@@ -53,9 +56,9 @@ public class B2dBody extends Component implements TileCompLoader {
     public boolean needFlipX = false;
 
     @Override
-    public void loader(TileDetails tileDetails) {
+    public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
         //获取传入参数的属性
-        MapObject mapObject = tileDetails.mapObject;
+        MapObject mapObject = entityDetails.mapObject;
         if (!(mapObject instanceof TiledMapTileMapObject tileMapObject)) {
             return;
         }
@@ -67,8 +70,11 @@ public class B2dBody extends Component implements TileCompLoader {
         MapObjects allObjects = new MapObjects();
         MapObjects objects = tile.getObjects();
 
-        b2dWorld = tileDetails.b2dWorld;
-        entityId = tileDetails.entityId;
+        com.artemis.World world = systemDetails.world;
+        B2dSystem b2dSystem = world.getSystem(B2dSystem.class);
+        b2dWorld = b2dSystem.box2DWorld;
+        entityId = entityDetails.entityId;
+        Entity entity = entityDetails.entity;
 
         //构造关键数据
         bodyDef = new BodyDef();
@@ -76,7 +82,8 @@ public class B2dBody extends Component implements TileCompLoader {
         bodyDef.type = BodyDef.BodyType.valueOf(defType);
         keyframeFixSetups = new Bag<>();
 
-        bodyDef.position.set(tileDetails.worldScale*posX, tileDetails.worldScale*posY);
+        float worldScale = systemDetails.worldScale;
+        bodyDef.position.set(worldScale*posX, worldScale*posY);
         body = b2dWorld.createBody(bodyDef);
         body.setLinearDamping(linearDamping);
 
@@ -86,9 +93,10 @@ public class B2dBody extends Component implements TileCompLoader {
         }
 
         //动画帧中的形状对象
-        TiledMapTile tiledMapTile = tileDetails.tiledMapTile;
+        TiledMapTile tiledMapTile = entityDetails.tiledMapTile;
         int tileId = tiledMapTile.getId();
-        for (TiledMapTileSet tileSet : tileDetails.tiledMap.getTileSets()) {
+        TiledMap tiledMap = systemDetails.tiledMap;
+        for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
             if (tileSet.getTile(tileId) != tiledMapTile) {
                 continue;
             }
@@ -149,7 +157,7 @@ public class B2dBody extends Component implements TileCompLoader {
             //创建监听器
             EcsContactListener ecsContactListener = null;
             if (listenerSimpleName != null && !listenerSimpleName.isEmpty()) {
-                String contactListenerPackage = tileDetails.contactListenerPackage;
+                String contactListenerPackage = systemDetails.b2dListenerPkg;
                 if (contactListenerPackage == null || contactListenerPackage.isEmpty()){
                     Gdx.app.error(TAG,"contactListenerPackage is empty,please set contactListenerPackage by LtaeBuilder");
                 }else {
@@ -157,7 +165,7 @@ public class B2dBody extends Component implements TileCompLoader {
                     Class<EcsContactListener> contactClass;
                     try {
                         contactClass = (Class<EcsContactListener>) Class.forName(className);
-                        ecsContactListener = contactClass.getConstructor(Entity.class).newInstance(tileDetails.entity);
+                        ecsContactListener = contactClass.getConstructor(Entity.class).newInstance(entity);
                     } catch (ClassNotFoundException e) {
                         Gdx.app.error(TAG,"Failed to get class with name:"+className);
                     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
@@ -168,7 +176,7 @@ public class B2dBody extends Component implements TileCompLoader {
             }
 
 
-            Shape shape = ShapeUtils.getShapeByMapObject(object, tileDetails.worldScale);
+            Shape shape = ShapeUtils.getShapeByMapObject(object, worldScale);
 
             if (shape == null){
                 continue;
@@ -193,7 +201,7 @@ public class B2dBody extends Component implements TileCompLoader {
 
                 DefFixData defFixData = new DefFixData();
                 defFixData.entityId = entityId;
-                defFixData.entity = tileDetails.entity;
+                defFixData.entity = entityDetails.entity;
                 defFixData.sensorType = SensorType.valueOf(sensorType);
                 defFixData.listener = ecsContactListener;
 
@@ -204,7 +212,7 @@ public class B2dBody extends Component implements TileCompLoader {
             //否则先保存起来,后期触发的时候再创建
             KeyframeShapeData keyframeShapeData = new KeyframeShapeData();
             keyframeShapeData.entityId = entityId;
-            keyframeShapeData.entity = tileDetails.entity;
+            keyframeShapeData.entity = entity;
             keyframeShapeData.sensorType = SensorType.valueOf(sensorType);
             keyframeShapeData.listener = ecsContactListener;
             keyframeShapeData.aniName = aniName;
@@ -291,5 +299,4 @@ public class B2dBody extends Component implements TileCompLoader {
             ShapeUtils.flipX(fixture.getShape(),regionWidth);
         }
     }
-
 }

@@ -7,9 +7,10 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
-import org.ltae.tiled.TileCompLoader;
-import org.ltae.tiled.TileDetails;
+import org.ltae.tiled.ComponentLoader;
 import org.ltae.tiled.TileParam;
+import org.ltae.tiled.details.EntityDetails;
+import org.ltae.tiled.details.SystemDetails;
 
 
 import java.util.Arrays;
@@ -19,7 +20,7 @@ import java.util.Arrays;
  * @Date 2025/3/7 10:44
  * @Description 瓦片动画组件,大部分方法来自于libgdx的Animation是一样的,可以使用共同的文档
  **/
-public class TileAnimation extends Component implements TileCompLoader {
+public class TileAnimation extends Component implements ComponentLoader {
     @TileParam
     public String name;
     @TileParam
@@ -46,8 +47,8 @@ public class TileAnimation extends Component implements TileCompLoader {
 
 
     @Override
-    public void loader(TileDetails tileDetails) {
-        TiledMapTile tiledMapTile = tileDetails.tiledMapTile;
+    public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
+        TiledMapTile tiledMapTile = entityDetails.tiledMapTile;
         if (!(tiledMapTile instanceof AnimatedTiledMapTile animatedTile)) {
             return;
         }

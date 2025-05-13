@@ -1,10 +1,15 @@
 package org.ltae.system;
 
 import com.artemis.BaseSystem;
+import com.artemis.Component;
+import com.artemis.World;
+import com.artemis.utils.Bag;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import org.ltae.component.Pos;
 import org.ltae.component.Render;
 import org.ltae.component.ZIndex;
-import org.ltae.tiled.TiledToECS;
+import org.ltae.tiled.EntityBuilder;
+import org.ltae.tiled.details.SystemDetails;
 
 /**
  * @Auther WenLong
@@ -12,40 +17,31 @@ import org.ltae.tiled.TiledToECS;
  * @Description
  **/
 public class EntityFactory extends BaseSystem {
-
-
-    private float worldScale;
-    private String compPackage;
-    private String statePackage;
-    private String contactListenerPackage;
-    private String entityLayerName;
-    private B2dSystem b2DSystem;
     private TiledMapManager tiledMapManager;
+    public SystemDetails systemDetails;
+    public EntityBuilder entityBuilder;
 
-    public EntityFactory(String compPackage, String statePackage, String contactListenerPackage, String entityLayerName, float worldScale){
-        this.worldScale = worldScale;
-        this.compPackage = compPackage;
-        this.statePackage = statePackage;
-        this.entityLayerName = entityLayerName;
-        this.contactListenerPackage = contactListenerPackage;
+    public EntityFactory(String componentPkg, String statePkg, String b2dListenerPkg, String entityLayer, float worldScale){
+        Bag<Class<? extends Component>> autoCompClasses = new Bag<>();
+        autoCompClasses.add(Pos.class);
+        autoCompClasses.add(Render.class);
+        autoCompClasses.add(ZIndex.class);
+
+        systemDetails = new SystemDetails();
+        systemDetails.worldScale = worldScale;
+        systemDetails.world = world;
+        systemDetails.tiledMap = tiledMapManager.currentMap;
+        systemDetails.entityLayer = entityLayer;
+        systemDetails.statePkg = statePkg;
+        systemDetails.b2dListenerPkg = b2dListenerPkg;
+        systemDetails.componentPkg = componentPkg;
+        systemDetails.autoCompClasses = autoCompClasses;
+
+        entityBuilder = new EntityBuilder(systemDetails);
     }
     @Override
     protected void initialize() {
-        TiledToECS
-            .builder()
-            .scale(worldScale)
-            .world(world)
-            .box2DWorld(b2DSystem.box2DWorld)
-            .tiledMap(tiledMapManager.currentMap)
-            .entityLayerName(entityLayerName)
-            .addAutoInitComp(Pos.class)
-            .addAutoInitComp(ZIndex.class)
-            .addAutoInitComp(Render.class)
-            .compPackage(compPackage)
-            .statePackage(statePackage)
-            .contactListenerPackage(contactListenerPackage)
-            .build()
-            .parse();
+        entityBuilder.createAllEntity();
     }
 
     @Override

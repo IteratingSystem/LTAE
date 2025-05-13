@@ -8,9 +8,10 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.utils.ObjectMap;
-import org.ltae.tiled.TileCompLoader;
-import org.ltae.tiled.TileDetails;
+import org.ltae.tiled.ComponentLoader;
 import org.ltae.tiled.TileParam;
+import org.ltae.tiled.details.EntityDetails;
+import org.ltae.tiled.details.SystemDetails;
 
 import java.util.Iterator;
 
@@ -19,19 +20,19 @@ import java.util.Iterator;
  * @Date 2025/3/11 15:44
  * @Description 多动画组件(瓦片动画)
  **/
-public class TileAnimations extends Component implements TileCompLoader {
+public class TileAnimations extends Component implements ComponentLoader {
     private final static String TAG = TileAnimations.class.getSimpleName();
     public ObjectMap<String,TileAnimation> table;
 
     @TileParam
     public String current;
     @Override
-    public void loader(TileDetails tileDetails) {
+    public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
         table = new ObjectMap<>();
-        TiledMapTile tiledMapTile = tileDetails.tiledMapTile;
+        TiledMapTile tiledMapTile = entityDetails.tiledMapTile;
         int tileId = tiledMapTile.getId();
 
-        for (TiledMapTileSet tileSet : tileDetails.tiledMap.getTileSets()) {
+        for (TiledMapTileSet tileSet : systemDetails.tiledMap.getTileSets()) {
             if (tileSet.getTile(tileId) != tiledMapTile) {
                 continue;
             }

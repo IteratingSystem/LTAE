@@ -6,9 +6,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
-import org.ltae.tiled.TileCompLoader;
-import org.ltae.tiled.TileDetails;
+import org.ltae.tiled.ComponentLoader;
 import org.ltae.tiled.TileParam;
+import org.ltae.tiled.details.EntityDetails;
+import org.ltae.tiled.details.SystemDetails;
+import org.reflections.Reflections;
+
+import java.util.Set;
 
 
 /**
@@ -16,7 +20,7 @@ import org.ltae.tiled.TileParam;
  * @Date 2025/2/14 16:48
  * @Description 状态组件
  **/
-public class StateComp extends Component implements TileCompLoader {
+public class StateComp extends Component implements ComponentLoader {
     private final static String TAG = StateComp.class.getSimpleName();
     @TileParam
     public String simpleName;
@@ -26,21 +30,19 @@ public class StateComp extends Component implements TileCompLoader {
     public StateMachine<Entity,State<Entity>> machine;
 
     @Override
-    public void loader(TileDetails tileDetails) {
-        String className = tileDetails.statePackage + "." + simpleName;
-        Class<?> stateClass;
-        try {
-            stateClass = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            Gdx.app.error(TAG,"Failed to get class with name:"+className);
-            return;
+    public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
+        String statePkg = systemDetails.statePkg;
+        Reflections reflections = new Reflections(statePkg);
+        Set<Class<? extends Enum>> enumsClass = reflections.getSubTypesOf(Enum.class);
+        for (Class<? extends Enum> enumClass : enumsClass) {
+            if (!simpleName.equals(enumClass.getSimpleName())) {
+                continue;
+            }
+            Enum enumValue = Enum.valueOf(enumClass, current);
+            Entity entity = entityDetails.entity;
+            State state = (State)enumValue;
+            machine = new DefaultStateMachine<>(entity,state);
+            break;
         }
-        Class<Enum> enumClass = (Class<Enum>) stateClass.asSubclass(stateClass);
-        Enum enumValue = Enum.valueOf(enumClass, current);
-
-        Entity entity = tileDetails.entity;
-
-        State state = (State)enumValue;
-        machine = new DefaultStateMachine<>(entity,state);
     }
 }
