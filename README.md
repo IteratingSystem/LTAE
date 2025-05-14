@@ -155,3 +155,7 @@ libgdx使用tiled地图编辑器编辑实体关联至artemisECS框架的引擎�
         //设置needFlipX,帧形状生成时自动判断是否需要翻转
         b2dBody.needFlipX = needFlipX;
    ```
+##### 五.预制对象
+1. 预制对象指的是,在游戏开始不创建的对象,但是在游戏过程中在某些契机下创建,比如:子弹,攻击特效,掉落物品之类的对象;
+2. 这些对象需要在一个tmx中,添加为MapObject并且和正常的实体一样挂载组件,然后在需要创建的时候,直接使用`EntityFactory.createPrefabricatedEntity(String name)`或者`EntityFactory.createPrefabricatedEntity(String name,float x,float y)`创建;
+3. 在此之前,需要配置预制对象的TiledMap的tmx名称,即`LtaePluginRule.PREFABRICATED_MAP_NAME`这个静态属性;
