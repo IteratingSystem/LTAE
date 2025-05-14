@@ -18,6 +18,7 @@ public class LtaePluginRule {
     public static float G_Y = -9.8f;             // 默认纵向重力（模拟地球重力）
     public static boolean B2D_SLEEP = false;         //box2d是否休眠
     public static String MAP_NAME = "defaultMap"; // 默认加载的地图名称
+    public static String PREFABRICATED_MAP_NAME = "defaultMap"; // 预制件地图名称
     public static String PHY_LAYER = "physicsLayer"; // 默认物理图层
     public static String ENTITY_LAYER = "entities";       // 默认实体图层
     public static String COMPONENT_PKG = "com.game.component";    //组件包路径

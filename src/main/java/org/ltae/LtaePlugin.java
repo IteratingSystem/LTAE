@@ -44,7 +44,8 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(new AssetSystem(LtaePluginRule.SKIN_PATH));//资源系统
         worldConfigurationBuilder.with(new TiledMapManager(
                 LtaePluginRule.MAP_NAME,
-                LtaePluginRule.PHY_LAYER));//地图管理系统
+                LtaePluginRule.PHY_LAYER,
+                LtaePluginRule.PREFABRICATED_MAP_NAME));//地图管理系统
         worldConfigurationBuilder.with(new B2dSystem(
                 LtaePluginRule.G_X,
                 LtaePluginRule.G_Y,
