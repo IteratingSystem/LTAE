@@ -24,26 +24,19 @@ public class Render extends Component implements ComponentLoader {
     public float scaleWidth = 1;
     public float scaleHeight = 1;
     public TextureRegion keyframe;
-
     public boolean flipX = false;
     public boolean flipY = false;
-
 
     @Override
     public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
         MapObject mapObject = entityDetails.mapObject;
-        MapProperties properties = mapObject.getProperties();
-        String name = mapObject.getName();
-        if ("enemyLaser".equals(name)){
-            TiledMapUtils.logProperties(properties);
-        }
-
         if (mapObject instanceof TextureMapObject textureMapObject) {
             keyframe = textureMapObject.getTextureRegion();
             flipX = textureMapObject.getTextureRegion().isFlipX();
             flipY = textureMapObject.getTextureRegion().isFlipY();
             int regionWidth = keyframe.getRegionWidth();
             int regionHeight = keyframe.getRegionHeight();
+            MapProperties properties = mapObject.getProperties();
             float tileWidth = properties.get("width",(float)regionWidth, float.class);
             float tileHeight = properties.get("height",(float)regionHeight, float.class);
             scaleWidth = tileWidth/regionWidth;
