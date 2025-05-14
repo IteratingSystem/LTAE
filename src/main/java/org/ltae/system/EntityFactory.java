@@ -82,8 +82,19 @@ public class EntityFactory extends BaseSystem {
         }
         return prefabricatedObjects.get(name);
     }
+    private Entity createEntity(MapObject mapObject,float x,float y){
+        Entity entity = entityBuilder.createEntity(mapObject);
+        Pos pos = entity.getComponent(Pos.class);
+        pos.x = x;
+        pos.y = y;
+        return entity;
+    }
     public Entity createPrefabricatedEntity(String name){
         MapObject prefabricatedObject = getPrefabricatedObject(name);
         return entityBuilder.createEntity(prefabricatedObject);
+    }
+    public Entity createPrefabricatedEntity(String name,float x,float y){
+        MapObject prefabricatedObject = getPrefabricatedObject(name);
+        return createEntity(prefabricatedObject,x,y);
     }
 }
