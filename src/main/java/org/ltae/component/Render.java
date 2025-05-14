@@ -8,6 +8,9 @@ import com.badlogic.gdx.maps.objects.TextureMapObject;
 import org.ltae.tiled.ComponentLoader;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
+import org.ltae.utils.TiledMapUtils;
+
+import java.util.Iterator;
 
 /**
  * @Auther WenLong
@@ -29,11 +32,16 @@ public class Render extends Component implements ComponentLoader {
     @Override
     public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
         MapObject mapObject = entityDetails.mapObject;
+        MapProperties properties = mapObject.getProperties();
+        String name = mapObject.getName();
+        if ("enemyLaser".equals(name)){
+            TiledMapUtils.logProperties(properties);
+        }
+
         if (mapObject instanceof TextureMapObject textureMapObject) {
             keyframe = textureMapObject.getTextureRegion();
             flipX = textureMapObject.getTextureRegion().isFlipX();
             flipY = textureMapObject.getTextureRegion().isFlipY();
-            MapProperties properties = mapObject.getProperties();
             int regionWidth = keyframe.getRegionWidth();
             int regionHeight = keyframe.getRegionHeight();
             float tileWidth = properties.get("width",(float)regionWidth, float.class);

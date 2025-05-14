@@ -2,11 +2,10 @@ package org.ltae.utils;
 
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.MapLayers;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.*;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+
+import java.util.Iterator;
 
 /**
  * @Auther WenLong
@@ -15,6 +14,14 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
  **/
 public class TiledMapUtils {
     private final static String TAG = TiledMapUtils.class.getSimpleName();
+    public static void logProperties(MapProperties mapProperties){
+        Iterator<String> keys = mapProperties.getKeys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            Object value = mapProperties.get(key);
+            Gdx.app.log(TAG,key+":"+value);
+        }
+    }
     public static Bag<MapObject> getObjects(TiledMap tiledMap, String layerName){
         MapLayers layers = tiledMap.getLayers();
         MapLayer layer = layers.get(layerName);
