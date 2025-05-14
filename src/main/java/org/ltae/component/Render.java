@@ -36,8 +36,8 @@ public class Render extends Component implements ComponentLoader {
             MapProperties properties = mapObject.getProperties();
             int regionWidth = keyframe.getRegionWidth();
             int regionHeight = keyframe.getRegionHeight();
-            float tileWidth = properties.get("tilewidth",(float)regionWidth, float.class);
-            float tileHeight = properties.get("tileheight",(float)regionHeight, float.class);
+            float tileWidth = properties.get("width",(float)regionWidth, float.class);
+            float tileHeight = properties.get("height",(float)regionHeight, float.class);
             scaleWidth = tileWidth/regionWidth;
             scaleHeight = tileHeight/regionHeight;
         }
