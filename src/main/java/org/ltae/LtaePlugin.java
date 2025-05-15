@@ -52,6 +52,7 @@ public class LtaePlugin implements ArtemisPlugin {
                 LtaePluginRule.B2D_SLEEP,
                 LtaePluginRule.WORLD_SCALE));//物理世界初始化
         //渲染前更新
+        worldConfigurationBuilder.with(new AlarmClockSystem());//闹钟系统
         worldConfigurationBuilder.with(new PosFollowBodySystem(LtaePluginRule.WORLD_SCALE)); //坐标跟随物理身体
         worldConfigurationBuilder.with(new BTreeSystem());//行为树系统
         worldConfigurationBuilder.with(new StateSystem());//状态机系统
