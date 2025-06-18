@@ -15,13 +15,7 @@ libgdx使用tiled地图编辑器编辑实体关联至artemisECS框架的引擎�
 2. 使用Tiled:1.11.x,不确保其它版本是否可行
 3. 在Tiled程序中导入自定义类型propertytypes.json,存在于此源码的src/main/resources中
 4. 在Tiled程序中为实体图层中object指定的名字会自动读取为实体的TAG
-5. 使用`AssetManager.loadAssets();`之前需要
-```java
-    assetManager = AssetManager.getInstance(); 
-    assetManager.setLoaders(GameRule.PROP_TYPE_PATH);
-    //详情请看"最佳实现方案->资源加载页面"
-```   
-并且需要在idea启动项目中配置资源路径为assets模块
+5. 代码重导入此依赖`api "com.github.IteratingSystem:LTAE:$ltaeVersion"`
 
 ### 最佳方案
 ##### 一.资源加载页面
@@ -38,6 +32,11 @@ libgdx使用tiled地图编辑器编辑实体关联至artemisECS框架的引擎�
     assetManager.setLoaders(propertytypesPath);
     //直接加载,会自动将assets模块内的特殊后缀名文件加载,目前支持"tmx(瓦片地图),tree(行为树)"
     assetManager.loadAssets();
+```
+3. 更新并获取进度
+```java
+   assetManager.update();
+   System.out.println(assetManager.getProgress());
 ```
 
 ##### 二.游戏页面
