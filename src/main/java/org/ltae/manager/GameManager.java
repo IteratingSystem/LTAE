@@ -1,6 +1,7 @@
 package org.ltae.manager;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.ObjectMap;
 
@@ -10,6 +11,7 @@ import com.badlogic.gdx.utils.ObjectMap;
  * @Description 页面管理器
  **/
 public class GameManager {
+    private final static String TAG = GameManager.class.getSimpleName();
     private static ObjectMap<Class<? extends Game> , Game> table;
 
     private static ObjectMap<Class<? extends Game> , Game> getTable(){
@@ -19,10 +21,15 @@ public class GameManager {
         return table;
     }
 
-    public static void put(Game game){
+    public static void register(Game game){
         getTable().put(game.getClass(),game);
     }
-    public static Game getScreen(Class<? extends Game> zClass){
-        return getTable().get(zClass);
+    public static Game getGame(Class<? extends Game> zClass){
+        ObjectMap<Class<? extends Game>, Game> table = getTable();
+        if (!table.containsKey(zClass)) {
+            Gdx.app.error(TAG,"This Game is not register in GameManager:"+zClass.getSimpleName());
+            return null;
+        }
+        return table.get(zClass);
     }
 }
