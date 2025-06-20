@@ -45,6 +45,10 @@ public class EntityBuilder {
     }
 
     public void createAllEntity(TiledMap tiledMap,String layerName){
+        if (tiledMap == null){
+            Gdx.app.error(TAG,"tiledMap is null");
+            return;
+        }
         MapLayers layers = tiledMap.getLayers();
         if (layers == null) {
             Gdx.app.error(TAG,"Failed to 'createAllEntity','tiledMap.getLayers()' is null");
