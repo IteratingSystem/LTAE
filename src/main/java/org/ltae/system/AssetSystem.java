@@ -46,9 +46,9 @@ public class AssetSystem extends BaseSystem {
         }
         //行为树
         bTreeData = AssetManager.getInstance().getObjects(BehaviorTree.class);
-        if (bTreeData.isEmpty()){
-            Gdx.app.log(TAG,"bTreeData is empty,Please load the resources first!");
-        }
+//        if (bTreeData.isEmpty()){
+//            Gdx.app.log(TAG,"bTreeData is empty,Please load the resources first!");
+//        }
     }
 
     @Override

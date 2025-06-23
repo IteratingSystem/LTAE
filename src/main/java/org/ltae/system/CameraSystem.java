@@ -27,6 +27,7 @@ import org.ltae.component.Pos;
 public class CameraSystem extends BaseSystem {
     private final static String TAG = CameraSystem.class.getSimpleName();
     private final static float MOVE_SPEED = 5;
+    private  FitViewport viewport;
     public OrthographicCamera camera;
     public M<Pos> mPos;
 
@@ -43,8 +44,8 @@ public class CameraSystem extends BaseSystem {
     }
     @Override
     protected void initialize() {
-        FitViewport fitViewport = new FitViewport(worldScale * windowWidth / zoom,worldScale * windowHeight / zoom);
-        camera = (OrthographicCamera)fitViewport.getCamera();
+        viewport = new FitViewport(worldScale * windowWidth / zoom,worldScale * windowHeight / zoom);
+        camera = (OrthographicCamera)viewport.getCamera();
         camera.setToOrtho(false);
     }
 
@@ -57,6 +58,9 @@ public class CameraSystem extends BaseSystem {
         camera.update();
     }
 
+    public void resize(int width,int height){
+        viewport.update(width,height);
+    }
     private boolean verifyTarget(){
         if (cameraTarget == null) {
             return false;
