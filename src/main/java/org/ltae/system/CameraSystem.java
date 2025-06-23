@@ -43,7 +43,7 @@ public class CameraSystem extends BaseSystem {
     }
     @Override
     protected void initialize() {
-        FitViewport fitViewport = new FitViewport(worldScale * windowWidth / zoom,worldScale * windowHeight / zoom)
+        FitViewport fitViewport = new FitViewport(worldScale * windowWidth / zoom,worldScale * windowHeight / zoom);
         camera = (OrthographicCamera)fitViewport.getCamera();
         camera.setToOrtho(false);
     }
