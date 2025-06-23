@@ -60,6 +60,7 @@ public class CameraSystem extends BaseSystem {
 
     public void resize(int width,int height){
         viewport.update(width,height);
+        camera = (OrthographicCamera) viewport.getCamera();
     }
     private boolean verifyTarget(){
         if (cameraTarget == null) {
