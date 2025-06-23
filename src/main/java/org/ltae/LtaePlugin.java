@@ -28,8 +28,8 @@ public class LtaePlugin implements ArtemisPlugin {
     public void setup(WorldConfigurationBuilder worldConfigurationBuilder) {
         RenderBatchingSystem renderBatchingSystem = new RenderBatchingSystem();
         cameraSystem = new CameraSystem(
-                LtaePluginRule.WIN_WIDTH,
-                LtaePluginRule.WIN_HEIGHT,
+                LtaePluginRule.GAME_WIDTH,
+                LtaePluginRule.GAME_HEIGHT,
                 LtaePluginRule.CAMERA_ZOOM,
                 LtaePluginRule.WORLD_SCALE);
         //官方插件
