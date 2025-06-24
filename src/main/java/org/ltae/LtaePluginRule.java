@@ -6,7 +6,10 @@ package org.ltae;
  * @Description
  **/
 public class LtaePluginRule {
-    private LtaePluginRule(){}
+
+
+
+
     //ui视图宽高
     public static int UI_WIDTH = 640;
     public static int UI_HEIGHT = 480;
@@ -17,6 +20,7 @@ public class LtaePluginRule {
     public static float G_X = 0.0f;              // 默认横向重力
     public static float G_Y = -9.8f;             // 默认纵向重力（模拟地球重力）
     public static boolean B2D_SLEEP = false;         //box2d是否休眠
+    public static boolean COMB_TILE = true;
     public static String MAP_NAME = "defaultMap"; // 默认加载的地图名称
     public static String PREFABRICATED_MAP_NAME = "defaultMap"; // 预制件地图名称
     public static String PHY_LAYER = "physicsLayer"; // 默认物理图层
@@ -25,4 +29,5 @@ public class LtaePluginRule {
     public static String STATE_PKG = "com.game.state";    //状态机包路径
     public static String B2D_LISTENER_PKG = "com.game.contact";   // BOX2D监听器包路径
     public static String SKIN_PATH = "skin/main.json"; //skin皮肤路劲
+    private LtaePluginRule(){}
 }
