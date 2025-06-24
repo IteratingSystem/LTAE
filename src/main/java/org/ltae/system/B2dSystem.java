@@ -34,12 +34,12 @@ public class B2dSystem extends BaseSystem {
     @Override
     protected void initialize() {
         box2DWorld = new World(new Vector2(gx,gy),doSleep);
-        box2DWorld.setContinuousPhysics(combineTileCollisions);
+        box2DWorld.setContinuousPhysics(true);
         box2DWorld.setContactListener(new DefContactListener());
         //绑定tiled中的物理形状
         var builder = new TiledTileCollisionToBox2d(TiledTileCollisionToBox2dOptions.builder()
             .scale(worldScale)
-            .combineTileCollisions(true)
+            .combineTileCollisions(combineTileCollisions)
             .triangulateInsteadOfThrow(true)
             .build());
         for (TiledMapTileLayer phyLayer : tiledMapManager.phyLayers) {
