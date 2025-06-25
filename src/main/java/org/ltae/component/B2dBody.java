@@ -266,8 +266,10 @@ public class B2dBody extends Component implements ComponentLoader {
      */
     public void flipX(float regionWidth){
         Array<Fixture> fixtureList = body.getFixtureList();
-        Fixture[] items = fixtureList.items;
-        for (Fixture fixture : items) {
+        for (Object item : fixtureList.items) {
+            if (!(item instanceof Fixture fixture)){
+                continue;
+            }
             Object userData = fixture.getUserData();
             //不需要处理动画帧中的形状,因为其在创建阶段翻转
             if (userData instanceof KeyframeShapeData keyframeShapeData) {
@@ -284,8 +286,10 @@ public class B2dBody extends Component implements ComponentLoader {
     public Bag<Fixture> getFixtures(int sensorType){
         Bag<Fixture> fixtures = new Bag<>();
         Array<Fixture> fixtureList = body.getFixtureList();
-        Fixture[] items = fixtureList.items;
-        for (Fixture fixture : items) {
+        for (Object item : fixtureList.items) {
+            if (!(item instanceof Fixture fixture)){
+                continue;
+            }
             Object userData = fixture.getUserData();
             if (userData instanceof DefFixData defFixData) {
                 if (defFixData.sensorType == sensorType) {
@@ -302,8 +306,10 @@ public class B2dBody extends Component implements ComponentLoader {
     public Bag<Fixture> getFixtures(CategoryBits categoryBits){
         Bag<Fixture> fixtures = new Bag<>();
         Array<Fixture> fixtureList = body.getFixtureList();
-        Fixture[] items = fixtureList.items;
-        for (Fixture fixture : items) {
+        for (Object item : fixtureList.items) {
+            if (!(item instanceof Fixture fixture)){
+                continue;
+            }
             if (fixture.getFilterData().categoryBits == categoryBits.getBit()) {
                 fixtures.add(fixture);
             }
@@ -318,8 +324,10 @@ public class B2dBody extends Component implements ComponentLoader {
     public Bag<Fixture> getContactFixtures(Fixture fixture){
         Bag<Fixture> fixtures = new Bag<>();
         Array<Contact> contactList = b2dWorld.getContactList();
-        Contact[] items = contactList.items;
-        for (Contact contact : items) {
+        for (Object item : contactList.items) {
+            if (!(item instanceof Contact contact)){
+                continue;
+            }
             Fixture fixtureA = contact.getFixtureA();
             Fixture fixtureB = contact.getFixtureB();
 
