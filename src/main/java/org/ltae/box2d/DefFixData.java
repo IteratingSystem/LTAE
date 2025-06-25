@@ -12,6 +12,6 @@ import org.ltae.box2d.listener.EcsContactListener;
 public class DefFixData {
     public int entityId;
     public Entity entity;
-    public SensorType sensorType;
+    public int sensorType;
     public EcsContactListener listener;
 }

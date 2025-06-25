@@ -28,6 +28,7 @@ import org.ltae.utils.ShapeUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
@@ -101,23 +102,21 @@ public class B2dBody extends Component implements ComponentLoader {
             if (tileSet.getTile(tileId) != tiledMapTile) {
                 continue;
             }
-            Iterator<TiledMapTile> tileSetItr = tileSet.iterator();
-            while (tileSetItr.hasNext()){
-                TiledMapTile oneTile = tileSetItr.next();
-                if (!(oneTile instanceof AnimatedTiledMapTile animatedTile)){
+            for (TiledMapTile oneTile : tileSet) {
+                if (!(oneTile instanceof AnimatedTiledMapTile animatedTile)) {
                     continue;
                 }
                 MapProperties allProps = animatedTile.getProperties();
-                if (!allProps.containsKey("TileAnimation")){
+                if (!allProps.containsKey("TileAnimation")) {
                     continue;
                 }
                 MapProperties aniProp = allProps.get("TileAnimation", MapProperties.class);
-                if (!aniProp.containsKey("name")){
+                if (!aniProp.containsKey("name")) {
                     continue;
                 }
 
                 StaticTiledMapTile[] frameTiles = animatedTile.getFrameTiles();
-                String aniName = aniProp.get("name","", String.class);
+                String aniName = aniProp.get("name", "", String.class);
                 for (int i = 0; i < frameTiles.length; i++) {
                     StaticTiledMapTile frameTile = frameTiles[i];
                     MapObjects frameTileObjects = frameTile.getObjects();
@@ -126,9 +125,9 @@ public class B2dBody extends Component implements ComponentLoader {
                         if (!properties.containsKey("FixDef")) {
                             continue;
                         }
-                        MapProperties fixDefProps = properties.get("FixDef",MapProperties.class);
-                        fixDefProps.put("keyframeIndex",i);
-                        fixDefProps.put("aniName",aniName);
+                        MapProperties fixDefProps = properties.get("FixDef", MapProperties.class);
+                        fixDefProps.put("keyframeIndex", i);
+                        fixDefProps.put("aniName", aniName);
                         allObjects.add(frameTileObject);
                     }
                 }
@@ -158,7 +157,7 @@ public class B2dBody extends Component implements ComponentLoader {
             float friction = fixDefProps.get("friction", float.class);
             float restitution = fixDefProps.get("restitution", float.class);
             boolean isSensor = fixDefProps.get("isSensor", boolean.class);
-            String sensorType = fixDefProps.get("sensorType", String.class);
+            int sensorType = fixDefProps.get("sensorType", Integer.class);
             String categoryBit = fixDefProps.get("categoryBit", String.class);
             String maskBits = fixDefProps.get("maskBits", String.class);
             String listenerSimpleName = fixDefProps.get("listenerSimpleName", String.class);
@@ -214,7 +213,7 @@ public class B2dBody extends Component implements ComponentLoader {
                 DefFixData defFixData = new DefFixData();
                 defFixData.entityId = entityId;
                 defFixData.entity = entityDetails.entity;
-                defFixData.sensorType = SensorType.valueOf(sensorType);
+                defFixData.sensorType = sensorType;
                 defFixData.listener = ecsContactListener;
 
                 fixture.setUserData(defFixData);
@@ -225,7 +224,7 @@ public class B2dBody extends Component implements ComponentLoader {
             KeyframeShapeData keyframeShapeData = new KeyframeShapeData();
             keyframeShapeData.entityId = entityId;
             keyframeShapeData.entity = entity;
-            keyframeShapeData.sensorType = SensorType.valueOf(sensorType);
+            keyframeShapeData.sensorType = sensorType;
             keyframeShapeData.listener = ecsContactListener;
             keyframeShapeData.aniName = aniName;
             keyframeShapeData.keyframeIndex = keyframeIndex;
@@ -233,44 +232,10 @@ public class B2dBody extends Component implements ComponentLoader {
             keyframeFixSetups.add(fixtureSetup);
         }
     }
-    public boolean isOnFloor(){
-        Array<Contact> contactList = b2dWorld.getContactList();
-        for (Contact contact : contactList) {
-            if (!contact.isTouching()) {
-                continue;
-            }
-
-            Fixture fixtureA = contact.getFixtureA();
-            Fixture fixtureB = contact.getFixtureB();
-
-            if (fixtureA.getUserData() instanceof DefFixData defFixDataA
-                && fixtureB.getUserData() instanceof DefFixData defFixDataB
-                && defFixDataA.entityId == defFixDataB.entityId){
-                continue;
-            }
-
-
-            if (fixtureA.getUserData() instanceof DefFixData defFixData
-                && defFixData.entityId == entityId
-                && defFixData.sensorType == SensorType.ON_FLOOR
-                && fixtureB.getBody().getType() == BodyDef.BodyType.StaticBody) {
-                    return true;
-            }
-
-            if (fixtureB.getUserData() instanceof DefFixData defFixData
-                && defFixData.entityId == entityId
-                && defFixData.sensorType == SensorType.ON_FLOOR
-                && fixtureA.getBody().getType() == BodyDef.BodyType.StaticBody) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * 传入用户对象获取keyframeFixSetups中对应的那个FixSetup
-     * @param keyframeShapeData
-     * @return
+     * @return FixtureSetup
      */
     public FixtureSetup getKeyframeFixSetup(KeyframeShapeData keyframeShapeData){
         for (FixtureSetup keyframeFixSetup : keyframeFixSetups) {
@@ -298,11 +263,11 @@ public class B2dBody extends Component implements ComponentLoader {
      * 左右翻转,假设角色左右翻转,所以他的Body也要左右翻转;
      * 这里没有用强制性的翻转方向,而是将Body内部的所有矩形和圆形移动到翻转后的位置来模拟的翻转;
      * 翻转逻辑会忽略动画帧形状中的翻转情况,因为动画帧形状的翻转状态会在创建时判断,通过needFlipX属性来判断是否需要翻转;
-     * @param regionWidth
      */
     public void flipX(float regionWidth){
         Array<Fixture> fixtureList = body.getFixtureList();
-        for (Fixture fixture : fixtureList) {
+        Fixture[] items = fixtureList.items;
+        for (Fixture fixture : items) {
             Object userData = fixture.getUserData();
             //不需要处理动画帧中的形状,因为其在创建阶段翻转
             if (userData instanceof KeyframeShapeData keyframeShapeData) {
@@ -310,5 +275,75 @@ public class B2dBody extends Component implements ComponentLoader {
             }
             ShapeUtils.flipX(fixture.getShape(),regionWidth);
         }
+    }
+
+    /**
+     * 通过类型获取夹具
+     * @return fixtures
+     */
+    public Bag<Fixture> getFixtures(int sensorType){
+        Bag<Fixture> fixtures = new Bag<>();
+        Array<Fixture> fixtureList = body.getFixtureList();
+        Fixture[] items = fixtureList.items;
+        for (Fixture fixture : items) {
+            Object userData = fixture.getUserData();
+            if (userData instanceof DefFixData defFixData) {
+                if (defFixData.sensorType == sensorType) {
+                    fixtures.add(fixture);
+                }
+            }
+        }
+        return fixtures;
+    }
+
+
+    /**
+     * 获取传入夹具碰撞到的所有其它夹具,掩码过滤掉的不会发生碰撞也就不会呗获取
+     * @return fixtures
+     */
+    public Bag<Fixture> getContactFixtures(Fixture fixture){
+        Bag<Fixture> fixtures = new Bag<>();
+        Array<Contact> contactList = b2dWorld.getContactList();
+        Contact[] items = contactList.items;
+        for (Contact contact : items) {
+            Fixture fixtureA = contact.getFixtureA();
+            Fixture fixtureB = contact.getFixtureB();
+
+            if (fixture != fixtureA && fixture != fixtureB){
+                continue;
+            }
+            Fixture contactFix = fixtureA;
+            if (fixture == fixtureA){
+                contactFix = fixtureB;
+            }
+            fixtures.add(contactFix);
+        }
+        return fixtures;
+    }
+
+    /**
+     * 获取所有碰撞的夹具
+     * @return contactFixtures
+     */
+    public Bag<Fixture> getContactFixtures(int sensorType){
+        Bag<Fixture> contactFixtures = new Bag<>();
+        Bag<Fixture> fixtures = getFixtures(sensorType);
+        for (Fixture fixture : fixtures) {
+            contactFixtures.addAll(getContactFixtures(fixture));
+        }
+        return contactFixtures;
+    }
+
+    /**
+     * 获取夹具的主人(实体)
+     * @param fixture
+     * @return
+     */
+    public Entity getEntity(Fixture fixture){
+        Object userData = fixture.getUserData();
+        if (userData instanceof DefFixData defFixData) {
+            return defFixData.entity;
+        }
+        return null;
     }
 }
