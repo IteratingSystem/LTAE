@@ -92,7 +92,7 @@ public class RenderBatchingSystem extends BaseSystem implements EntityProcessPri
             }
             if (mZIndex.has(entityId)){
                 ZIndex zIndex = mZIndex.get(entityId);
-                endNum = zIndex.index - zIndex.offset;
+                endNum = zIndex.index + zIndex.offset;
             }
             return (int)(startNum-endNum);
         }
