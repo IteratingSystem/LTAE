@@ -265,11 +265,9 @@ public class B2dBody extends Component implements ComponentLoader {
      * 翻转逻辑会忽略动画帧形状中的翻转情况,因为动画帧形状的翻转状态会在创建时判断,通过needFlipX属性来判断是否需要翻转;
      */
     public void flipX(float regionWidth){
-        Array<Fixture> fixtureList = body.getFixtureList();
-        for (Object item : fixtureList.items) {
-            if (!(item instanceof Fixture fixture)){
-                continue;
-            }
+        Array.ArrayIterator<Fixture> iterator = new Array.ArrayIterator<>(body.getFixtureList());
+        while (iterator.hasNext()) {
+            Fixture fixture = iterator.next();
             Object userData = fixture.getUserData();
             //不需要处理动画帧中的形状,因为其在创建阶段翻转
             if (userData instanceof KeyframeShapeData keyframeShapeData) {
@@ -285,11 +283,9 @@ public class B2dBody extends Component implements ComponentLoader {
      */
     public Bag<Fixture> getFixtures(int sensorType){
         Bag<Fixture> fixtures = new Bag<>();
-        Array<Fixture> fixtureList = body.getFixtureList();
-        for (Object item : fixtureList.items) {
-            if (!(item instanceof Fixture fixture)){
-                continue;
-            }
+        Array.ArrayIterator<Fixture> iterator = new Array.ArrayIterator<>(body.getFixtureList());
+        while (iterator.hasNext()) {
+            Fixture fixture = iterator.next();
             Object userData = fixture.getUserData();
             if (userData instanceof DefFixData defFixData) {
                 if (defFixData.sensorType == sensorType) {
@@ -305,11 +301,9 @@ public class B2dBody extends Component implements ComponentLoader {
      */
     public Bag<Fixture> getFixtures(CategoryBits categoryBits){
         Bag<Fixture> fixtures = new Bag<>();
-        Array<Fixture> fixtureList = body.getFixtureList();
-        for (Object item : fixtureList.items) {
-            if (!(item instanceof Fixture fixture)){
-                continue;
-            }
+        Array.ArrayIterator<Fixture> iterator = new Array.ArrayIterator<>(body.getFixtureList());
+        while (iterator.hasNext()) {
+            Fixture fixture = iterator.next();
             if (fixture.getFilterData().categoryBits == categoryBits.getBit()) {
                 fixtures.add(fixture);
             }
@@ -324,10 +318,9 @@ public class B2dBody extends Component implements ComponentLoader {
     public Bag<Fixture> getContactFixtures(Fixture fixture){
         Bag<Fixture> fixtures = new Bag<>();
         Array<Contact> contactList = b2dWorld.getContactList();
-        for (Object item : contactList.items) {
-            if (!(item instanceof Contact contact)){
-                continue;
-            }
+        Array.ArrayIterator<Contact> iterator = new Array.ArrayIterator<>(b2dWorld.getContactList());
+        while (iterator.hasNext()) {
+            Contact contact = iterator.next();
             Fixture fixtureA = contact.getFixtureA();
             Fixture fixtureB = contact.getFixtureB();
 
