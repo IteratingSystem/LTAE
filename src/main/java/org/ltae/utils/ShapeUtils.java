@@ -78,6 +78,68 @@ public class ShapeUtils {
         }
         return shape;
     }
+    public static Shape getShapeByMapObject (MapObject mapObject,float worldScale,float scaleW,float scaleH){
+        Shape shape = null;
+        if (mapObject instanceof RectangleMapObject shapeObject){
+            Rectangle rectangle = shapeObject.getRectangle();
+            // 计算矩形的四个顶点
+            float x = rectangle.getX();
+            float y = rectangle.getY();
+            float width = rectangle.getWidth();
+            float height = rectangle.getHeight();
+            float[] vertices = new float[] {
+                    x, y,  // 左下角
+                    x + width, y,  // 右下角
+                    x + width, y + height,  // 右上角
+                    x, y + height   // 左上角
+            };
+//                if (flipX) {
+//                    vertices = flipXVertices(vertices,widthDef);
+//                }
+
+            for (int i = 0; i < vertices.length; i++) {
+                if (i==0 || i%2==0){
+                    vertices[i] *= worldScale * scaleH;
+                    continue;
+                }
+                vertices[i] *= worldScale * scaleW;
+            }
+            PolygonShape polygonShape = new PolygonShape();
+            polygonShape.set(vertices);
+
+            shape = polygonShape;
+        }else if (mapObject instanceof CircleMapObject shapeObject){
+            Circle circle = shapeObject.getCircle();
+
+            CircleShape circleShape = new CircleShape();
+            circleShape.setPosition(new Vector2(scaleW*worldScale*circle.x,scaleH*worldScale*circle.y));
+            circleShape.setRadius(scaleW+worldScale*circle.radius);
+
+            shape = circleShape;
+        }else if (mapObject instanceof EllipseMapObject shapeObject){
+            Ellipse ellipse = shapeObject.getEllipse();
+
+            CircleShape circleShape = new CircleShape();
+            circleShape.setPosition(new Vector2(scaleW*worldScale*(ellipse.x+ellipse.width/2),scaleH*worldScale*(ellipse.y+ellipse.height/2)));
+            circleShape.setRadius(ellipse.width<ellipse.height?scaleW*worldScale*(ellipse.width/2):scaleH*worldScale*(ellipse.height/2));
+
+            shape = circleShape;
+        }else if (mapObject instanceof PolygonMapObject shapeObject){
+            Polygon polygon = shapeObject.getPolygon();
+
+            for (int i = 0; i < polygon.getVertices().length; i++) {
+                polygon.getVertices()[i]*=worldScale;
+            }
+
+            PolygonShape polygonShape = new PolygonShape();
+            polygonShape.set(polygon.getVertices());
+            shape = polygonShape;
+        }else if (mapObject instanceof PolylineMapObject shapeObject){
+        }else {
+            Gdx.app.error(TAG,"MapObject is not a shape object!");
+        }
+        return shape;
+    }
 
 
     /**

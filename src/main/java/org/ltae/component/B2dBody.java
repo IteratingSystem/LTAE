@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
@@ -135,6 +136,17 @@ public class B2dBody extends Component implements ComponentLoader {
             }
         }
 
+        float scaleWidth = 1;
+        float scaleHeight = 1;
+        TextureMapObject textureMapObject = (TextureMapObject) mapObject;
+        int regionWidth = textureMapObject.getTextureRegion().getRegionWidth();
+        int regionHeight = textureMapObject.getTextureRegion().getRegionHeight();
+        MapProperties properties = mapObject.getProperties();
+        float tileWidth = properties.get("width",(float)regionWidth, float.class);
+        float tileHeight = properties.get("height",(float)regionHeight, float.class);
+        scaleWidth = tileWidth/regionWidth;
+        scaleHeight = tileHeight/regionHeight;
+
         //将所有对象中是形状的转换成shape
         for (MapObject object : allObjects) {
             MapProperties shapeProps = object.getProperties();
@@ -176,7 +188,7 @@ public class B2dBody extends Component implements ComponentLoader {
             }
 
 
-            Shape shape = ShapeUtils.getShapeByMapObject(object, worldScale);
+            Shape shape = ShapeUtils.getShapeByMapObject(object, worldScale,scaleWidth,scaleHeight);
 
             if (shape == null){
                 continue;
