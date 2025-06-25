@@ -295,7 +295,21 @@ public class B2dBody extends Component implements ComponentLoader {
         }
         return fixtures;
     }
-
+    /**
+     * 通过位码获取夹具
+     * @return fixtures
+     */
+    public Bag<Fixture> getFixtures(CategoryBits categoryBits){
+        Bag<Fixture> fixtures = new Bag<>();
+        Array<Fixture> fixtureList = body.getFixtureList();
+        Fixture[] items = fixtureList.items;
+        for (Fixture fixture : items) {
+            if (fixture.getFilterData().categoryBits == categoryBits.getBit()) {
+                fixtures.add(fixture);
+            }
+        }
+        return fixtures;
+    }
 
     /**
      * 获取传入夹具碰撞到的所有其它夹具,掩码过滤掉的不会发生碰撞也就不会呗获取
@@ -333,7 +347,18 @@ public class B2dBody extends Component implements ComponentLoader {
         }
         return contactFixtures;
     }
-
+    /**
+     * 获取所有与之碰撞的夹具
+     * @return contactFixtures
+     */
+    public Bag<Fixture> getContactFixtures(CategoryBits categoryBits){
+        Bag<Fixture> contactFixtures = new Bag<>();
+        Bag<Fixture> fixtures = getFixtures(categoryBits);
+        for (Fixture fixture : fixtures) {
+            contactFixtures.addAll(getContactFixtures(fixture));
+        }
+        return contactFixtures;
+    }
     /**
      * 获取夹具的主人(实体)
      * @param fixture
