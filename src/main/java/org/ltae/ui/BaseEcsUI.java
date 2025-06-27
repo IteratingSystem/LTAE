@@ -2,6 +2,7 @@ package org.ltae.ui;
 
 import com.artemis.World;
 import com.artemis.managers.TagManager;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import org.ltae.system.AssetSystem;
@@ -12,12 +13,12 @@ import org.ltae.system.AssetSystem;
  * @Date 2024/11/26 14:18
  * @Description
  **/
-public class BaseUI extends Table {
+public class BaseEcsUI extends Table {
     public World world;
     public AssetSystem assetSystem;
     public TagManager tagManager;
     public Skin skin;
-    public BaseUI(World world){
+    public BaseEcsUI(World world){
         this.world = world;
         tagManager = world.getSystem(TagManager.class);
         assetSystem = world.getSystem(AssetSystem.class);
@@ -25,5 +26,15 @@ public class BaseUI extends Table {
     }
     public String getTag(){
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        super.draw(batch, parentAlpha);
     }
 }

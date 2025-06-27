@@ -4,10 +4,9 @@ import com.artemis.BaseSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.ltae.ui.BaseUI;
 
 /**
  * @Auther WenLong
@@ -19,7 +18,7 @@ public class RenderUISystem extends BaseSystem {
     private Stage mainStage;
     private Stack stack;
     private ExtendViewport extendViewport;
-    private ObjectMap<String,BaseUI> uiMap;
+    private ObjectMap<Class<? extends Table>,Table> uiMap;
     public RenderUISystem(int width,int height){
         extendViewport = new ExtendViewport(width,height);
     }
@@ -45,33 +44,33 @@ public class RenderUISystem extends BaseSystem {
         mainStage.draw();
     }
 
-    public void addUI(String name,BaseUI ui){
-        if (uiMap.containsKey(name)) {
-            Gdx.app.log(TAG,"Failed to addUI,uiMap is containsKey: "+name);
+    public void register(Table ui){
+        if (uiMap.containsKey(ui.getClass())) {
+            Gdx.app.log(TAG,"Failed to addUI,uiMap is containsKey: "+ ui.getClass().getSimpleName());
             return;
         }
-        uiMap.put(name,ui);
+        uiMap.put(ui.getClass(),ui);
         stack.addActor(ui);
     }
-    public BaseUI getUI(String name){
-        if (!uiMap.containsKey(name)) {
-            Gdx.app.log(TAG,"Failed to getUI,uiMap is not containsKey: "+name);
+    public Table getUI(Class<? extends Table> zClass){
+        if (!uiMap.containsKey(zClass)) {
+            Gdx.app.log(TAG,"Failed to getUI,uiMap is not containsKey: "+zClass.getSimpleName());
             return null;
         }
-        return uiMap.get(name);
+        return uiMap.get(zClass);
     }
-    public void hideUI(String name){
-        BaseUI ui = getUI(name);
-        if (ui == null) {
+    public void hideUI(Class<? extends Table> zClass){
+        if (!uiMap.containsKey(zClass)) {
+            Gdx.app.log(TAG,"Failed to hideUI,uiMap is not containsKey: "+zClass.getSimpleName());
             return;
         }
-        getUI(name).setVisible(false);
+        getUI(zClass).setVisible(false);
     }
-    public void showUI(String name){
-        BaseUI ui = getUI(name);
-        if (ui == null) {
+    public void showUI(Class<? extends Table> zClass){
+        if (!uiMap.containsKey(zClass)) {
+            Gdx.app.log(TAG,"Failed to showUI,uiMap is not containsKey: "+zClass.getSimpleName());
             return;
         }
-        getUI(name).setVisible(true);
+        getUI(zClass).setVisible(true);
     }
 }
