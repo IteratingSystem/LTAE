@@ -137,7 +137,7 @@ public class AssetManager {
                     continue;
                 }
                 T obejct = getObejct(path, aClass);
-                String name = fileHandle.nameWithoutExtension();
+                String name = fileHandle.name().replace(ext,"");
                 objectMap.put(name,obejct);
             }
         }
