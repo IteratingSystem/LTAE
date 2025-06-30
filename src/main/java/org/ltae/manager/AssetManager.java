@@ -10,7 +10,7 @@ import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.ObjectMap;
-import org.ltae.tiled.loader.DefMapLoader;
+import org.ltae.loader.EcsMapLoader;
 
 
 /**
@@ -45,7 +45,7 @@ public class AssetManager {
 
 
     public void setLoaders(String propTypePath) {
-        gdxAssetManager.setLoader(TiledMap.class, new DefMapLoader(propTypePath));
+        gdxAssetManager.setLoader(TiledMap.class, new EcsMapLoader(resolver,propTypePath));
         gdxAssetManager.setLoader(BehaviorTree.class, new BehaviorTreeLoader(resolver));
     }
     public <T, P extends AssetLoaderParameters<T>> void setLoader(Class<T> type, AssetLoader<T, P> loader) {

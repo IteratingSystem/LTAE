@@ -1,4 +1,4 @@
-package org.ltae.tiled.loader;
+package org.ltae.loader;
 
 /**
  * @Auther WenLong

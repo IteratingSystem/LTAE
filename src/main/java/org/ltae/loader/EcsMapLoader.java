@@ -1,6 +1,7 @@
-package org.ltae.tiled.loader;
+package org.ltae.loader;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.maps.MapObject;
@@ -16,11 +17,12 @@ import com.badlogic.gdx.utils.XmlReader;
  * @Date 2025/2/13 9:59
  * @Description 重写瓦片地图加载器,主要目的是让地图中对象的自定义属性实现层级关系
  **/
-public class DefMapLoader extends TmxMapLoader {
-    private final static String TAG = DefMapLoader.class.getSimpleName();
+public class EcsMapLoader extends TmxMapLoader {
+    private final static String TAG = EcsMapLoader.class.getSimpleName();
     //tiled中"自定义属性"的导出文件地址
     private final String propTypePath;
-    public DefMapLoader(String propTypePath){
+    public EcsMapLoader(FileHandleResolver resolver, String propTypePath){
+        super(resolver);
         this.propTypePath = propTypePath;
     }
 
