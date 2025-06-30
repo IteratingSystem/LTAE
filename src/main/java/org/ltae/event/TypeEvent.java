@@ -10,5 +10,7 @@ import net.mostlyoriginal.api.event.common.Event;
  **/
 public class TypeEvent implements Event {
     public int type;
-
+    public TypeEvent(int type){
+        this.type = type;
+    }
 }

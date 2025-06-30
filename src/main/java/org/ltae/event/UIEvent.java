@@ -15,4 +15,8 @@ public class UIEvent extends TypeEvent{
 
     public Class<? extends Table> uiClass;
     public Table table;
+
+    public UIEvent(int type) {
+        super(type);
+    }
 }

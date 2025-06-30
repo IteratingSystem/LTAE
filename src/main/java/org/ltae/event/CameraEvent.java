@@ -13,4 +13,8 @@ public class CameraEvent extends TypeEvent{
     public CameraTarget target;
     public int width;
     public int height;
+
+    public CameraEvent(int type) {
+        super(type);
+    }
 }

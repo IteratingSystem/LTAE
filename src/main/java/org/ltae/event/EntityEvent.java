@@ -16,4 +16,8 @@ public class EntityEvent extends TypeEvent {
     public float y;
     public MapObject mapObject;
     public String name;
+
+    public EntityEvent(int type) {
+        super(type);
+    }
 }
