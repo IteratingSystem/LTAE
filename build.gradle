@@ -44,6 +44,8 @@ dependencies {
     implementation "org.reflections:reflections:$reflectionsVersion"
     //ai
     implementation "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+    //ink剧本编辑器
+    implementation "com.bladecoder.ink:blade-ink:$bladeInkVersion"
 }
 
 test {

@@ -12,7 +12,9 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.bladecoder.ink.runtime.Story;
 import org.ltae.loader.EcsMapLoader;
+import org.ltae.loader.InkStoryLoader;
 
 
 /**
@@ -22,6 +24,9 @@ import org.ltae.loader.EcsMapLoader;
  **/
 public class AssetManager {
     private static final String TAG = AssetManager.class.getSimpleName();
+    public static final String TILED_EXT = ".tmx";
+    public static final String TREE_EXT = ".tree";
+    public static final String STORY_EXT = ".ink.json";
     private static AssetManager instance;
     private static FileHandleResolver resolver;
     private static FileHandle assetsHandle;
@@ -49,6 +54,7 @@ public class AssetManager {
     public void setLoaders(String propTypePath) {
         gdxAssetManager.setLoader(TiledMap.class, new EcsMapLoader(resolver,propTypePath));
         gdxAssetManager.setLoader(BehaviorTree.class, new BehaviorTreeLoader(resolver));
+        gdxAssetManager.setLoader(Story.class, new InkStoryLoader(resolver));
     }
     public <T, P extends AssetLoaderParameters<T>> void setLoader(Class<T> type, AssetLoader<T, P> loader) {
         gdxAssetManager.setLoader(type,loader);
@@ -81,12 +87,16 @@ public class AssetManager {
         String assetsPath = assetsHandle.readString();
         String[] assetPath = assetsPath.split("\n");
         for (String path : assetPath) {
-            if (path.endsWith(".tmx")) {
+            if (path.endsWith(TILED_EXT)) {
                 loadAsset(path,TiledMap.class);
                 continue;
             }
-            if (path.endsWith(".tree")) {
+            if (path.endsWith(TREE_EXT)) {
                 loadAsset(path,BehaviorTree.class);
+                continue;
+            }
+            if (path.endsWith(STORY_EXT)) {
+                loadAsset(path,Story.class);
                 continue;
             }
         }
@@ -110,28 +120,17 @@ public class AssetManager {
      * @return
      * @param <T>
      */
-    public <T> ObjectMap<String, T> getObjects(Class<T> aClass) {
+    public <T> ObjectMap<String, T> getObjects(String ext,Class<T> aClass) {
         if (!assetsHandle.exists()) {
             Gdx.app.error(TAG,"assets.txt is not exists!");
             return null;
         }
-
-        String suffix;
-        if (aClass == TiledMap.class) {
-            suffix = ".tmx";
-        }else if (aClass == BehaviorTree.class){
-            suffix = ".tree";
-        }else {
-            Gdx.app.error(TAG,"Filed to getObjects,aClass is unknown: " + aClass);
-            return null;
-        }
-
         String assetsPath = assetsHandle.readString();
         String[] assetPath = assetsPath.split("\n");
         ObjectMap<String, T> objectMap = new ObjectMap<>();
         FileHandle fileHandle;
         for (String path : assetPath) {
-            if (path.endsWith(suffix)) {
+            if (path.endsWith(ext)) {
                 fileHandle = Gdx.files.internal(path);
                 if (!fileHandle.exists()){
                     Gdx.app.log(TAG,"getObjects continue: fileHandle is exists,path: "+path);

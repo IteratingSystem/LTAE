@@ -8,6 +8,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.bladecoder.ink.runtime.Story;
 import org.ltae.manager.AssetManager;
 import org.ltae.manager.SkinManage;
 
@@ -25,6 +26,7 @@ public class AssetSystem extends BaseSystem {
     public ObjectMap<String,TiledMap> tiledData;
     //行为树数据
     public ObjectMap<String, BehaviorTree> bTreeData;
+    public ObjectMap<String, Story> storyData;
     public Skin skin;
     public AssetSystem (String skinPath){
         this.skinPath = skinPath;
@@ -40,15 +42,14 @@ public class AssetSystem extends BaseSystem {
         }
 
         //瓦片地图数据
-        tiledData = AssetManager.getInstance().getObjects(TiledMap.class);
+        tiledData = AssetManager.getInstance().getObjects(AssetManager.TILED_EXT,TiledMap.class);
         if (tiledData.isEmpty()) {
             Gdx.app.log(TAG,"tiledData is empty,Please load the resources first!");
         }
         //行为树
-        bTreeData = AssetManager.getInstance().getObjects(BehaviorTree.class);
-//        if (bTreeData.isEmpty()){
-//            Gdx.app.log(TAG,"bTreeData is empty,Please load the resources first!");
-//        }
+        bTreeData = AssetManager.getInstance().getObjects(AssetManager.TREE_EXT,BehaviorTree.class);
+        //ink剧本
+        storyData = AssetManager.getInstance().getObjects(AssetManager.STORY_EXT, Story.class);
     }
 
     @Override
