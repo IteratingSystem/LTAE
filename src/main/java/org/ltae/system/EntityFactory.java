@@ -8,9 +8,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.ObjectMap;
+import net.mostlyoriginal.api.event.common.Subscribe;
 import org.ltae.component.Pos;
 import org.ltae.component.Render;
 import org.ltae.component.ZIndex;
+import org.ltae.event.EntityEvent;
 import org.ltae.tiled.EntityBuilder;
 import org.ltae.tiled.details.SystemDetails;
 import org.ltae.utils.TiledMapUtils;
@@ -27,6 +29,8 @@ public class EntityFactory extends BaseSystem {
     private ObjectMap<String, MapObject> prefabricatedObjects;
     public SystemDetails systemDetails;
     private EntityBuilder entityBuilder;
+
+
 
     public EntityFactory(String componentPkg, String statePkg, String b2dListenerPkg, String entityLayer, float worldScale){
         Bag<Class<? extends Component>> autoCompClasses = new Bag<>();
@@ -56,7 +60,7 @@ public class EntityFactory extends BaseSystem {
 
     }
 
-    private void initPrefabricatedObjects(){
+    private void initPrefabObjects(){
         prefabricatedObjects = new ObjectMap<>();
         TiledMap prefabricatedMap = tiledMapManager.getPrefabricatedMap();
         if (prefabricatedMap == null){
@@ -74,7 +78,7 @@ public class EntityFactory extends BaseSystem {
     }
     private MapObject getPrefabricatedObject(String name){
         if (prefabricatedObjects == null) {
-            initPrefabricatedObjects();
+            initPrefabObjects();
         }
         if (!prefabricatedObjects.containsKey(name)) {
             Gdx.app.error(TAG,"Failed to getPrefabricatedObject,name is not in prefabricatedObjects: "+name);
@@ -89,12 +93,36 @@ public class EntityFactory extends BaseSystem {
         pos.y = y;
         return entity;
     }
-    public Entity createPrefabricatedEntity(String name){
+    private Entity createPrefabEntity(String name){
         MapObject prefabricatedObject = getPrefabricatedObject(name);
         return entityBuilder.createEntity(prefabricatedObject);
     }
-    public Entity createPrefabricatedEntity(String name,float x,float y){
+
+    private Entity createPrefabEntity(String name,float x,float y){
         MapObject prefabricatedObject = getPrefabricatedObject(name);
         return createEntity(prefabricatedObject,x,y);
+    }
+
+    @Subscribe
+    public Entity onCreateEntityEvent(EntityEvent event){
+        if (event.type == EntityEvent.CREATE_ENTITY){
+            return createEntity(event.mapObject,event.x,event.y);
+        }
+        if (event.type == EntityEvent.CREATE_PREFAB){
+            if (event.x == 0 && event.y == 0) {
+                return createPrefabEntity(event.name);
+            }
+            return createPrefabEntity(event.name,event.x,event.y);
+        }
+        Gdx.app.error(TAG,"Filed to onCreateEntityEvent;");
+        return null;
+    }
+    @Subscribe
+    public MapObject onGetMapEvent(EntityEvent event){
+        if (event.type == EntityEvent.GET_MAP_OBJECT){
+            return getPrefabricatedObject(event.name);
+        }
+        Gdx.app.error(TAG,"Filed to onGetMapEvent;");
+        return null;
     }
 }

@@ -13,9 +13,11 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Logger;
+import net.mostlyoriginal.api.event.common.Subscribe;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.camera.CameraTarget;
 import org.ltae.component.Pos;
+import org.ltae.event.CameraEvent;
 
 /**
  * @Author: WenLong
@@ -97,7 +99,11 @@ public class CameraSystem extends BaseSystem {
         }
     }
 
-    public void setFollowTarget(CameraTarget cameraTarget){
+    /**
+     * 设置跟随目标
+     * @param cameraTarget
+     */
+    private void setTarget(CameraTarget cameraTarget){
         this.cameraTarget = cameraTarget;
     }
 
@@ -116,5 +122,10 @@ public class CameraSystem extends BaseSystem {
         }else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)){
             camera.position.y = camera.position.y-MOVE_SPEED;
         }
+    }
+
+    @Subscribe
+    public void onSetTargetEvent(CameraEvent event){
+        setTarget(event.target);
     }
 }

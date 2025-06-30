@@ -7,6 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import net.mostlyoriginal.api.event.common.Subscribe;
+import org.ltae.event.UIEvent;
 
 /**
  * @Auther WenLong
@@ -36,15 +38,13 @@ public class RenderUISystem extends BaseSystem {
         Gdx.input.setInputProcessor(mainStage);
     }
 
-
-
     @Override
     protected void processSystem() {
         mainStage.act();
         mainStage.draw();
     }
 
-    public void register(Table ui){
+    private void register(Table ui){
         if (uiMap.containsKey(ui.getClass())) {
             Gdx.app.log(TAG,"Failed to addUI,uiMap is containsKey: "+ ui.getClass().getSimpleName());
             return;
@@ -52,25 +52,49 @@ public class RenderUISystem extends BaseSystem {
         uiMap.put(ui.getClass(),ui);
         stack.addActor(ui);
     }
-    public Table getUI(Class<? extends Table> zClass){
+    private Table getTable(Class<? extends Table> zClass){
         if (!uiMap.containsKey(zClass)) {
             Gdx.app.log(TAG,"Failed to getUI,uiMap is not containsKey: "+zClass.getSimpleName());
             return null;
         }
         return uiMap.get(zClass);
     }
-    public void hideUI(Class<? extends Table> zClass){
+
+    private void hide(Class<? extends Table> zClass){
         if (!uiMap.containsKey(zClass)) {
             Gdx.app.log(TAG,"Failed to hideUI,uiMap is not containsKey: "+zClass.getSimpleName());
             return;
         }
-        getUI(zClass).setVisible(false);
+        getTable(zClass).setVisible(false);
     }
-    public void showUI(Class<? extends Table> zClass){
+    private void show(Class<? extends Table> zClass){
         if (!uiMap.containsKey(zClass)) {
             Gdx.app.log(TAG,"Failed to showUI,uiMap is not containsKey: "+zClass.getSimpleName());
             return;
         }
-        getUI(zClass).setVisible(true);
+        getTable(zClass).setVisible(true);
+    }
+
+    @Subscribe
+    public void onEvent(UIEvent event){
+        if (event.type == UIEvent.SHOW) {
+            show(event.uiClass);
+            return;
+        }
+        if (event.type == UIEvent.HIDE) {
+            hide(event.uiClass);
+            return;
+        }
+        if (event.type == UIEvent.REGISTER) {
+            register(event.table);
+            return;
+        }
+    }
+    @Subscribe
+    public Table onGetTableEvent(UIEvent event){
+        if (event.type != UIEvent.GET_TABLE){
+            return null;
+        }
+        return getTable(event.uiClass);
     }
 }

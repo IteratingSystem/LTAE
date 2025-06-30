@@ -1,0 +1,14 @@
+package org.ltae.event;
+
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import net.mostlyoriginal.api.event.common.Event;
+
+/**
+ * @Auther WenLong
+ * @Date 2025/6/30 10:23
+ * @Description 全局事件
+ **/
+public class TypeEvent implements Event {
+    public int type;
+
+}
