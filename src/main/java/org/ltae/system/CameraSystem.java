@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Logger;
 import net.mostlyoriginal.api.event.common.Subscribe;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
+import org.ltae.LtaePluginRule;
 import org.ltae.camera.CameraTarget;
 import org.ltae.component.Pos;
 import org.ltae.event.CameraEvent;
@@ -124,8 +125,22 @@ public class CameraSystem extends BaseSystem {
         }
     }
 
+    private void resize(int width, int height) {
+        float zoom = LtaePluginRule.CAMERA_ZOOM * width / LtaePluginRule.GAME_WIDTH;
+        camera.viewportWidth = width/zoom;
+        camera.viewportHeight = height/zoom;
+        camera.update();
+    }
+
     @Subscribe
-    public void onSetTargetEvent(CameraEvent event){
-        setTarget(event.target);
+    public void onEvent(CameraEvent event){
+        if (event.type == CameraEvent.SET_TARGET) {
+            setTarget(event.target);
+            return;
+        }
+        if (event.type == CameraEvent.RESIZE) {
+            resize(event.width,event.height);
+            return;
+        }
     }
 }
