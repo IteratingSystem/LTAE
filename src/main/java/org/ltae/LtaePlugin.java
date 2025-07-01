@@ -53,7 +53,6 @@ public class LtaePlugin implements ArtemisPlugin {
                 LtaePluginRule.WORLD_SCALE,
                 LtaePluginRule.COMB_TILE));//物理世界初始化
         //渲染前更新
-        worldConfigurationBuilder.with(new StorySystem());//ink剧本系统
         worldConfigurationBuilder.with(new AlarmClockSystem());//闹钟系统
         worldConfigurationBuilder.with(new PosFollowBodySystem(LtaePluginRule.WORLD_SCALE)); //坐标跟随物理身体
         worldConfigurationBuilder.with(new BTreeSystem());//行为树系统
