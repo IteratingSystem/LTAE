@@ -28,7 +28,7 @@ public class StoryManager {
     public static Story getStory(){
         return story;
     }
-    public Bag<String> getLines(){
+    public static Bag<String> getLines(){
         Bag<String> sentences = new Bag<>();
         while (story.canContinue()) {
             String line = "";
