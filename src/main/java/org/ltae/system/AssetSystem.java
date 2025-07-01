@@ -26,7 +26,6 @@ public class AssetSystem extends BaseSystem {
     public ObjectMap<String,TiledMap> tiledData;
     //行为树数据
     public ObjectMap<String, BehaviorTree> bTreeData;
-    public ObjectMap<String, Story> storyData;
     public Skin skin;
     public AssetSystem (String skinPath){
         this.skinPath = skinPath;
@@ -35,11 +34,7 @@ public class AssetSystem extends BaseSystem {
     @Override
     protected void initialize() {
         //加载skin
-        skin = SkinManage.getInstance();
-        if (skin == null){
-            SkinManage.initialize(skinPath);
-            skin = SkinManage.getInstance();
-        }
+        skin = SkinManage.getSkin(skinPath);
 
         //瓦片地图数据
         tiledData = AssetManager.getInstance().getObjects(AssetManager.TILED_EXT,TiledMap.class);
@@ -48,8 +43,6 @@ public class AssetSystem extends BaseSystem {
         }
         //行为树
         bTreeData = AssetManager.getInstance().getObjects(AssetManager.TREE_EXT,BehaviorTree.class);
-        //ink剧本
-        storyData = AssetManager.getInstance().getObjects(AssetManager.STORY_EXT, Story.class);
     }
 
     @Override
