@@ -104,25 +104,22 @@ public class EntityFactory extends BaseSystem {
     }
 
     @Subscribe
-    public Entity onCreateEntityEvent(EntityEvent event){
+    public void onEvent(EntityEvent event){
         if (event.type == EntityEvent.CREATE_ENTITY){
-            return createEntity(event.mapObject,event.x,event.y);
+            event.entity = createEntity(event.mapObject,event.x,event.y);
+            return ;
         }
         if (event.type == EntityEvent.CREATE_PREFAB){
             if (event.x == 0 && event.y == 0) {
-                return createPrefabEntity(event.name);
+                event.entity = createPrefabEntity(event.name);
+                return;
             }
-            return createPrefabEntity(event.name,event.x,event.y);
+            event.entity = createPrefabEntity(event.name,event.x,event.y);
+            return;
         }
-        Gdx.app.error(TAG,"Filed to onCreateEntityEvent;");
-        return null;
-    }
-    @Subscribe
-    public MapObject onGetMapEvent(EntityEvent event){
         if (event.type == EntityEvent.GET_MAP_OBJECT){
-            return getPrefabricatedObject(event.name);
+            event.mapObject = getPrefabricatedObject(event.name);
+            return;
         }
-        Gdx.app.error(TAG,"Filed to onGetMapEvent;");
-        return null;
     }
 }

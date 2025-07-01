@@ -1,5 +1,6 @@
 package org.ltae.event;
 
+import com.artemis.Entity;
 import com.badlogic.gdx.maps.MapObject;
 
 /**
@@ -16,6 +17,7 @@ public class EntityEvent extends TypeEvent {
     public float y;
     public MapObject mapObject;
     public String name;
+    public Entity entity;
 
     public EntityEvent(int type) {
         super(type);

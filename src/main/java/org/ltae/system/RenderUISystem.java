@@ -89,12 +89,9 @@ public class RenderUISystem extends BaseSystem {
             register(event.table);
             return;
         }
-    }
-    @Subscribe
-    public Table onGetTableEvent(UIEvent event){
-        if (event.type != UIEvent.GET_TABLE){
-            return null;
+        if (event.type == UIEvent.GET_TABLE){
+            event.table = getTable(event.uiClass);
+            return;
         }
-        return getTable(event.uiClass);
     }
 }
