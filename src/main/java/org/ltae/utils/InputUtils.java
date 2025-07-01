@@ -29,4 +29,22 @@ public class InputUtils {
         }
         return true;
     }
+    public static boolean isKeyJustPressed(int key){
+        if (DISABLE){
+            return false;
+        }
+
+        return Gdx.input.isKeyJustPressed(key);
+    }
+    public static boolean isKeyJustPressed(int[] keys){
+        if (DISABLE){
+            return false;
+        }
+        for (int key : keys) {
+            if (!Gdx.input.isKeyJustPressed(key)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
