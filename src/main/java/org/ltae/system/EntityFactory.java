@@ -8,11 +8,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.ObjectMap;
+import net.mostlyoriginal.api.event.common.EventSystem;
 import net.mostlyoriginal.api.event.common.Subscribe;
 import org.ltae.component.Pos;
 import org.ltae.component.Render;
 import org.ltae.component.ZIndex;
-import org.ltae.event.EntityEvent;
+import org.ltae.event.CreateEntityEvent;
 import org.ltae.tiled.EntityBuilder;
 import org.ltae.tiled.details.SystemDetails;
 import org.ltae.utils.TiledMapUtils;
@@ -32,24 +33,32 @@ public class EntityFactory extends BaseSystem {
 
 
 
-    public EntityFactory(String componentPkg, String statePkg, String b2dListenerPkg, String entityLayer, float worldScale){
+    public EntityFactory(String componentPkg
+            , String statePkg
+            , String b2dListenerPkg
+            , String onEventPkg
+            , String entityLayer
+            , float worldScale){
         Bag<Class<? extends Component>> autoCompClasses = new Bag<>();
         autoCompClasses.add(Pos.class);
         autoCompClasses.add(Render.class);
         autoCompClasses.add(ZIndex.class);
 
+        //systemDetails还有部分赋值会在System.initialize()中,因为其依赖System像个属性
         systemDetails = new SystemDetails();
         systemDetails.worldScale = worldScale;
         systemDetails.entityLayer = entityLayer;
         systemDetails.statePkg = statePkg;
         systemDetails.b2dListenerPkg = b2dListenerPkg;
         systemDetails.componentPkg = componentPkg;
+        systemDetails.onEventPkg = onEventPkg;
         systemDetails.autoCompClasses = autoCompClasses;
 
     }
     @Override
     protected void initialize() {
         systemDetails.world = world;
+        systemDetails.eventSystem = world.getSystem(EventSystem.class);
         systemDetails.tiledMap = tiledMapManager.currentMap;
         entityBuilder = new EntityBuilder(systemDetails);
         entityBuilder.createAllEntity();
@@ -104,12 +113,12 @@ public class EntityFactory extends BaseSystem {
     }
 
     @Subscribe
-    public void onEvent(EntityEvent event){
-        if (event.type == EntityEvent.CREATE_ENTITY){
+    public void onEvent(CreateEntityEvent event){
+        if (event.type == CreateEntityEvent.CREATE_ENTITY){
             event.entity = createEntity(event.mapObject,event.x,event.y);
             return ;
         }
-        if (event.type == EntityEvent.CREATE_PREFAB){
+        if (event.type == CreateEntityEvent.CREATE_PREFAB){
             if (event.x == 0 && event.y == 0) {
                 event.entity = createPrefabEntity(event.name);
                 return;
@@ -117,7 +126,7 @@ public class EntityFactory extends BaseSystem {
             event.entity = createPrefabEntity(event.name,event.x,event.y);
             return;
         }
-        if (event.type == EntityEvent.GET_MAP_OBJECT){
+        if (event.type == CreateEntityEvent.GET_MAP_OBJECT){
             event.mapObject = getPrefabricatedObject(event.name);
             return;
         }

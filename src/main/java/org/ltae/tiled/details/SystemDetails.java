@@ -8,6 +8,7 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.utils.ObjectMap;
+import net.mostlyoriginal.api.event.common.EventSystem;
 import org.ltae.system.AssetSystem;
 
 import java.util.Set;
@@ -21,11 +22,13 @@ import java.util.Set;
 public class SystemDetails {
     public float worldScale;
     public World world;
+    public EventSystem eventSystem;
     public TiledMap tiledMap;
     public String entityLayer;
     public Bag<Class<? extends Component>> autoCompClasses;
     public String statePkg;
     public String b2dListenerPkg;
     public String componentPkg;
+    public String onEventPkg;
 
 }

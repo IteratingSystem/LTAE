@@ -2,7 +2,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 4,
+        "id": 1,
         "members": [
             {
                 "name": "defFixed",
@@ -30,7 +30,7 @@
         ]
     },
     {
-        "id": 5,
+        "id": 2,
         "name": "BodyType",
         "storageType": "string",
         "type": "enum",
@@ -44,7 +44,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 16,
+        "id": 3,
         "members": [
             {
                 "name": "treeName",
@@ -61,7 +61,7 @@
         ]
     },
     {
-        "id": 14,
+        "id": 4,
         "name": "CategoryBits",
         "storageType": "string",
         "type": "enum",
@@ -88,7 +88,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 13,
+        "id": 5,
         "members": [
             {
                 "name": "horizontalDir",
@@ -161,9 +161,8 @@
             },
             {
                 "name": "sensorType",
-                "propertyType": "SensorType",
-                "type": "string",
-                "value": "NULL"
+                "type": "int",
+                "value": 0
             }
         ],
         "name": "FixDef",
@@ -175,7 +174,7 @@
         ]
     },
     {
-        "id": 10,
+        "id": 7,
         "name": "HorizontalDir",
         "storageType": "string",
         "type": "enum",
@@ -187,7 +186,7 @@
         "valuesAsFlags": false
     },
     {
-        "id": 15,
+        "id": 8,
         "name": "MaskBits",
         "storageType": "string",
         "type": "enum",
@@ -212,7 +211,26 @@
         "valuesAsFlags": true
     },
     {
-        "id": 11,
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 19,
+        "members": [
+            {
+                "name": "simpleName",
+                "type": "string",
+                "value": ""
+            }
+        ],
+        "name": "OnEventComp",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "id": 9,
         "name": "OrthogonalDir",
         "storageType": "string",
         "type": "enum",
@@ -226,7 +244,7 @@
         "valuesAsFlags": false
     },
     {
-        "id": 3,
+        "id": 10,
         "name": "PlayMode",
         "storageType": "string",
         "type": "enum",
@@ -243,7 +261,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 18,
+        "id": 11,
         "members": [
         ],
         "name": "Prefabricated",
@@ -255,24 +273,33 @@
         ]
     },
     {
-        "id": 7,
-        "name": "SensorType",
-        "storageType": "string",
-        "type": "enum",
-        "values": [
-            "NULL",
-            "INTER",
-            "BE_INTER",
-            "ATK",
-            "BE_ATK",
-            "ON_FLOOR"
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 18,
+        "members": [
+            {
+                "name": "moveSpeed",
+                "type": "float",
+                "value": 0
+            },
+            {
+                "name": "runSpeedInRate",
+                "type": "float",
+                "value": 0
+            }
         ],
-        "valuesAsFlags": false
+        "name": "RPGProp",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
     },
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 9,
+        "id": 13,
         "members": [
             {
                 "name": "current",
@@ -296,7 +323,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 2,
+        "id": 14,
         "members": [
             {
                 "name": "name",
@@ -331,7 +358,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 8,
+        "id": 15,
         "members": [
             {
                 "name": "current",
@@ -348,7 +375,7 @@
         ]
     },
     {
-        "id": 12,
+        "id": 16,
         "name": "VerticalDir",
         "storageType": "string",
         "type": "enum",
@@ -362,7 +389,7 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
-        "id": 1,
+        "id": 17,
         "members": [
             {
                 "name": "index",

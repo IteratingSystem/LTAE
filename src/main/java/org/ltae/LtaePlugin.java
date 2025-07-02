@@ -80,6 +80,7 @@ public class LtaePlugin implements ArtemisPlugin {
                         LtaePluginRule.COMPONENT_PKG,
                         LtaePluginRule.STATE_PKG,
                         LtaePluginRule.B2D_LISTENER_PKG,
+                        LtaePluginRule.ON_EVENT_PKG,
                         LtaePluginRule.ENTITY_LAYER,
                         LtaePluginRule.WORLD_SCALE));
     }

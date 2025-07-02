@@ -24,6 +24,7 @@ import org.ltae.tiled.ComponentLoader;
 import org.ltae.tiled.TileParam;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
+import org.ltae.utils.ReflectionUtils;
 import org.ltae.utils.ShapeUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -167,25 +168,13 @@ public class B2dBody extends Component implements ComponentLoader {
 
             //创建监听器
             EcsContactListener ecsContactListener = null;
-            if (listenerSimpleName != null && !listenerSimpleName.isEmpty()) {
-                String contactListenerPackage = systemDetails.b2dListenerPkg;
-                if (contactListenerPackage == null || contactListenerPackage.isEmpty()){
-                    Gdx.app.error(TAG,"contactListenerPackage is empty,please set contactListenerPackage by LtaeBuilder");
-                }else {
-                    String className = contactListenerPackage + "." + listenerSimpleName;
-                    Class<EcsContactListener> contactClass;
-                    try {
-                        contactClass = (Class<EcsContactListener>) Class.forName(className);
-                        ecsContactListener = contactClass.getConstructor(Entity.class).newInstance(entity);
-                    } catch (ClassNotFoundException e) {
-                        Gdx.app.error(TAG,"Failed to get class with name:"+className);
-                    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
-                             InvocationTargetException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+            //如果包名与类名都不为空则执行创建逻辑
+            String b2dListenerPkg = systemDetails.b2dListenerPkg;
+            if (listenerSimpleName != null && !listenerSimpleName.isEmpty()
+            && b2dListenerPkg != null && !b2dListenerPkg.isEmpty()){
+                String className = b2dListenerPkg + "." + listenerSimpleName;
+                ecsContactListener = ReflectionUtils.createInstance(className, new Class[]{Entity.class}, new Entity[]{entity});
             }
-
 
             Shape shape = ShapeUtils.getShapeByMapObject(object, worldScale,scaleWidth,scaleHeight);
 

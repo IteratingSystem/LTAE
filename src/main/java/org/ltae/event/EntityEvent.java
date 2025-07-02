@@ -1,25 +1,17 @@
 package org.ltae.event;
 
-import com.artemis.Entity;
-import com.badlogic.gdx.maps.MapObject;
+import net.mostlyoriginal.api.event.common.Event;
 
 /**
  * @Auther WenLong
- * @Date 2025/6/30 10:33
- * @Description 创建实体
+ * @Date 2025/7/2 10:41
+ * @Description 实体事件
  **/
 public class EntityEvent extends TypeEvent {
-    public static final int CREATE_ENTITY = 1;
-    public static final int CREATE_PREFAB = 2;
-    public static final int GET_MAP_OBJECT = 3;
+    public int fromId;
+    public int toId;
 
-    public float x;
-    public float y;
-    public MapObject mapObject;
-    public String name;
-    public Entity entity;
-
-    public EntityEvent(int type) {
+    public EntityEvent(int fromId,int toId,int type) {
         super(type);
     }
 }
