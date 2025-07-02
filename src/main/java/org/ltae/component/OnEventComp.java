@@ -1,5 +1,6 @@
 package org.ltae.component;
 
+import com.artemis.Component;
 import com.artemis.Entity;
 import com.badlogic.gdx.Gdx;
 import org.ltae.event.on.OnEntityEvent;
@@ -14,7 +15,7 @@ import org.ltae.utils.ReflectionUtils;
  * @Date 2025/7/2 10:35
  * @Description 总线接收器,用于注册实体的事件接收器
  **/
-public class OnEventComp implements ComponentLoader {
+public class OnEventComp extends Component implements ComponentLoader {
     private static final String TAG = OnEventComp.class.getSimpleName();
     @TileParam
     public String simpleName;
@@ -27,7 +28,6 @@ public class OnEventComp implements ComponentLoader {
             Gdx.app.error(TAG,"Failed to load OnEventComp,className is empty");
             return;
         }
-        OnEntityEvent onEntityEvent = ReflectionUtils.createInstance(className, new Class[]{Entity.class}, new Entity[]{entityDetails.entity});
-        systemDetails.eventSystem.registerEvents(onEntityEvent);
+        systemDetails.eventSystem.registerEvents(ReflectionUtils.createInstance(className, new Class[]{Entity.class}, new Entity[]{entityDetails.entity}));
     }
 }
