@@ -33,10 +33,13 @@ dependencies {
     implementation "com.badlogicgames.box2dlights:box2dlights:$box2dLightsVersion"
     //ECS及插件
     implementation "net.onedaybeard.artemis:artemis-odb:$artemisOdbVersion"
+    implementation "net.onedaybeard.artemis:artemis-odb-serializer:$artemisOdbVersion"
+    implementation "net.onedaybeard.artemis:artemis-odb-serializer-json-libgdx:$artemisOdbVersion"
     implementation "net.mostlyoriginal.artemis-odb:contrib-core:$contribVersion"
     implementation "net.mostlyoriginal.artemis-odb:contrib-eventbus:$contribVersion"
     implementation "net.mostlyoriginal.artemis-odb:contrib-plugin-singleton:$contribVersion"
     implementation "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$contribVersion"
+
     //地图形状转物理形状
     implementation "com.github.lyze237:gdx-projecttriangleplatforming:$ptpVersion"
     implementation "com.github.lyze237:gdx-Clipper2:$clipperVersion"

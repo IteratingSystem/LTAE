@@ -1,6 +1,7 @@
 package org.ltae.component;
 
 import com.artemis.Component;
+import com.artemis.annotations.Transient;
 import org.ltae.tiled.TileParam;
 
 /**

@@ -2,6 +2,7 @@ package org.ltae.component;
 
 import com.artemis.Component;
 import com.artemis.Entity;
+import com.artemis.annotations.Transient;
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
