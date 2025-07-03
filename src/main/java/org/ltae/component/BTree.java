@@ -19,7 +19,7 @@ import org.ltae.tiled.details.SystemDetails;
  **/
 public class BTree extends Component implements ComponentLoader {
     private final static String TAG = BTree.class.getSimpleName();
-    public BehaviorTree<Entity> tree;
+    public transient BehaviorTree<Entity> tree;
 
     @TileParam
     public String treeName;

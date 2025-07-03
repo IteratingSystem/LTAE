@@ -15,9 +15,9 @@ import org.ltae.tiled.details.SystemDetails;
  * @Description 方向组件, 可以直接从横向纵向或者平面方向三个变量中选择自己需要使用的变量
  **/
 public class Direction extends Component implements ComponentLoader {
-    public HorizontalDir horizontal;
-    public OrthogonalDir orthogonal;
-    public VerticalDir vertical;
+    public transient  HorizontalDir horizontal;
+    public transient  OrthogonalDir orthogonal;
+    public transient  VerticalDir vertical;
 
     @TileParam
     public String horizontalDir;

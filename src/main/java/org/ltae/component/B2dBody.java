@@ -17,6 +17,8 @@ import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
 import org.ltae.box2d.setup.FixtureSetup;
@@ -39,6 +41,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @Description Box2D身体
  **/
 public class B2dBody extends Component implements ComponentLoader {
+
     private final static String TAG = B2dBody.class.getSimpleName();
     @TileParam
     public String defType;//动静态类型
@@ -48,16 +51,16 @@ public class B2dBody extends Component implements ComponentLoader {
     public float linearDamping;//线性阻尼
 
 
-    public Bag<FixtureSetup> keyframeFixSetups;
-    public int entityId;
-    public World b2dWorld;
-    public BodyDef bodyDef;
-    public Body body;
+    public transient  Bag<FixtureSetup> keyframeFixSetups;
+    public transient  int entityId;
+    public transient  World b2dWorld;
+    public transient  BodyDef bodyDef;
+    public transient  Body body;
 
     //创建阶段是否翻转,用于给需要随时创建和删除的形状标记创建时的初始位置
     //目前使用的地方未KeyframeShapeSystem
     //需要翻转与当前翻转状态
-    public boolean needFlipX = false;
+    public transient  boolean needFlipX = false;
 
     @Override
     public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {

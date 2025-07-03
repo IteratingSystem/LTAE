@@ -27,7 +27,7 @@ public class StateComp extends Component implements ComponentLoader {
     @TileParam
     public String current;
 
-    public StateMachine<Entity,State<Entity>> machine;
+    public transient  StateMachine<Entity,State<Entity>> machine;
 
     @Override
     public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
