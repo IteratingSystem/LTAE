@@ -36,7 +36,6 @@ public class EntityBuilder {
             tiledMapTile = tileMapObject.getTile();
         }
         EntityDetails entityDetails = new EntityDetails();
-        entityDetails.entity = entity;
         entityDetails.entityId = entityId;
         entityDetails.mapObject = mapObject;
         entityDetails.tiledMapTile = tiledMapTile;
