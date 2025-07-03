@@ -62,8 +62,13 @@ public class B2dBody extends Component implements ComponentLoader {
     //需要翻转与当前翻转状态
     public transient  boolean needFlipX = false;
 
+    public SystemDetails systemDetails;
+    public EntityDetails entityDetails;
+
     @Override
     public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
+        this.systemDetails = systemDetails;
+        this.entityDetails = entityDetails;
         //获取传入参数的属性
         MapObject mapObject = entityDetails.mapObject;
         if (!(mapObject instanceof TiledMapTileMapObject tileMapObject)) {
