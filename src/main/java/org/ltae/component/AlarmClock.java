@@ -13,5 +13,5 @@ public class AlarmClock extends Component {
     //定时,单位毫秒
     @TileParam
     public float atTime;
-    public boolean isFinished = false;
+    public transient  boolean isFinished = false;
 }

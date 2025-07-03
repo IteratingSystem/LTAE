@@ -3,6 +3,8 @@ package org.ltae.tiled.details;
 import com.artemis.BaseSystem;
 import com.artemis.Component;
 import com.artemis.World;
+import com.artemis.annotations.SkipWire;
+import com.artemis.annotations.Wire;
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
