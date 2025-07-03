@@ -30,20 +30,20 @@ public class TileAnimation extends Component implements ComponentLoader {
     @TileParam
     public float offsetY;
 
-    protected TextureRegion[] keyframes;
+    protected transient  TextureRegion[] keyframes;
     //状态运行时间
-    public float stateTime;
+    public transient  float stateTime;
     //每一帧的间隔
-    private float[] frameDurations;
+    private transient  float[] frameDurations;
     //随机播放模式时,每一帧持续的时间
-    private float randomDuration;
+    private transient  float randomDuration;
     //动画的总持续事件
-    private float totalDuration;
+    private transient  float totalDuration;
     //上一帧索引
-    private int lastFrameNumber;
+    private transient  int lastFrameNumber;
     //上一帧的时间戳
-    private float lastStateTime;
-    private Animation.PlayMode playMode;
+    private transient  float lastStateTime;
+    private transient  Animation.PlayMode playMode;
 
 
     @Override

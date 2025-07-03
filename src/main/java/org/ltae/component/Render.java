@@ -18,14 +18,14 @@ import java.util.Iterator;
  * @Description 渲染组件
  **/
 public class Render extends Component implements ComponentLoader {
-    public boolean visible = true;
-    public float offsetX = 0;
-    public float offsetY = 0;
-    public float scaleWidth = 1;
-    public float scaleHeight = 1;
-    public TextureRegion keyframe;
-    public boolean flipX = false;
-    public boolean flipY = false;
+    public transient  boolean visible = true;
+    public transient  float offsetX = 0;
+    public transient  float offsetY = 0;
+    public transient  float scaleWidth = 1;
+    public transient  float scaleHeight = 1;
+    public transient  TextureRegion keyframe;
+    public transient  boolean flipX = false;
+    public transient  boolean flipY = false;
 
     @Override
     public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
