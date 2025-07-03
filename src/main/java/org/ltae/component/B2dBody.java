@@ -86,7 +86,7 @@ public class B2dBody extends Component implements ComponentLoader {
         B2dSystem b2dSystem = world.getSystem(B2dSystem.class);
         b2dWorld = b2dSystem.box2DWorld;
         entityId = entityDetails.entityId;
-        Entity entity = entityDetails.entity;
+        Entity entity = world.getEntity(entityDetails.entityId);
 
         //构造关键数据
         bodyDef = new BodyDef();
@@ -210,7 +210,7 @@ public class B2dBody extends Component implements ComponentLoader {
 
                 DefFixData defFixData = new DefFixData();
                 defFixData.entityId = entityId;
-                defFixData.entity = entityDetails.entity;
+                defFixData.entity = world.getEntity(entityDetails.entityId);
                 defFixData.sensorType = sensorType;
                 defFixData.listener = ecsContactListener;
 

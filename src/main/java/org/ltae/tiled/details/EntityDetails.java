@@ -18,7 +18,6 @@ import java.util.Set;
  **/
 public class EntityDetails {
     public int entityId;
-    public Entity entity;
     public MapObject mapObject;
     public TiledMapTile tiledMapTile;
 }

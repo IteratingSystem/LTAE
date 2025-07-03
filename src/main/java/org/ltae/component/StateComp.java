@@ -39,7 +39,7 @@ public class StateComp extends Component implements ComponentLoader {
                 continue;
             }
             Enum enumValue = Enum.valueOf(enumClass, current);
-            Entity entity = entityDetails.entity;
+            Entity entity = systemDetails.world.getEntity(entityDetails.entityId);
             State state = (State)enumValue;
             machine = new DefaultStateMachine<>(entity,state);
             break;

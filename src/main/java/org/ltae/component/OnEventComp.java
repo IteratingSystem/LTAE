@@ -28,6 +28,7 @@ public class OnEventComp extends Component implements ComponentLoader {
             Gdx.app.error(TAG,"Failed to load OnEventComp,className is empty");
             return;
         }
-        systemDetails.eventSystem.registerEvents(ReflectionUtils.createInstance(className, new Class[]{Entity.class}, new Entity[]{entityDetails.entity}));
+        systemDetails.eventSystem.registerEvents(
+                ReflectionUtils.createInstance(className, new Class[]{Entity.class}, new Entity[]{systemDetails.world.getEntity(entityDetails.entityId)}));
     }
 }

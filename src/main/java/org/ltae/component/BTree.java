@@ -40,7 +40,7 @@ public class BTree extends Component implements ComponentLoader {
             Gdx.app.error(TAG,"This behavior tree is not present in bTreeData: "+treeName);
             return;
         }
-        Entity entity = entityDetails.entity;
+        Entity entity = world.getEntity(entityDetails.entityId);
         tree = bTreeData.get(treeName);
         tree.setObject(entity);
         tree.start();
