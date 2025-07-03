@@ -2,6 +2,7 @@ package org.ltae.component;
 
 import com.artemis.Component;
 import com.artemis.Entity;
+import com.artemis.annotations.SkipWire;
 import com.artemis.annotations.Transient;
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
@@ -51,6 +52,7 @@ public class B2dBody extends Component implements ComponentLoader {
     public float linearDamping;//线性阻尼
 
 
+    @SkipWire
     public transient  Bag<FixtureSetup> keyframeFixSetups;
     public transient  int entityId;
     public transient  World b2dWorld;
