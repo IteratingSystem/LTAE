@@ -52,12 +52,11 @@ public class B2dBody extends Component implements ComponentLoader {
     public float linearDamping;//线性阻尼
 
 
-    @SkipWire
-    public transient  Bag<FixtureSetup> keyframeFixSetups;
-    public transient  int entityId;
-    public transient  World b2dWorld;
-    public transient  BodyDef bodyDef;
-    public transient  Body body;
+    public transient Bag<FixtureSetup> keyframeFixSetups;
+    public transient int entityId;
+    public transient World b2dWorld;
+    public transient BodyDef bodyDef;
+    public transient Body body;
 
     //创建阶段是否翻转,用于给需要随时创建和删除的形状标记创建时的初始位置
     //目前使用的地方未KeyframeShapeSystem
