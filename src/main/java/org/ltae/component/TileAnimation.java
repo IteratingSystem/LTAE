@@ -1,17 +1,15 @@
 package org.ltae.component;
 
-import com.artemis.Component;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
-import org.ltae.tiled.ComponentLoader;
-import org.ltae.tiled.TileParam;
+import org.ltae.tiled.TiledSerializeLoader;
+import org.ltae.tiled.SerializeParam;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
-import org.ltae.utils.serialize.Serialize;
 
 
 import java.util.Arrays;
@@ -21,18 +19,14 @@ import java.util.Arrays;
  * @Date 2025/3/7 10:44
  * @Description 瓦片动画组件,大部分方法来自于libgdx的Animation是一样的,可以使用共同的文档
  **/
-public class TileAnimation extends SerializeComponent implements ComponentLoader {
-    @Serialize
-    @TileParam
+public class TileAnimation extends SerializeComponent implements TiledSerializeLoader {
+    @SerializeParam
     public String name;
-    @Serialize
-    @TileParam
+    @SerializeParam
     public String playModeName;
-    @Serialize
-    @TileParam
+    @SerializeParam
     public float offsetX;
-    @Serialize
-    @TileParam
+    @SerializeParam
     public float offsetY;
 
     protected TextureRegion[] keyframes;

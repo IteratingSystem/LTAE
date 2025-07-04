@@ -1,6 +1,5 @@
 package org.ltae.component;
 
-import com.artemis.Component;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
@@ -8,11 +7,10 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.utils.ObjectMap;
-import org.ltae.tiled.ComponentLoader;
-import org.ltae.tiled.TileParam;
+import org.ltae.tiled.TiledSerializeLoader;
+import org.ltae.tiled.SerializeParam;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
-import org.ltae.utils.serialize.Serialize;
 
 import java.util.Iterator;
 
@@ -21,12 +19,11 @@ import java.util.Iterator;
  * @Date 2025/3/11 15:44
  * @Description 多动画组件(瓦片动画)
  **/
-public class TileAnimations extends SerializeComponent implements ComponentLoader {
+public class TileAnimations extends SerializeComponent implements TiledSerializeLoader {
     private final static String TAG = TileAnimations.class.getSimpleName();
     public ObjectMap<String,TileAnimation> table;
 
-    @Serialize
-    @TileParam
+    @SerializeParam
     public String current;
     @Override
     public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {

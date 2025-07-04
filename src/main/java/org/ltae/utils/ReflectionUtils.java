@@ -1,9 +1,14 @@
 package org.ltae.utils;
 
+import com.artemis.Component;
 import com.badlogic.gdx.Gdx;
+import org.reflections.Reflections;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @Auther WenLong
@@ -50,5 +55,21 @@ public class ReflectionUtils {
      */
     public static <T> T createInstance(String className){
         return createInstance(className, new Class<?>[0], new Object[0]);
+    }
+
+    /**
+     * 查找包内所有指定类型的类
+     * @param packages
+     * @param cLass
+     * @return
+     * @param <T>
+     */
+    public static <T> Set<Class<? extends T>> getClasses(String[] packages,Class<? extends T> cLass){
+        Set<Class<? extends T>> classes = new HashSet<>();
+        for (String pkg : packages) {
+            Reflections reflections = new Reflections(pkg);
+            classes.addAll(reflections.getSubTypesOf(cLass));
+        }
+        return classes;
     }
 }

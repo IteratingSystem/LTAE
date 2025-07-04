@@ -1,12 +1,10 @@
 package org.ltae.component;
 
-import com.artemis.Component;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.math.Vector2;
-import org.ltae.tiled.ComponentLoader;
+import org.ltae.tiled.TiledSerializeLoader;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
-import org.ltae.utils.serialize.Serialize;
 
 
 /**
@@ -14,10 +12,8 @@ import org.ltae.utils.serialize.Serialize;
  * @Date 2025/2/12 17:11
  * @Description 位置组件
  **/
-public class Pos extends SerializeComponent implements ComponentLoader {
-    @Serialize
+public class Pos extends SerializeComponent implements TiledSerializeLoader {
     public float x;
-    @Serialize
     public float y;
 
     @Override

@@ -22,8 +22,6 @@ import javax.xml.crypto.dsig.spec.XPathType;
 public class AssetSystem extends BaseSystem {
     private final static String TAG = AssetSystem.class.getSimpleName();
     private String skinPath;
-    //地图数据
-    public ObjectMap<String,TiledMap> tiledData;
     //行为树数据
     public ObjectMap<String, BehaviorTree> bTreeData;
     public Skin skin;
@@ -35,12 +33,6 @@ public class AssetSystem extends BaseSystem {
     protected void initialize() {
         //加载skin
         skin = SkinManage.getSkin(skinPath);
-
-        //瓦片地图数据
-        tiledData = AssetManager.getInstance().getObjects(AssetManager.TILED_EXT,TiledMap.class);
-        if (tiledData.isEmpty()) {
-            Gdx.app.log(TAG,"tiledData is empty,Please load the resources first!");
-        }
         //行为树
         bTreeData = AssetManager.getInstance().getObjects(AssetManager.TREE_EXT,BehaviorTree.class);
     }

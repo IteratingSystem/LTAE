@@ -1,23 +1,19 @@
 package org.ltae.component;
 
-import com.artemis.Component;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
-import org.ltae.tiled.ComponentLoader;
+import org.ltae.tiled.TiledSerializeLoader;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
-import org.ltae.utils.TiledMapUtils;
-
-import java.util.Iterator;
 
 /**
  * @Auther WenLong
  * @Date 2025/2/12 17:11
  * @Description 渲染组件
  **/
-public class Render extends SerializeComponent implements ComponentLoader {
+public class Render extends SerializeComponent implements TiledSerializeLoader {
     public  boolean visible = true;
     public  float offsetX = 0;
     public  float offsetY = 0;

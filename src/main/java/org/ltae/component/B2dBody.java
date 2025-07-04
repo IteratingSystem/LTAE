@@ -1,11 +1,7 @@
 package org.ltae.component;
 
-import com.artemis.Component;
 import com.artemis.Entity;
-import com.artemis.annotations.SkipWire;
-import com.artemis.annotations.Transient;
 import com.artemis.utils.Bag;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
@@ -18,23 +14,15 @@ import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonValue;
+import org.ltae.LtaePluginRule;
 import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
 import org.ltae.box2d.setup.FixtureSetup;
 import org.ltae.system.B2dSystem;
-import org.ltae.tiled.ComponentLoader;
-import org.ltae.tiled.TileParam;
-import org.ltae.tiled.details.EntityDetails;
-import org.ltae.tiled.details.SystemDetails;
+import org.ltae.tiled.SerializeParam;
 import org.ltae.utils.ReflectionUtils;
 import org.ltae.utils.ShapeUtils;
-import org.ltae.utils.serialize.Serialize;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
-import java.util.concurrent.CopyOnWriteArrayList;
+import org.ltae.utils.serialize.json.EntityJson;
 
 
 /**
@@ -42,17 +30,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @Date 2025/2/17 15:38
  * @Description Box2D身体
  **/
-public class B2dBody extends SerializeComponent implements ComponentLoader,Json.Serializer<B2dBody> {
+public class B2dBody extends SerializeComponent {
 
     private final static String TAG = B2dBody.class.getSimpleName();
-    @Serialize
-    @TileParam
+    @SerializeParam
     public String defType;//动静态类型
-    @Serialize
-    @TileParam
+    @SerializeParam
     public boolean defFixed;//是否固定旋转
-    @Serialize
-    @TileParam
+    @SerializeParam
     public float linearDamping;//线性阻尼
 
 
@@ -67,10 +52,12 @@ public class B2dBody extends SerializeComponent implements ComponentLoader,Json.
     //需要翻转与当前翻转状态
     public transient  boolean needFlipX = false;
 
+
     @Override
-    public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
+    public void reload(com.artemis.World world, EntityJson entityJson) {
+        super.reload(world,entityJson);
         //获取传入参数的属性
-        MapObject mapObject = entityDetails.mapObject;
+        MapObject mapObject = entityJson.mapObject;
         if (!(mapObject instanceof TiledMapTileMapObject tileMapObject)) {
             return;
         }
@@ -82,11 +69,8 @@ public class B2dBody extends SerializeComponent implements ComponentLoader,Json.
         MapObjects allObjects = new MapObjects();
         MapObjects objects = tile.getObjects();
 
-        com.artemis.World world = systemDetails.world;
         B2dSystem b2dSystem = world.getSystem(B2dSystem.class);
         b2dWorld = b2dSystem.box2DWorld;
-        entityId = entityDetails.entityId;
-        Entity entity = world.getEntity(entityDetails.entityId);
 
         //构造关键数据
         bodyDef = new BodyDef();
@@ -94,7 +78,7 @@ public class B2dBody extends SerializeComponent implements ComponentLoader,Json.
         bodyDef.type = BodyDef.BodyType.valueOf(defType);
         keyframeFixSetups = new Bag<>();
 
-        float worldScale = systemDetails.worldScale;
+        float worldScale = LtaePluginRule.WORLD_SCALE;
         bodyDef.position.set(worldScale*posX, worldScale*posY);
         body = b2dWorld.createBody(bodyDef);
         body.setLinearDamping(linearDamping);
@@ -105,9 +89,8 @@ public class B2dBody extends SerializeComponent implements ComponentLoader,Json.
         }
 
         //动画帧中的形状对象
-        TiledMapTile tiledMapTile = entityDetails.tiledMapTile;
         int tileId = tiledMapTile.getId();
-        TiledMap tiledMap = systemDetails.tiledMap;
+        TiledMap tiledMap = tiledMap;
         for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
             if (tileSet.getTile(tileId) != tiledMapTile) {
                 continue;
@@ -363,22 +346,11 @@ public class B2dBody extends SerializeComponent implements ComponentLoader,Json.
      * @param fixture
      * @return
      */
-    public Entity getEntity(Fixture fixture){
+    public Entity getEntity(Fixture fixture) {
         Object userData = fixture.getUserData();
         if (userData instanceof DefFixData defFixData) {
             return defFixData.entity;
         }
-        return null;
-    }
-
-    @Override
-    public void write(Json json, B2dBody object, Class knownType) {
-
-    }
-
-    @Override
-    public B2dBody read(Json json, JsonValue jsonData, Class type) {
-        System.out.println(11);
         return null;
     }
 }

@@ -1,29 +1,26 @@
 package org.ltae.component;
 
-import com.artemis.Component;
 import com.artemis.Entity;
 import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.system.AssetSystem;
-import org.ltae.tiled.ComponentLoader;
-import org.ltae.tiled.TileParam;
+import org.ltae.tiled.TiledSerializeLoader;
+import org.ltae.tiled.SerializeParam;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
-import org.ltae.utils.serialize.Serialize;
 
 /**
  * @Auther WenLong
  * @Date 2025/4/9 16:14
  * @Description 行为树组件
  **/
-public class BTree extends SerializeComponent implements ComponentLoader {
+public class BTree extends SerializeComponent implements TiledSerializeLoader {
     private final static String TAG = BTree.class.getSimpleName();
     public BehaviorTree<Entity> tree;
 
-    @Serialize
-    @TileParam
+    @SerializeParam
     public String treeName;
     @Override
     public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {

@@ -8,7 +8,6 @@ import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
-import jdk.jfr.Percentage;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
 import org.reflections.Reflections;
@@ -44,7 +43,7 @@ public class ComponentInitializer {
         //利用反射给配置了@TiledParam的属性赋值
         Field[] fields = component.getClass().getDeclaredFields();
         for (Field field : fields) {
-            if (!field.isAnnotationPresent(TileParam.class)) {
+            if (!field.isAnnotationPresent(SerializeParam.class)) {
                 continue;
             }
 
@@ -59,9 +58,9 @@ public class ComponentInitializer {
             //判断是否必填,非必填同时没有这个数据则相安无事
             if (!compProps.containsKey(fieldName)) {
                 // 获取 @CompParam 注解实例
-                TileParam tileParam = field.getAnnotation(TileParam.class);
+                SerializeParam serializeParam = field.getAnnotation(SerializeParam.class);
                 // 获取 nullable 属性的值
-                boolean nullable = tileParam.nullable();
+                boolean nullable = serializeParam.nullable();
                 if (nullable) {
                     continue;
                 }
@@ -79,8 +78,8 @@ public class ComponentInitializer {
             }
         }
 
-        if (component instanceof ComponentLoader componentLoader) {
-            componentLoader.loader(systemDetails,entityDetails);
+        if (component instanceof TiledSerializeLoader tiledSerializeLoader) {
+            tiledSerializeLoader.loader(systemDetails,entityDetails);
         }
     }
 

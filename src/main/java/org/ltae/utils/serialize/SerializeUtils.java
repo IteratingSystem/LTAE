@@ -2,11 +2,8 @@ package org.ltae.utils.serialize;
 
 import com.artemis.*;
 import com.artemis.utils.Bag;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.utils.Json;
 import org.ltae.manager.JsonManager;
-import org.ltae.tiled.TileParam;
 import org.ltae.utils.serialize.json.ComponentJson;
 import org.ltae.utils.serialize.json.EntitiesJson;
 import org.ltae.utils.serialize.json.EntityJson;
@@ -42,7 +39,6 @@ public class SerializeUtils {
 
 
             EntityJson entity = new EntityJson();
-            entity.entityId = entityId;
             entity.components = new Bag<>();
             for (Component component : allComps) {
                 Class<? extends Component> compClass = component.getClass();

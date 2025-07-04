@@ -7,6 +7,6 @@ package org.ltae.utils.serialize.json;
  **/
 public class PropertyJson {
     public String key;
-    public String type;
+    public Class type;
     public Object value;
 }

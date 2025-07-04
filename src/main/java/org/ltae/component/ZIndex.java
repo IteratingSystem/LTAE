@@ -1,8 +1,7 @@
 package org.ltae.component;
 
 import com.artemis.Component;
-import org.ltae.tiled.TileParam;
-import org.ltae.utils.serialize.Serialize;
+import org.ltae.tiled.SerializeParam;
 
 
 /**
@@ -11,10 +10,8 @@ import org.ltae.utils.serialize.Serialize;
  * @Description 渲染组件
  **/
 public class ZIndex extends Component {
-    @Serialize
-    @TileParam
+    @SerializeParam
     public float index = 0;
-    @Serialize
-    @TileParam
+    @SerializeParam
     public float offset = 0;
 }

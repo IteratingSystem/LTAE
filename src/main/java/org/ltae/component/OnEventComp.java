@@ -1,25 +1,21 @@
 package org.ltae.component;
 
-import com.artemis.Component;
 import com.artemis.Entity;
 import com.badlogic.gdx.Gdx;
-import org.ltae.event.on.OnEntityEvent;
-import org.ltae.tiled.ComponentLoader;
-import org.ltae.tiled.TileParam;
+import org.ltae.tiled.TiledSerializeLoader;
+import org.ltae.tiled.SerializeParam;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
 import org.ltae.utils.ReflectionUtils;
-import org.ltae.utils.serialize.Serialize;
 
 /**
  * @Auther WenLong
  * @Date 2025/7/2 10:35
  * @Description 总线接收器,用于注册实体的事件接收器
  **/
-public class OnEventComp extends SerializeComponent implements ComponentLoader {
+public class OnEventComp extends SerializeComponent implements TiledSerializeLoader {
     private static final String TAG = OnEventComp.class.getSimpleName();
-    @Serialize
-    @TileParam
+    @SerializeParam
     public String simpleName;
 
     @Override

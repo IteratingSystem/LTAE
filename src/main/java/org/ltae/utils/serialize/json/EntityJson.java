@@ -10,6 +10,8 @@ import com.badlogic.gdx.maps.MapObject;
  **/
 public class EntityJson {
     public int entityId;
+    public String name;
+    public String type;
     public Bag<ComponentJson> components;
     public MapObject mapObject;
 }

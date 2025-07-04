@@ -1,16 +1,13 @@
 package org.ltae.component;
 
-import com.artemis.Component;
 import com.artemis.Entity;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
-import org.ltae.tiled.ComponentLoader;
-import org.ltae.tiled.TileParam;
+import org.ltae.tiled.TiledSerializeLoader;
+import org.ltae.tiled.SerializeParam;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
-import org.ltae.utils.serialize.Serialize;
 import org.reflections.Reflections;
 
 import java.util.Set;
@@ -21,13 +18,11 @@ import java.util.Set;
  * @Date 2025/2/14 16:48
  * @Description 状态组件
  **/
-public class StateComp extends SerializeComponent implements ComponentLoader {
+public class StateComp extends SerializeComponent implements TiledSerializeLoader {
     private final static String TAG = StateComp.class.getSimpleName();
-    @Serialize
-    @TileParam
+    @SerializeParam
     public String simpleName;
-    @Serialize
-    @TileParam
+    @SerializeParam
     public String current;
 
     public  StateMachine<Entity,State<Entity>> machine;
