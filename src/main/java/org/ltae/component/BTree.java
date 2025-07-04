@@ -11,6 +11,7 @@ import org.ltae.tiled.ComponentLoader;
 import org.ltae.tiled.TileParam;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
+import org.ltae.utils.serialize.Serialize;
 
 /**
  * @Auther WenLong
@@ -19,8 +20,9 @@ import org.ltae.tiled.details.SystemDetails;
  **/
 public class BTree extends Component implements ComponentLoader {
     private final static String TAG = BTree.class.getSimpleName();
-    public transient BehaviorTree<Entity> tree;
+    public BehaviorTree<Entity> tree;
 
+    @Serialize
     @TileParam
     public String treeName;
     @Override

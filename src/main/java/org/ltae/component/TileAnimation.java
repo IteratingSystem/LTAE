@@ -11,6 +11,7 @@ import org.ltae.tiled.ComponentLoader;
 import org.ltae.tiled.TileParam;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
+import org.ltae.utils.serialize.Serialize;
 
 
 import java.util.Arrays;
@@ -21,29 +22,33 @@ import java.util.Arrays;
  * @Description 瓦片动画组件,大部分方法来自于libgdx的Animation是一样的,可以使用共同的文档
  **/
 public class TileAnimation extends Component implements ComponentLoader {
+    @Serialize
     @TileParam
     public String name;
+    @Serialize
     @TileParam
     public String playModeName;
+    @Serialize
     @TileParam
     public float offsetX;
+    @Serialize
     @TileParam
     public float offsetY;
 
-    protected transient  TextureRegion[] keyframes;
+    protected TextureRegion[] keyframes;
     //状态运行时间
-    public transient  float stateTime;
+    public float stateTime;
     //每一帧的间隔
-    private transient  float[] frameDurations;
+    private float[] frameDurations;
     //随机播放模式时,每一帧持续的时间
-    private transient  float randomDuration;
+    private float randomDuration;
     //动画的总持续事件
-    private transient  float totalDuration;
+    private float totalDuration;
     //上一帧索引
-    private transient  int lastFrameNumber;
+    private int lastFrameNumber;
     //上一帧的时间戳
-    private transient  float lastStateTime;
-    private transient  Animation.PlayMode playMode;
+    private float lastStateTime;
+    private Animation.PlayMode playMode;
 
 
     @Override

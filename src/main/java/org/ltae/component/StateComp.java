@@ -10,6 +10,7 @@ import org.ltae.tiled.ComponentLoader;
 import org.ltae.tiled.TileParam;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
+import org.ltae.utils.serialize.Serialize;
 import org.reflections.Reflections;
 
 import java.util.Set;
@@ -22,12 +23,14 @@ import java.util.Set;
  **/
 public class StateComp extends Component implements ComponentLoader {
     private final static String TAG = StateComp.class.getSimpleName();
+    @Serialize
     @TileParam
     public String simpleName;
+    @Serialize
     @TileParam
     public String current;
 
-    public transient  StateMachine<Entity,State<Entity>> machine;
+    public  StateMachine<Entity,State<Entity>> machine;
 
     @Override
     public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {

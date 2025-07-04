@@ -3,6 +3,7 @@ package org.ltae.component;
 import com.artemis.Component;
 import com.artemis.annotations.Transient;
 import org.ltae.tiled.TileParam;
+import org.ltae.utils.serialize.Serialize;
 
 /**
  * @Auther WenLong
@@ -11,7 +12,9 @@ import org.ltae.tiled.TileParam;
  **/
 public class AlarmClock extends Component {
     //定时,单位毫秒
+    @Serialize
     @TileParam
     public float atTime;
-    public transient  boolean isFinished = false;
+    @Serialize
+    public boolean isFinished = false;
 }

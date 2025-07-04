@@ -9,6 +9,7 @@ import org.ltae.tiled.TileParam;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
 import org.ltae.utils.ReflectionUtils;
+import org.ltae.utils.serialize.Serialize;
 
 /**
  * @Auther WenLong
@@ -17,6 +18,7 @@ import org.ltae.utils.ReflectionUtils;
  **/
 public class OnEventComp extends Component implements ComponentLoader {
     private static final String TAG = OnEventComp.class.getSimpleName();
+    @Serialize
     @TileParam
     public String simpleName;
 

@@ -30,6 +30,7 @@ import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
 import org.ltae.utils.ReflectionUtils;
 import org.ltae.utils.ShapeUtils;
+import org.ltae.utils.serialize.Serialize;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
@@ -44,20 +45,22 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class B2dBody extends Component implements ComponentLoader,Json.Serializer<B2dBody> {
 
     private final static String TAG = B2dBody.class.getSimpleName();
+    @Serialize
     @TileParam
     public String defType;//动静态类型
+    @Serialize
     @TileParam
     public boolean defFixed;//是否固定旋转
+    @Serialize
     @TileParam
     public float linearDamping;//线性阻尼
 
 
-    @SkipWire
-    public transient Bag<FixtureSetup> keyframeFixSetups;
-    public transient int entityId;
-    public transient World b2dWorld;
-    public transient BodyDef bodyDef;
-    public transient Body body;
+    public Bag<FixtureSetup> keyframeFixSetups;
+    public int entityId;
+    public World b2dWorld;
+    public BodyDef bodyDef;
+    public Body body;
 
     //创建阶段是否翻转,用于给需要随时创建和删除的形状标记创建时的初始位置
     //目前使用的地方未KeyframeShapeSystem

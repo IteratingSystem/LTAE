@@ -12,6 +12,7 @@ import org.ltae.tiled.ComponentLoader;
 import org.ltae.tiled.TileParam;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
+import org.ltae.utils.serialize.Serialize;
 
 import java.util.Iterator;
 
@@ -22,8 +23,9 @@ import java.util.Iterator;
  **/
 public class TileAnimations extends Component implements ComponentLoader {
     private final static String TAG = TileAnimations.class.getSimpleName();
-    public transient  ObjectMap<String,TileAnimation> table;
+    public ObjectMap<String,TileAnimation> table;
 
+    @Serialize
     @TileParam
     public String current;
     @Override

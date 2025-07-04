@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import org.ltae.tiled.ComponentLoader;
 import org.ltae.tiled.details.EntityDetails;
 import org.ltae.tiled.details.SystemDetails;
+import org.ltae.utils.serialize.Serialize;
 
 
 /**
@@ -14,7 +15,9 @@ import org.ltae.tiled.details.SystemDetails;
  * @Description 位置组件
  **/
 public class Pos extends Component implements ComponentLoader {
+    @Serialize
     public float x;
+    @Serialize
     public float y;
 
     @Override
