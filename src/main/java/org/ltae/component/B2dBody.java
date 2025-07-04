@@ -52,6 +52,7 @@ public class B2dBody extends Component implements ComponentLoader {
     public float linearDamping;//线性阻尼
 
 
+    @SkipWire
     public transient Bag<FixtureSetup> keyframeFixSetups;
     public transient int entityId;
     public transient World b2dWorld;
