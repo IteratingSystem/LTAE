@@ -18,7 +18,7 @@ import org.ltae.utils.serialize.Serialize;
  * @Date 2025/4/9 16:14
  * @Description 行为树组件
  **/
-public class BTree extends Component implements ComponentLoader {
+public class BTree extends SerializeComponent implements ComponentLoader {
     private final static String TAG = BTree.class.getSimpleName();
     public BehaviorTree<Entity> tree;
 

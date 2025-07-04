@@ -15,7 +15,7 @@ import org.ltae.utils.serialize.Serialize;
  * @Date 2025/3/20 16:50
  * @Description 方向组件, 可以直接从横向纵向或者平面方向三个变量中选择自己需要使用的变量
  **/
-public class Direction extends Component implements ComponentLoader {
+public class Direction extends SerializeComponent implements ComponentLoader {
     public  HorizontalDir horizontal;
     public  OrthogonalDir orthogonal;
     public  VerticalDir vertical;

@@ -42,7 +42,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @Date 2025/2/17 15:38
  * @Description Box2D身体
  **/
-public class B2dBody extends Component implements ComponentLoader,Json.Serializer<B2dBody> {
+public class B2dBody extends SerializeComponent implements ComponentLoader,Json.Serializer<B2dBody> {
 
     private final static String TAG = B2dBody.class.getSimpleName();
     @Serialize

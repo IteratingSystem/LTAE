@@ -21,7 +21,7 @@ import java.util.Set;
  * @Date 2025/2/14 16:48
  * @Description 状态组件
  **/
-public class StateComp extends Component implements ComponentLoader {
+public class StateComp extends SerializeComponent implements ComponentLoader {
     private final static String TAG = StateComp.class.getSimpleName();
     @Serialize
     @TileParam

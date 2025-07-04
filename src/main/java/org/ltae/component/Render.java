@@ -17,7 +17,7 @@ import java.util.Iterator;
  * @Date 2025/2/12 17:11
  * @Description 渲染组件
  **/
-public class Render extends Component implements ComponentLoader {
+public class Render extends SerializeComponent implements ComponentLoader {
     public  boolean visible = true;
     public  float offsetX = 0;
     public  float offsetY = 0;

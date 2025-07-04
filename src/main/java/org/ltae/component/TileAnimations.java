@@ -21,7 +21,7 @@ import java.util.Iterator;
  * @Date 2025/3/11 15:44
  * @Description 多动画组件(瓦片动画)
  **/
-public class TileAnimations extends Component implements ComponentLoader {
+public class TileAnimations extends SerializeComponent implements ComponentLoader {
     private final static String TAG = TileAnimations.class.getSimpleName();
     public ObjectMap<String,TileAnimation> table;
 

@@ -16,7 +16,7 @@ import org.ltae.utils.serialize.Serialize;
  * @Date 2025/7/2 10:35
  * @Description 总线接收器,用于注册实体的事件接收器
  **/
-public class OnEventComp extends Component implements ComponentLoader {
+public class OnEventComp extends SerializeComponent implements ComponentLoader {
     private static final String TAG = OnEventComp.class.getSimpleName();
     @Serialize
     @TileParam

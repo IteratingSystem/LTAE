@@ -1,6 +1,7 @@
 package org.ltae.utils.serialize.json;
 
 import com.artemis.utils.Bag;
+import com.badlogic.gdx.maps.MapObject;
 
 /**
  * @Auther WenLong
@@ -10,4 +11,5 @@ import com.artemis.utils.Bag;
 public class EntityJson {
     public int entityId;
     public Bag<ComponentJson> components;
+    public MapObject mapObject;
 }

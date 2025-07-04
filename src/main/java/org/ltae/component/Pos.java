@@ -14,7 +14,7 @@ import org.ltae.utils.serialize.Serialize;
  * @Date 2025/2/12 17:11
  * @Description 位置组件
  **/
-public class Pos extends Component implements ComponentLoader {
+public class Pos extends SerializeComponent implements ComponentLoader {
     @Serialize
     public float x;
     @Serialize

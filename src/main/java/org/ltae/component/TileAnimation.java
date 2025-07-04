@@ -21,7 +21,7 @@ import java.util.Arrays;
  * @Date 2025/3/7 10:44
  * @Description 瓦片动画组件,大部分方法来自于libgdx的Animation是一样的,可以使用共同的文档
  **/
-public class TileAnimation extends Component implements ComponentLoader {
+public class TileAnimation extends SerializeComponent implements ComponentLoader {
     @Serialize
     @TileParam
     public String name;
