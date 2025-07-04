@@ -41,7 +41,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @Date 2025/2/17 15:38
  * @Description Box2D身体
  **/
-public class B2dBody extends Component implements ComponentLoader {
+public class B2dBody extends Component implements ComponentLoader,Json.Serializer<B2dBody> {
 
     private final static String TAG = B2dBody.class.getSimpleName();
     @TileParam
@@ -365,6 +365,17 @@ public class B2dBody extends Component implements ComponentLoader {
         if (userData instanceof DefFixData defFixData) {
             return defFixData.entity;
         }
+        return null;
+    }
+
+    @Override
+    public void write(Json json, B2dBody object, Class knownType) {
+
+    }
+
+    @Override
+    public B2dBody read(Json json, JsonValue jsonData, Class type) {
+        System.out.println(11);
         return null;
     }
 }
