@@ -68,5 +68,9 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(new RenderUISystem(
                 LtaePluginRule.UI_WIDTH,
                 LtaePluginRule.UI_HEIGHT));
+        //创建实体
+        worldConfigurationBuilder.with(
+                WorldConfigurationBuilder.Priority.LOWEST,
+                new EntityFactory());
     }
 }
