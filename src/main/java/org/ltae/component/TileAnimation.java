@@ -1,15 +1,13 @@
 package org.ltae.component;
 
+import com.artemis.World;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
-import org.ltae.tiled.TiledSerializeLoader;
-import org.ltae.tiled.SerializeParam;
-import org.ltae.tiled.details.EntityDetails;
-import org.ltae.tiled.details.SystemDetails;
+import org.ltae.serialize.SerializeParam;
+import org.ltae.serialize.json.EntityJson;
 
 
 import java.util.Arrays;
@@ -19,7 +17,7 @@ import java.util.Arrays;
  * @Date 2025/3/7 10:44
  * @Description 瓦片动画组件,大部分方法来自于libgdx的Animation是一样的,可以使用共同的文档
  **/
-public class TileAnimation extends SerializeComponent implements TiledSerializeLoader {
+public class TileAnimation extends SerializeComponent{
     @SerializeParam
     public String name;
     @SerializeParam
@@ -46,8 +44,8 @@ public class TileAnimation extends SerializeComponent implements TiledSerializeL
 
 
     @Override
-    public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
-        TiledMapTile tiledMapTile = entityDetails.tiledMapTile;
+    public void reload(World world, EntityJson entityJson) {
+        super.reload(world,entityJson);
         if (!(tiledMapTile instanceof AnimatedTiledMapTile animatedTile)) {
             return;
         }

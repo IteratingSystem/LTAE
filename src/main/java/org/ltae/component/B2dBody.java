@@ -6,7 +6,6 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
@@ -18,11 +17,12 @@ import org.ltae.LtaePluginRule;
 import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
 import org.ltae.box2d.setup.FixtureSetup;
+import org.ltae.manager.TiledMapManager;
 import org.ltae.system.B2dSystem;
-import org.ltae.tiled.SerializeParam;
+import org.ltae.serialize.SerializeParam;
 import org.ltae.utils.ReflectionUtils;
 import org.ltae.utils.ShapeUtils;
-import org.ltae.utils.serialize.json.EntityJson;
+import org.ltae.serialize.json.EntityJson;
 
 
 /**
@@ -42,7 +42,6 @@ public class B2dBody extends SerializeComponent {
 
 
     public Bag<FixtureSetup> keyframeFixSetups;
-    public int entityId;
     public World b2dWorld;
     public BodyDef bodyDef;
     public Body body;
@@ -89,43 +88,37 @@ public class B2dBody extends SerializeComponent {
         }
 
         //动画帧中的形状对象
-        int tileId = tiledMapTile.getId();
-        TiledMap tiledMap = tiledMap;
-        for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
-            if (tileSet.getTile(tileId) != tiledMapTile) {
+        TiledMapTileSet tileSet = TiledMapManager.getTileSet(tiledMapTile);
+        for (TiledMapTile aTile : tileSet) {
+            if (!(aTile instanceof AnimatedTiledMapTile animatedTile)) {
                 continue;
             }
-            for (TiledMapTile oneTile : tileSet) {
-                if (!(oneTile instanceof AnimatedTiledMapTile animatedTile)) {
-                    continue;
-                }
-                MapProperties allProps = animatedTile.getProperties();
-                if (!allProps.containsKey("TileAnimation")) {
-                    continue;
-                }
-                MapProperties aniProp = allProps.get("TileAnimation", MapProperties.class);
-                if (!aniProp.containsKey("name")) {
-                    continue;
-                }
-
-                StaticTiledMapTile[] frameTiles = animatedTile.getFrameTiles();
-                String aniName = aniProp.get("name", "", String.class);
-                for (int i = 0; i < frameTiles.length; i++) {
-                    StaticTiledMapTile frameTile = frameTiles[i];
-                    MapObjects frameTileObjects = frameTile.getObjects();
-                    for (MapObject frameTileObject : frameTileObjects) {
-                        MapProperties properties = frameTileObject.getProperties();
-                        if (!properties.containsKey("FixDef")) {
-                            continue;
-                        }
-                        MapProperties fixDefProps = properties.get("FixDef", MapProperties.class);
-                        fixDefProps.put("keyframeIndex", i);
-                        fixDefProps.put("aniName", aniName);
-                        allObjects.add(frameTileObject);
-                    }
-                }
-
+            MapProperties allProps = animatedTile.getProperties();
+            if (!allProps.containsKey("TileAnimation")) {
+                continue;
             }
+            MapProperties aniProp = allProps.get("TileAnimation", MapProperties.class);
+            if (!aniProp.containsKey("name")) {
+                continue;
+            }
+
+            StaticTiledMapTile[] frameTiles = animatedTile.getFrameTiles();
+            String aniName = aniProp.get("name", "", String.class);
+            for (int i = 0; i < frameTiles.length; i++) {
+                StaticTiledMapTile frameTile = frameTiles[i];
+                MapObjects frameTileObjects = frameTile.getObjects();
+                for (MapObject frameTileObject : frameTileObjects) {
+                    MapProperties properties = frameTileObject.getProperties();
+                    if (!properties.containsKey("FixDef")) {
+                        continue;
+                    }
+                    MapProperties fixDefProps = properties.get("FixDef", MapProperties.class);
+                    fixDefProps.put("keyframeIndex", i);
+                    fixDefProps.put("aniName", aniName);
+                    allObjects.add(frameTileObject);
+                }
+            }
+
         }
 
         float scaleWidth = 1;
@@ -161,11 +154,11 @@ public class B2dBody extends SerializeComponent {
             //创建监听器
             EcsContactListener ecsContactListener = null;
             //如果包名与类名都不为空则执行创建逻辑
-            String b2dListenerPkg = systemDetails.b2dListenerPkg;
+            String b2dListenerPkg = LtaePluginRule.B2D_LISTENER_PKG;
             if (listenerSimpleName != null && !listenerSimpleName.isEmpty()
             && b2dListenerPkg != null && !b2dListenerPkg.isEmpty()){
                 String className = b2dListenerPkg + "." + listenerSimpleName;
-                ecsContactListener = ReflectionUtils.createInstance(className, new Class[]{Entity.class}, new Entity[]{entity});
+                ecsContactListener = ReflectionUtils.createInstance(className, new Class[]{Entity.class}, new Entity[]{world.getEntity(entityId)});
             }
 
             Shape shape = ShapeUtils.getShapeByMapObject(object, worldScale,scaleWidth,scaleHeight);
@@ -193,7 +186,7 @@ public class B2dBody extends SerializeComponent {
 
                 DefFixData defFixData = new DefFixData();
                 defFixData.entityId = entityId;
-                defFixData.entity = world.getEntity(entityDetails.entityId);
+                defFixData.entity = world.getEntity(entityId);
                 defFixData.sensorType = sensorType;
                 defFixData.listener = ecsContactListener;
 
@@ -204,7 +197,7 @@ public class B2dBody extends SerializeComponent {
             //否则先保存起来,后期触发的时候再创建
             KeyframeShapeData keyframeShapeData = new KeyframeShapeData();
             keyframeShapeData.entityId = entityId;
-            keyframeShapeData.entity = entity;
+            keyframeShapeData.entity = world.getEntity(entityId);
             keyframeShapeData.sensorType = sensorType;
             keyframeShapeData.listener = ecsContactListener;
             keyframeShapeData.aniName = aniName;

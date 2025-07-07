@@ -19,30 +19,18 @@ public class TiledMapManager extends BaseSystem {
     private String phyLayer;
     //默认地图名称
     private String mapName;
-    //预制件地图名称
-    private String prefabricatedMapName;
     public TiledMap currentMap;
     public Bag<TiledMapTileLayer> phyLayers;
-
-    private AssetSystem assetSystem;
-    public TiledMapManager(String mapName,String phyLayer,String prefabricatedMapName){
+    public TiledMapManager(String mapName,String phyLayer){
         this.mapName = mapName;
         this.phyLayer = phyLayer;
-        this.prefabricatedMapName = prefabricatedMapName;
     }
-    protected TiledMap getPrefabricatedMap(){
-        ObjectMap<String, TiledMap> tiledData = assetSystem.tiledData;
-        if (!tiledData.containsKey(prefabricatedMapName)) {
-            Gdx.app.error(TAG,"Failed to getPrefabricatedMap,prefabricatedMapName is not contains in tiledData,prefabricatedMapName: "+prefabricatedMapName);
-            return null;
-        }
-        return tiledData.get(prefabricatedMapName);
-    }
+
 
     @Override
     protected void initialize() {
         phyLayers = new Bag<>();
-        currentMap = assetSystem.tiledData.get(mapName);
+        currentMap = org.ltae.manager.TiledMapManager.getTiledMap(mapName);
         if (currentMap == null){
             Gdx.app.debug(TAG,"Unable to tiledMap map, please confirm tiledMap name:"+mapName);
             return;

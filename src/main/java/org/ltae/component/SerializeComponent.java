@@ -6,7 +6,7 @@ import com.artemis.World;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
-import org.ltae.utils.serialize.json.EntityJson;
+import org.ltae.serialize.json.EntityJson;
 
 //组件继承于它可以自定义加载逻辑
 public abstract class SerializeComponent extends Component {
@@ -17,11 +17,9 @@ public abstract class SerializeComponent extends Component {
     public void reload(World world,EntityJson entityJson){
         this.world = world;
         entityId = entityJson.entityId;
-
         mapObject = entityJson.mapObject;
         if (mapObject instanceof TiledMapTileMapObject tileMapObject) {
             tiledMapTile = tileMapObject.getTile();
         }
-
     }
 }

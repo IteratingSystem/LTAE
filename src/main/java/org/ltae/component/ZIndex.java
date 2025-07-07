@@ -1,7 +1,7 @@
 package org.ltae.component;
 
 import com.artemis.Component;
-import org.ltae.tiled.SerializeParam;
+import org.ltae.serialize.SerializeParam;
 
 
 /**

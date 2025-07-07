@@ -1,4 +1,4 @@
-package org.ltae.tiled;
+package org.ltae.serialize;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -19,5 +19,5 @@ public @interface SerializeParam {
      */
     boolean nullable() default false;
     //读取时加载
-    boolean readLoad() default true;
+    boolean reload() default true;
 }

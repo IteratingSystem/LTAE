@@ -1,19 +1,17 @@
 package org.ltae.component;
 
+import com.artemis.World;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
-import org.ltae.tiled.TiledSerializeLoader;
-import org.ltae.tiled.details.EntityDetails;
-import org.ltae.tiled.details.SystemDetails;
+import org.ltae.serialize.json.EntityJson;
 
 /**
  * @Auther WenLong
  * @Date 2025/2/12 17:11
  * @Description 渲染组件
  **/
-public class Render extends SerializeComponent implements TiledSerializeLoader {
+public class Render extends SerializeComponent{
     public  boolean visible = true;
     public  float offsetX = 0;
     public  float offsetY = 0;
@@ -24,8 +22,8 @@ public class Render extends SerializeComponent implements TiledSerializeLoader {
     public  boolean flipY = false;
 
     @Override
-    public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
-        MapObject mapObject = entityDetails.mapObject;
+    public void reload(World world, EntityJson entityJson) {
+        super.reload(world,entityJson);
         if (mapObject instanceof TextureMapObject textureMapObject) {
             keyframe = textureMapObject.getTextureRegion();
             flipX = textureMapObject.getTextureRegion().isFlipX();

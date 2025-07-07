@@ -1,5 +1,6 @@
 package org.ltae.component;
 
+import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
@@ -7,10 +8,9 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.utils.ObjectMap;
-import org.ltae.tiled.TiledSerializeLoader;
-import org.ltae.tiled.SerializeParam;
-import org.ltae.tiled.details.EntityDetails;
-import org.ltae.tiled.details.SystemDetails;
+import org.ltae.manager.TiledMapManager;
+import org.ltae.serialize.SerializeParam;
+import org.ltae.serialize.json.EntityJson;
 
 import java.util.Iterator;
 
@@ -19,45 +19,40 @@ import java.util.Iterator;
  * @Date 2025/3/11 15:44
  * @Description 多动画组件(瓦片动画)
  **/
-public class TileAnimations extends SerializeComponent implements TiledSerializeLoader {
+public class TileAnimations extends SerializeComponent{
     private final static String TAG = TileAnimations.class.getSimpleName();
     public ObjectMap<String,TileAnimation> table;
 
     @SerializeParam
     public String current;
     @Override
-    public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
+    public void reload(World world, EntityJson entityJson) {
+        super.reload(world,entityJson);
         table = new ObjectMap<>();
-        TiledMapTile tiledMapTile = entityDetails.tiledMapTile;
-        int tileId = tiledMapTile.getId();
 
-        for (TiledMapTileSet tileSet : systemDetails.tiledMap.getTileSets()) {
-            if (tileSet.getTile(tileId) != tiledMapTile) {
+        TiledMapTileSet tileSet = TiledMapManager.getTileSet(tiledMapTile);
+        Iterator<TiledMapTile> tileSetItr = tileSet.iterator();
+        while (tileSetItr.hasNext()){
+            TiledMapTile tile = tileSetItr.next();
+            if (!(tile instanceof AnimatedTiledMapTile animatedTile)){
                 continue;
             }
-            Iterator<TiledMapTile> tileSetItr = tileSet.iterator();
-            while (tileSetItr.hasNext()){
-                TiledMapTile tile = tileSetItr.next();
-                if (!(tile instanceof AnimatedTiledMapTile animatedTile)){
-                    continue;
-                }
-                MapProperties props = animatedTile.getProperties();
-                if (!props.containsKey("TileAnimation")) {
-                    continue;
-                }
-                MapProperties animProp = props.get("TileAnimation",MapProperties.class);
-                String name = animProp.get("name", String.class);
-                String playModeName = animProp.get("playModeName", String.class);
-                float offsetX = animProp.get("offsetX", float.class);
-                float offsetY = animProp.get("offsetY", float.class);
-                TileAnimation tileAnimation = new TileAnimation();
-                tileAnimation.initialize(animatedTile,playModeName,offsetX,offsetY);
-                if (table.containsKey(name)){
-                    Gdx.app.log(TAG,"Repetitive animation naming:"+name);
-                    continue;
-                }
-                table.put(name,tileAnimation);
+            MapProperties props = animatedTile.getProperties();
+            if (!props.containsKey("TileAnimation")) {
+                continue;
             }
+            MapProperties animProp = props.get("TileAnimation",MapProperties.class);
+            String name = animProp.get("name", String.class);
+            String playModeName = animProp.get("playModeName", String.class);
+            float offsetX = animProp.get("offsetX", float.class);
+            float offsetY = animProp.get("offsetY", float.class);
+            TileAnimation tileAnimation = new TileAnimation();
+            tileAnimation.initialize(animatedTile,playModeName,offsetX,offsetY);
+            if (table.containsKey(name)){
+                Gdx.app.log(TAG,"Repetitive animation naming:"+name);
+                continue;
+            }
+            table.put(name,tileAnimation);
         }
     }
 

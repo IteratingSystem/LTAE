@@ -1,10 +1,8 @@
 package org.ltae.component;
 
-import com.badlogic.gdx.maps.MapObject;
+import com.artemis.World;
 import com.badlogic.gdx.math.Vector2;
-import org.ltae.tiled.TiledSerializeLoader;
-import org.ltae.tiled.details.EntityDetails;
-import org.ltae.tiled.details.SystemDetails;
+import org.ltae.serialize.json.EntityJson;
 
 
 /**
@@ -12,14 +10,13 @@ import org.ltae.tiled.details.SystemDetails;
  * @Date 2025/2/12 17:11
  * @Description 位置组件
  **/
-public class Pos extends SerializeComponent implements TiledSerializeLoader {
+public class Pos extends SerializeComponent{
     public float x;
     public float y;
 
     @Override
-    public void loader(SystemDetails systemDetails, EntityDetails entityDetails) {
-        MapObject mapObject = entityDetails.mapObject;
-
+    public void reload(World world, EntityJson entityJson) {
+        super.reload(world,entityJson);
         x = (float)mapObject.getProperties().get("x");
         y = (float)mapObject.getProperties().get("y");
     }

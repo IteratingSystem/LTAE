@@ -17,9 +17,6 @@ import org.ltae.system.*;
  * @Description 插件
  **/
 public class LtaePlugin implements ArtemisPlugin {
-    private LtaePluginRule ltaePluginRule;
-
-    //
     private CameraSystem cameraSystem;
 
 
@@ -44,8 +41,7 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(new AssetSystem(LtaePluginRule.SKIN_PATH));//资源系统
         worldConfigurationBuilder.with(new TiledMapManager(
                 LtaePluginRule.MAP_NAME,
-                LtaePluginRule.PHY_LAYER,
-                LtaePluginRule.PREFABRICATED_MAP_NAME));//地图管理系统
+                LtaePluginRule.PHY_LAYER));//地图管理系统
         worldConfigurationBuilder.with(new B2dSystem(
                 LtaePluginRule.G_X,
                 LtaePluginRule.G_Y,
@@ -53,7 +49,6 @@ public class LtaePlugin implements ArtemisPlugin {
                 LtaePluginRule.WORLD_SCALE,
                 LtaePluginRule.COMB_TILE));//物理世界初始化
         //渲染前更新
-        worldConfigurationBuilder.with(new AlarmClockSystem());//闹钟系统
         worldConfigurationBuilder.with(new PosFollowBodySystem(LtaePluginRule.WORLD_SCALE)); //坐标跟随物理身体
         worldConfigurationBuilder.with(new BTreeSystem());//行为树系统
         worldConfigurationBuilder.with(new StateSystem());//状态机系统
@@ -73,15 +68,5 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(new RenderUISystem(
                 LtaePluginRule.UI_WIDTH,
                 LtaePluginRule.UI_HEIGHT));
-        //创建实体
-        worldConfigurationBuilder.with(
-                WorldConfigurationBuilder.Priority.LOWEST,
-                new EntityFactory(
-                        LtaePluginRule.COMPONENT_PKG,
-                        LtaePluginRule.STATE_PKG,
-                        LtaePluginRule.B2D_LISTENER_PKG,
-                        LtaePluginRule.ON_EVENT_PKG,
-                        LtaePluginRule.ENTITY_LAYER,
-                        LtaePluginRule.WORLD_SCALE));
     }
 }

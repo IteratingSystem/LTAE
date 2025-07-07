@@ -1,4 +1,4 @@
-package org.ltae.utils.serialize.json;
+package org.ltae.serialize.json;
 
 /**
  * @Auther WenLong
