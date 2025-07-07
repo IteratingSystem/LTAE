@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.ObjectMap;
  **/
 public class TiledMapManager {
     private static final String TAG = TiledMapManager.class.getSimpleName();
-    private static final String EXT = "tmx";
+    private static final String EXT = ".tmx";
     private static final String THIS_COMP_PKG = "org.ltae.component";
     private static ObjectMap<String, TiledMap> allTileMaps;
     private static Bag<TiledMapTileSet> allTileSets;;
