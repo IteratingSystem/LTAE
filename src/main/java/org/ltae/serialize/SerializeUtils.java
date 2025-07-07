@@ -176,7 +176,7 @@ public class SerializeUtils {
             //添加默认组件
             for (Class<? extends Component> autoCompClass : autoCompClasses) {
                 String simpleName = autoCompClass.getSimpleName();
-                if (entityJson.hasComp(simpleName)) {
+                if (hasComp(entityJson,simpleName)) {
                     continue;
                 }
                 ComponentJson componentJson = new ComponentJson();
@@ -187,5 +187,13 @@ public class SerializeUtils {
             entitiesJson.entities.add(entityJson);
         }
         return entitiesJson;
+    }
+    private static boolean hasComp(EntityJson entityJson,String compName){
+        for (ComponentJson component : entityJson.components) {
+            if (component.name.equals(compName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
