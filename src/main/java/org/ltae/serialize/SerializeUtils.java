@@ -69,7 +69,7 @@ public class SerializeUtils {
                     PropertyJson prop = new PropertyJson();
                     prop.key = key;
                     prop.value = value;
-                    prop.type = type;
+                    prop.type = type.getName();
 
                     componentJson.props.add(prop);
                 }
@@ -167,7 +167,7 @@ public class SerializeUtils {
                     Class<?> type = field.getType();
                     PropertyJson propertyJson = new PropertyJson();
                     propertyJson.key = field.getName();
-                    propertyJson.type = type;
+                    propertyJson.type = type.getName();
                     propertyJson.value = property.get(field.getName(), null, type);
                     componentJson.props.add(propertyJson);
                 }
