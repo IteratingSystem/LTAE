@@ -45,6 +45,16 @@ public class SerializeUtils {
 
 
             EntityJson entity = new EntityJson();
+            entity.entityId = entityId;
+            TagManager tagManager = world.getSystem(TagManager.class);
+            entity.name = tagManager.getTag(entityId);
+            Bag<Component> components = new Bag<>();
+            world.getEntity(entityId).getComponents(components);
+            for (Component component : components) {
+                if (component instanceof SerializeComponent serializeComponent) {
+                    entity.mapObject = serializeComponent.mapObject;
+                }
+            }
             entity.components = new Bag<>();
             for (Component component : allComps) {
                 Class<? extends Component> compClass = component.getClass();
@@ -176,7 +186,7 @@ public class SerializeUtils {
             //添加默认组件
             for (Class<? extends Component> autoCompClass : autoCompClasses) {
                 String simpleName = autoCompClass.getSimpleName();
-                if (hasComp(entityJson,simpleName)) {
+                if (entityJson.hasComp(simpleName)) {
                     continue;
                 }
                 ComponentJson componentJson = new ComponentJson();
@@ -188,12 +198,12 @@ public class SerializeUtils {
         }
         return entitiesJson;
     }
-    private static boolean hasComp(EntityJson entityJson,String compName){
-        for (ComponentJson component : entityJson.components) {
-            if (component.name.equals(compName)) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    private static boolean hasComp(EntityJson entityJson,String compName){
+//        for (ComponentJson component : entityJson.components) {
+//            if (component.name.equals(compName)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 }

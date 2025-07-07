@@ -15,15 +15,15 @@ public class EntityJson {
     public Bag<ComponentJson> components;
     public MapObject mapObject;
 
-//    public boolean hasComp(String name){
-//        if (components == null){
-//            components = new Bag<>();
-//        }
-//        for (ComponentJson component : components) {
-//            if (component.name.equals(name)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+    public boolean hasComp(String name){
+        if (components == null){
+            components = new Bag<>();
+        }
+        for (ComponentJson component : components) {
+            if (component.name.equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
