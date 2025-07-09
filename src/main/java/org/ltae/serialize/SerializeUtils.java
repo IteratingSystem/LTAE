@@ -28,8 +28,8 @@ public class SerializeUtils {
         json = new Json();
     }
 
-    public static void setSerializer(Class<Object> type, Json.Serializer<Object> serialize){
-        json.setSerializer(type,serialize);
+    public static <T> void setSerializer (Class<T> type, Json.Serializer<T> serializer) {
+        json.setSerializer(type, serializer);
     }
 
     public static String serializeEntities(World world){
