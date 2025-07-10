@@ -2,24 +2,20 @@ package org.ltae.system;
 
 import com.artemis.BaseSystem;
 import com.artemis.Component;
-import com.artemis.World;
 import com.artemis.utils.Bag;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import net.mostlyoriginal.api.event.common.Subscribe;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.Pos;
 import org.ltae.component.Render;
 import org.ltae.component.ZIndex;
-import org.ltae.event.CreateEntityEvent;
+import org.ltae.event.EntityFactoryEvent;
 import org.ltae.manager.JsonManager;
 import org.ltae.manager.map.serialize.ComponentConfig;
 import org.ltae.manager.map.serialize.EntityBuilder;
 import org.ltae.manager.map.serialize.EntitySerializer;
 import org.ltae.manager.map.serialize.json.EntitiesJson;
-import org.ltae.utils.TiledMapUtils;
 
 
 /**
@@ -58,6 +54,9 @@ public class EntityFactory extends BaseSystem {
     private void createAll(){
         entityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
+    private void createAll(EntitiesJson entitiesJson){
+        entityBuilder.buildEntities(world,entitiesJson);
+    }
     private EntitiesJson getEntitiesJson(){
         return entitySerializer.getEntitiesJson(world);
     }
@@ -66,7 +65,7 @@ public class EntityFactory extends BaseSystem {
         return JsonManager.toJson(entitiesJson);
     }
     @Subscribe
-    public void onEvent(CreateEntityEvent event){
+    public void onEvent(EntityFactoryEvent event){
 //        if (event.type == CreateEntityEvent.CREATE_ENTITY){
 //            event.entity = createEntity(event.mapObject,event.x,event.y);
 //            return ;
@@ -83,22 +82,22 @@ public class EntityFactory extends BaseSystem {
 //            event.mapObject = getPrefObject(event.name);
 //            return;
 //        }
-        if (event.type == CreateEntityEvent.CREATE_ALL){
-            createAll();
+        if (event.type == EntityFactoryEvent.CREATE_ALL){
+            if (event.entitiesJson == null){
+                createAll();
+                return;
+            }
+            createAll(event.entitiesJson);
             return;
         }
 //        if (event.type == CreateEntityEvent.ADD_AUTO_COMP){
 //            addAutoComp(event.compClass);
 //            return;
 //        }
-        if (event.type == CreateEntityEvent.SERIALIZER_ENTITIES){
+        if (event.type == EntityFactoryEvent.SERIALIZER_ENTITIES){
             event.entitiesStr = serializerEntitiesJson();
             return;
         }
-//        if (event.type == CreateEntityEvent.CREATE_ALL){
-//            createAll();
-//            return;
-//        }
     }
 
 }

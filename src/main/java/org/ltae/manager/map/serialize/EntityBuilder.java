@@ -21,6 +21,9 @@ public class EntityBuilder {
 
     public void buildEntities(World world,String mapName) {
         EntitiesJson entitiesJson = entitySerializer.getEntitiesJson(mapName);
+        buildEntities(world,entitiesJson);
+    }
+    public void buildEntities(World world,EntitiesJson entitiesJson) {
         entitySerializer.createEntities(world,entitiesJson);
     }
 }
