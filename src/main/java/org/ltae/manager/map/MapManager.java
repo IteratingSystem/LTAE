@@ -28,9 +28,9 @@ public class MapManager {
     private Bag<TiledMapTileSet> tileSets;
 
     private MapManager(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String> phyLayerNames){
-        allMaps = AssetManager.getInstance().getObjects(EXT,TiledMap.class);
         this.entityLayerNames = entityLayerNames;
         this.phyLayerNames = phyLayerNames;
+        allMaps = AssetManager.getInstance().getObjects(EXT,TiledMap.class);
         entityLayers = new ObjectMap<>();
         allMapObjects = new ObjectMap<>();
         tileSets = new Bag<>();
@@ -63,7 +63,7 @@ public class MapManager {
         return instance;
     }
     public TiledMap getTiledMap(String mapName){
-        if (allMaps.containsKey(mapName)){
+        if (!allMaps.containsKey(mapName)){
             Gdx.app.error(TAG,"Failed to getTiledMap,allMaps is not contains is map,name:"+mapName);
             return null;
         }
