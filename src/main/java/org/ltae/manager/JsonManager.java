@@ -1,6 +1,8 @@
 package org.ltae.manager;
 
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.Null;
 
 /**
  * @Auther WenLong
@@ -8,13 +10,19 @@ import com.badlogic.gdx.utils.Json;
  * @Description
  **/
 public class JsonManager {
-    private static Json instance;
+    private static Json json;
 
     private JsonManager() {}
-    public static Json getInstance() {
-        if (instance == null) {
-            instance = new Json();
+    public static Json getJson() {
+        if (json == null) {
+            json = new Json();
         }
-        return instance;
+        return json;
+    }
+    public static String toJson(Object object){
+        return getJson().toJson(object);
+    }
+    public static @Null <T> T fromJson (Class<T> type, String json) {
+        return  getJson().fromJson(type,json);
     }
 }

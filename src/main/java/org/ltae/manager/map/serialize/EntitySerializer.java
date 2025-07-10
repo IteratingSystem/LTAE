@@ -88,57 +88,7 @@ public class EntitySerializer {
         return entitiesJson;
     }
 
-    public void createEntities(World world, EntitiesJson entitiesJson){
-        TagManager tagManager = world.getSystem(TagManager.class);
-
-        for (EntityJson entityJson : entitiesJson.entities) {
-            //创建
-            int entityId = world.create();
-            entityJson.entityId = entityId;
-            //注册tag
-            if (!"".equals(entityJson.name)) {
-                tagManager.register(entityJson.name,entityId);
-            }
-            //注册组件
-            Bag<ComponentJson> components = entityJson.components;
-            Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(componentConfig.compPackages, Component.class);
-            for (Class<? extends Component> aClass : classes) {
-                String simpleName = aClass.getSimpleName();
-                for (ComponentJson componentJson : components) {
-                    if (!simpleName.equals(componentJson.name)) {
-                        continue;
-                    }
-                    //通过类对象创建组件Mapper
-                    ComponentMapper<? extends Component> mapper = world.getMapper(aClass);
-                    if (mapper == null) {
-                        break;
-                    }
-                    //通过组件Mapper创建组件
-                    Component component = mapper.create(entityId);
-                    //写入默认值
-                    Bag<PropertyJson> props = componentJson.props;
-                    for (PropertyJson prop : props) {
-                        String key = prop.key;
-                        Object value = prop.value;
-                        try {
-                            Field declaredField = aClass.getDeclaredField(key);
-                            if (!declaredField.isAnnotationPresent(SerializeParam.class)) {
-                                continue;
-                            }
-                            declaredField.set(component,value);
-                        } catch (NoSuchFieldException | IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    //执行reload
-                    if (component instanceof SerializeComponent serializeComponent) {
-                        serializeComponent.reload(world,entityJson);
-                    }
-                }
-            }
-        }
-    }
-    public String serializeEntities(World world){
+    public EntitiesJson getEntitiesJson(World world){
         EntitiesJson entitiesJson = new EntitiesJson();
         entitiesJson.entities = new Bag<>();
 
@@ -197,7 +147,59 @@ public class EntitySerializer {
             }
             entitiesJson.entities.add(entity);
         }
-        Json json = JsonManager.getInstance();
+        return entitiesJson;
+    }
+    public void createEntities(World world, EntitiesJson entitiesJson){
+        TagManager tagManager = world.getSystem(TagManager.class);
+
+        for (EntityJson entityJson : entitiesJson.entities) {
+            //创建
+            int entityId = world.create();
+            entityJson.entityId = entityId;
+            //注册tag
+            if (!"".equals(entityJson.name)) {
+                tagManager.register(entityJson.name,entityId);
+            }
+            //注册组件
+            Bag<ComponentJson> components = entityJson.components;
+            Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(componentConfig.compPackages, Component.class);
+            for (Class<? extends Component> aClass : classes) {
+                String simpleName = aClass.getSimpleName();
+                for (ComponentJson componentJson : components) {
+                    if (!simpleName.equals(componentJson.name)) {
+                        continue;
+                    }
+                    //通过类对象创建组件Mapper
+                    ComponentMapper<? extends Component> mapper = world.getMapper(aClass);
+                    if (mapper == null) {
+                        break;
+                    }
+                    //通过组件Mapper创建组件
+                    Component component = mapper.create(entityId);
+                    //写入默认值
+                    Bag<PropertyJson> props = componentJson.props;
+                    for (PropertyJson prop : props) {
+                        String key = prop.key;
+                        Object value = prop.value;
+                        try {
+                            Field declaredField = aClass.getDeclaredField(key);
+                            if (!declaredField.isAnnotationPresent(SerializeParam.class)) {
+                                continue;
+                            }
+                            declaredField.set(component,value);
+                        } catch (NoSuchFieldException | IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    //执行reload
+                    if (component instanceof SerializeComponent serializeComponent) {
+                        serializeComponent.reload(world,entityJson);
+                    }
+                }
+            }
+        }
+    }
+    public String serializerEntitiesJson(EntitiesJson entitiesJson,Json json){
         return json.toJson(entitiesJson);
     }
 }

@@ -14,9 +14,11 @@ import org.ltae.component.Pos;
 import org.ltae.component.Render;
 import org.ltae.component.ZIndex;
 import org.ltae.event.CreateEntityEvent;
+import org.ltae.manager.JsonManager;
 import org.ltae.manager.map.serialize.ComponentConfig;
 import org.ltae.manager.map.serialize.EntityBuilder;
 import org.ltae.manager.map.serialize.EntitySerializer;
+import org.ltae.manager.map.serialize.json.EntitiesJson;
 import org.ltae.utils.TiledMapUtils;
 
 
@@ -29,6 +31,7 @@ public class EntityFactory extends BaseSystem {
     private final static String TAG = EntityFactory.class.getSimpleName();
     private TiledMapSystem tiledMapSystem;
     private ObjectMap<String, MapObject> prefabricatedObjects;
+    private EntitySerializer entitySerializer;
     private EntityBuilder entityBuilder;
 
     public EntityFactory(){
@@ -41,7 +44,7 @@ public class EntityFactory extends BaseSystem {
         componentConfig.compPackages = new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG};
         componentConfig.autoCompClasses = autoCompClasses;
 
-        EntitySerializer entitySerializer = new EntitySerializer(componentConfig);
+        entitySerializer = new EntitySerializer(componentConfig);
         entityBuilder = new EntityBuilder(entitySerializer);
     }
     @Override
@@ -54,6 +57,13 @@ public class EntityFactory extends BaseSystem {
     }
     private void createAll(){
         entityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
+    }
+    private EntitiesJson getEntitiesJson(){
+        return entitySerializer.getEntitiesJson(world);
+    }
+    private String serializerEntitiesJson(){
+        EntitiesJson entitiesJson = entitySerializer.getEntitiesJson(world);
+        return JsonManager.toJson(entitiesJson);
     }
     @Subscribe
     public void onEvent(CreateEntityEvent event){
@@ -79,6 +89,14 @@ public class EntityFactory extends BaseSystem {
         }
 //        if (event.type == CreateEntityEvent.ADD_AUTO_COMP){
 //            addAutoComp(event.compClass);
+//            return;
+//        }
+        if (event.type == CreateEntityEvent.SERIALIZER_ENTITIES){
+            event.entitiesStr = serializerEntitiesJson();
+            return;
+        }
+//        if (event.type == CreateEntityEvent.CREATE_ALL){
+//            createAll();
 //            return;
 //        }
     }
