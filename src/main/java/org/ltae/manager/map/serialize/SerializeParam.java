@@ -13,11 +13,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface SerializeParam {
-    /**
-     * 是否可以为空,主要用于日志输出提醒是否配置相关数据,可以为空时就算读取不到也不会提示日志
-     * @return
-     */
-    boolean nullable() default false;
-    //读取时加载
-    boolean reload() default true;
+//    boolean save() default true;
 }
