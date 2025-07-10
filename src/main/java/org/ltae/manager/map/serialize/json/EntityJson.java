@@ -22,7 +22,7 @@ public class EntityJson{
             components = new Bag<>();
         }
         for (ComponentJson component : components) {
-            if (component.name.equals(name)) {
+            if (component.name.equals(compName)) {
                 return true;
             }
         }
