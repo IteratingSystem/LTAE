@@ -20,7 +20,7 @@ public class ComponentJson {
     public <T> T get (String key,T defaultValue, Class<T> clazz) {
         for (PropertyJson prop : props) {
             if (prop.key.equals(key)) {
-                return (T)prop.value;
+                return clazz.cast(prop.value);
             }
         }
         return defaultValue;

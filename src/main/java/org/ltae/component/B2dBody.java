@@ -65,8 +65,8 @@ public class B2dBody extends SerializeComponent {
         float posY = props.get("y", float.class);
         ComponentJson pos = entityJson.getCompJson("Pos");
         if (pos.containsKey(new String[]{"x","y"})) {
-            posX = pos.get("x", -1f, float.class);
-            posY = pos.get("y", -1f, float.class);
+            posX = pos.get("x", -1f, Float.class);
+            posY = pos.get("y", -1f, Float.class);
         }
 
 
