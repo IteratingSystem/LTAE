@@ -17,12 +17,11 @@ import org.ltae.LtaePluginRule;
 import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
 import org.ltae.box2d.setup.FixtureSetup;
-import org.ltae.manager.TiledMapManager;
 import org.ltae.system.B2dSystem;
-import org.ltae.serialize.SerializeParam;
+import org.ltae.manager.map.serialize.SerializeParam;
 import org.ltae.utils.ReflectionUtils;
 import org.ltae.utils.ShapeUtils;
-import org.ltae.serialize.json.EntityJson;
+import org.ltae.manager.map.serialize.json.EntityJson;
 
 
 /**
@@ -88,7 +87,7 @@ public class B2dBody extends SerializeComponent {
         }
 
         //动画帧中的形状对象
-        TiledMapTileSet tileSet = TiledMapManager.getTileSet(tiledMapTile);
+        TiledMapTileSet tileSet = MapManager.getTileSet(tiledMapTile);
         for (TiledMapTile aTile : tileSet) {
             if (!(aTile instanceof AnimatedTiledMapTile animatedTile)) {
                 continue;

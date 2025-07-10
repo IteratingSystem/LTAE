@@ -6,8 +6,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
-import org.ltae.serialize.SerializeParam;
-import org.ltae.serialize.json.EntityJson;
+import org.ltae.manager.map.serialize.SerializeParam;
+import org.ltae.manager.map.serialize.json.EntityJson;
 
 
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package org.ltae.serialize;
+package org.ltae.manager.map.serialize;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

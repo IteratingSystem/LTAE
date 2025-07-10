@@ -5,9 +5,9 @@ import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import net.mostlyoriginal.api.event.common.EventSystem;
 import org.ltae.LtaePluginRule;
-import org.ltae.serialize.SerializeParam;
+import org.ltae.manager.map.serialize.SerializeParam;
 import org.ltae.utils.ReflectionUtils;
-import org.ltae.serialize.json.EntityJson;
+import org.ltae.manager.map.serialize.json.EntityJson;
 
 /**
  * @Auther WenLong

@@ -2,7 +2,7 @@ package org.ltae.component;
 
 import com.artemis.World;
 import com.badlogic.gdx.math.Vector2;
-import org.ltae.serialize.json.EntityJson;
+import org.ltae.manager.map.serialize.json.EntityJson;
 
 
 /**

@@ -15,13 +15,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 public class RenderTiledSystem extends BaseSystem {
     private final static String TAG = RenderTiledSystem.class.getSimpleName();
-
-
-
+    private TiledMapSystem tiledMapSystem;
     private CameraSystem cameraSystem;
-    private TiledMapManager tiledMapManager;
-
-
     private TiledMap tiledMap;
     public OrthogonalTiledMapRenderer mapRenderer;
     public OrthographicCamera camera;
@@ -32,7 +27,7 @@ public class RenderTiledSystem extends BaseSystem {
     }
     @Override
     protected void initialize() {
-        tiledMap = tiledMapManager.currentMap;
+        tiledMap = tiledMapSystem.getTiledMap();
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap,worldScale);
 
         camera = cameraSystem.camera;

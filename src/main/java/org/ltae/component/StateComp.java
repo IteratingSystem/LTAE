@@ -6,8 +6,8 @@ import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import org.ltae.LtaePluginRule;
-import org.ltae.serialize.SerializeParam;
-import org.ltae.serialize.json.EntityJson;
+import org.ltae.manager.map.serialize.SerializeParam;
+import org.ltae.manager.map.serialize.json.EntityJson;
 import org.reflections.Reflections;
 
 import java.util.Set;

@@ -1,8 +1,7 @@
-package org.ltae.serialize.json;
+package org.ltae.manager.map.serialize.json;
 
 import com.artemis.io.SaveFileFormat;
 import com.artemis.utils.Bag;
-import com.badlogic.gdx.maps.MapObject;
 
 /**
  * @Auther WenLong
@@ -11,10 +10,10 @@ import com.badlogic.gdx.maps.MapObject;
  **/
 public class EntityJson extends SaveFileFormat {
     public int entityId;
+    public int mapObjectId;
     public String name;
     public String type;
     public Bag<ComponentJson> components;
-    public MapObject mapObject;
     public EntityJson(){}
 
     public boolean hasComp(String name){
