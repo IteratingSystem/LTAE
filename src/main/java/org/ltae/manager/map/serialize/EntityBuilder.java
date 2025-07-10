@@ -13,15 +13,13 @@ import org.ltae.manager.map.serialize.json.EntitiesJson;
  **/
 public class EntityBuilder {
     private final static String TAG = EntityBuilder.class.getSimpleName();
-    private final World world;
     private final EntitySerializer entitySerializer;
 
-    public EntityBuilder(World world,EntitySerializer entitySerializer) {
-        this.world = world;
+    public EntityBuilder(EntitySerializer entitySerializer) {
         this.entitySerializer = entitySerializer;
     }
 
-    public void buildEntities(String mapName) {
+    public void buildEntities(World world,String mapName) {
         EntitiesJson entitiesJson = entitySerializer.getEntitiesJson(mapName);
         entitySerializer.createEntities(world,entitiesJson);
     }

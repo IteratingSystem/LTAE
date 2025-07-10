@@ -2,6 +2,7 @@ package org.ltae.system;
 
 import com.artemis.BaseSystem;
 import com.artemis.Component;
+import com.artemis.World;
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapObject;
@@ -41,7 +42,7 @@ public class EntityFactory extends BaseSystem {
         componentConfig.autoCompClasses = autoCompClasses;
 
         EntitySerializer entitySerializer = new EntitySerializer(componentConfig);
-        entityBuilder = new EntityBuilder(world,entitySerializer);
+        entityBuilder = new EntityBuilder(entitySerializer);
     }
     @Override
     protected void initialize() {
@@ -52,7 +53,7 @@ public class EntityFactory extends BaseSystem {
 
     }
     private void createAll(){
-        entityBuilder.buildEntities(tiledMapSystem.getCurrent());
+        entityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
     @Subscribe
     public void onEvent(CreateEntityEvent event){
