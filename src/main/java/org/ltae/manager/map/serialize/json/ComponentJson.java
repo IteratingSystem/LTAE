@@ -17,10 +17,10 @@ public class ComponentJson {
     public String name;
     public Bag<PropertyJson> props;
 
-    public <T> T get (String key,T defaultValue, Class<T> clazz) {
+    public Object get (String key,Object defaultValue) {
         for (PropertyJson prop : props) {
             if (prop.key.equals(key)) {
-                return clazz.cast(prop.value);
+                return prop.value;
             }
         }
         return defaultValue;
