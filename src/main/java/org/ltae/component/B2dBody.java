@@ -18,6 +18,7 @@ import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
 import org.ltae.box2d.setup.FixtureSetup;
 import org.ltae.manager.map.MapManager;
+import org.ltae.manager.map.serialize.json.ComponentJson;
 import org.ltae.system.B2dSystem;
 import org.ltae.manager.map.serialize.SerializeParam;
 import org.ltae.utils.ReflectionUtils;
@@ -59,9 +60,12 @@ public class B2dBody extends SerializeComponent {
         if (!(mapObject instanceof TiledMapTileMapObject tileMapObject)) {
             return;
         }
-        MapProperties props = mapObject.getProperties();
-        float posX = props.get("x", float.class);
-        float posY = props.get("y", float.class);
+//        MapProperties props = mapObject.getProperties();
+//        float posX = props.get("x", float.class);
+//        float posY = props.get("y", float.class);
+        ComponentJson pos = entityJson.getCompJson("Pos");
+        float posX = pos.get("x", -1f, float.class);
+        float posY = pos.get("y", -1f, float.class);
 
         TiledMapTile tile = tileMapObject.getTile();
         MapObjects allObjects = new MapObjects();
