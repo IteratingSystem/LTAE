@@ -17,6 +17,7 @@ import org.ltae.LtaePluginRule;
 import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
 import org.ltae.box2d.setup.FixtureSetup;
+import org.ltae.manager.map.MapManager;
 import org.ltae.system.B2dSystem;
 import org.ltae.manager.map.serialize.SerializeParam;
 import org.ltae.utils.ReflectionUtils;
@@ -55,7 +56,6 @@ public class B2dBody extends SerializeComponent {
     public void reload(com.artemis.World world, EntityJson entityJson) {
         super.reload(world,entityJson);
         //获取传入参数的属性
-        MapObject mapObject = entityJson.mapObject;
         if (!(mapObject instanceof TiledMapTileMapObject tileMapObject)) {
             return;
         }
@@ -87,7 +87,8 @@ public class B2dBody extends SerializeComponent {
         }
 
         //动画帧中的形状对象
-        TiledMapTileSet tileSet = MapManager.getTileSet(tiledMapTile);
+        MapManager mapManager = MapManager.getInstance();
+        TiledMapTileSet tileSet = mapManager.getTileSet(tiledMapTile);
         for (TiledMapTile aTile : tileSet) {
             if (!(aTile instanceof AnimatedTiledMapTile animatedTile)) {
                 continue;

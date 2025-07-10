@@ -1,9 +1,13 @@
 package org.ltae.manager.map;
 
+import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSets;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.manager.AssetManager;
 
@@ -21,6 +25,7 @@ public class MapManager {
     private ObjectMap<String, String> phyLayerNames;
     private ObjectMap<String, MapLayer> entityLayers;
     private ObjectMap<String, MapObjects> allMapObjects;
+    private Bag<TiledMapTileSet> tileSets;
 
     private MapManager(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String> phyLayerNames){
         allMaps = AssetManager.getInstance().getObjects(EXT,TiledMap.class);
@@ -28,6 +33,7 @@ public class MapManager {
         this.phyLayerNames = phyLayerNames;
         entityLayers = new ObjectMap<>();
         allMapObjects = new ObjectMap<>();
+        tileSets = new Bag<>();
         ObjectMap.Entries<String, String> layerNames = entityLayerNames.iterator();
         while (layerNames.hasNext()) {
             ObjectMap.Entry<String, String> next = layerNames.next();
@@ -36,6 +42,12 @@ public class MapManager {
             MapLayer entityLayer = tiledMap.getLayers().get(layerName);
             entityLayers.put(next.key,entityLayer);
             allMapObjects.put(next.key,entityLayer.getObjects());
+            for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
+                if (tileSets.contains(tileSet)) {
+                    continue;
+                }
+                tileSets.add(tileSet);
+            }
         }
     }
     public static synchronized void init(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String> phyLayerNames){
@@ -75,5 +87,14 @@ public class MapManager {
         String phyLayerName = getPhyLayerName(mapName);
         TiledMap tiledMap = getTiledMap(mapName);
         return tiledMap.getLayers().get(phyLayerName);
+    }
+
+    public TiledMapTileSet getTileSet(TiledMapTile tiledMapTile) {
+        for (TiledMapTileSet tileSet : tileSets) {
+            if (tileSet.getTile(tiledMapTile.getId()) == tiledMapTile) {
+                return tileSet;
+            }
+        }
+        return null;
     }
 }
