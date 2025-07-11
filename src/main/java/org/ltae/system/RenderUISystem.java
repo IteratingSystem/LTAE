@@ -61,17 +61,23 @@ public class RenderUISystem extends BaseSystem {
     }
 
     private void hide(Class<? extends Table> zClass){
-        if (!uiMap.containsKey(zClass)) {
-            Gdx.app.log(TAG,"Failed to hideUI,uiMap is not containsKey: "+zClass.getSimpleName());
-            return;
-        }
         getTable(zClass).setVisible(false);
+    }
+    private void hideAll(){
+        ObjectMap.Keys<Class<? extends Table>> keys = uiMap.keys();
+        for (Class<? extends Table> key : keys) {
+            getTable(key).setVisible(false);
+        }
     }
     private void show(Class<? extends Table> zClass){
         if (!uiMap.containsKey(zClass)) {
             Gdx.app.log(TAG,"Failed to showUI,uiMap is not containsKey: "+zClass.getSimpleName());
             return;
         }
+        getTable(zClass).setVisible(true);
+    }
+    private void onlyShow(Class<? extends Table> zClass){
+        hideAll();
         getTable(zClass).setVisible(true);
     }
 
@@ -81,8 +87,16 @@ public class RenderUISystem extends BaseSystem {
             show(event.uiClass);
             return;
         }
+        if (event.type == UIEvent.ONLY_SHOW) {
+            onlyShow(event.uiClass);
+            return;
+        }
         if (event.type == UIEvent.HIDE) {
             hide(event.uiClass);
+            return;
+        }
+        if (event.type == UIEvent.HIDE_ALL) {
+            hideAll();
             return;
         }
         if (event.type == UIEvent.REGISTER) {

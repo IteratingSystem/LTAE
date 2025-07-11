@@ -12,6 +12,8 @@ public class UIEvent extends TypeEvent{
     public static final int SHOW = 2;
     public static final int REGISTER = 3;
     public static final int GET_TABLE = 4;
+    public static final int HIDE_ALL = 5;
+    public static final int ONLY_SHOW = 6;
 
     public Class<? extends Table> uiClass;
     public Table table;
