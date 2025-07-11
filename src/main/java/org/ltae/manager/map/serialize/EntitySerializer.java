@@ -194,6 +194,7 @@ public class EntitySerializer {
                     //执行reload
                     if (component instanceof SerializeComponent serializeComponent) {
                         serializeComponent.reload(world,entityJson);
+                        break;
                     }
                 }
             }
