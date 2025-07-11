@@ -1,10 +1,7 @@
 package org.ltae.manager.map.serialize;
 
 import com.artemis.World;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import org.ltae.manager.map.MapManager;
-import org.ltae.manager.map.serialize.json.EntitiesJson;
+import org.ltae.manager.map.serialize.json.EntitiesBag;
 
 /**
  * @Auther WenLong
@@ -20,10 +17,10 @@ public class EntityBuilder {
     }
 
     public void buildEntities(World world,String mapName) {
-        EntitiesJson entitiesJson = entitySerializer.getEntitiesJson(mapName);
-        buildEntities(world,entitiesJson);
+        EntitiesBag entitiesBag = entitySerializer.getEntitiesJson(mapName);
+        buildEntities(world, entitiesBag);
     }
-    public void buildEntities(World world,EntitiesJson entitiesJson) {
-        entitySerializer.createEntities(world,entitiesJson);
+    public void buildEntities(World world, EntitiesBag entitiesBag) {
+        entitySerializer.createEntities(world, entitiesBag);
     }
 }

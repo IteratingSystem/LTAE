@@ -7,21 +7,21 @@ import net.mostlyoriginal.api.event.common.EventSystem;
 import org.ltae.LtaePluginRule;
 import org.ltae.manager.map.serialize.SerializeParam;
 import org.ltae.utils.ReflectionUtils;
-import org.ltae.manager.map.serialize.json.EntityJson;
+import org.ltae.manager.map.serialize.json.EntityData;
 
 /**
  * @Auther WenLong
  * @Date 2025/7/2 10:35
- * @Description 总线接收器,用于注册实体的事件接收器
+ * @Description 交互组件
  **/
-public class OnEventComp extends SerializeComponent{
-    private static final String TAG = OnEventComp.class.getSimpleName();
+public class InterComp extends SerializeComponent{
+    private static final String TAG = InterComp.class.getSimpleName();
     @SerializeParam
     public String simpleName;
 
     @Override
-    public void reload(World world, EntityJson entityJson) {
-        super.reload(world,entityJson);
+    public void reload(World world, EntityData entityData) {
+        super.reload(world, entityData);
         String onEventPkg = LtaePluginRule.ON_EVENT_PKG;
         String className = onEventPkg + "." + simpleName;
         if (className.isEmpty()){

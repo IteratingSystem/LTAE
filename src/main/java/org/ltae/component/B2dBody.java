@@ -13,17 +13,18 @@ import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import org.ltae.LtaePluginRule;
 import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
 import org.ltae.box2d.setup.FixtureSetup;
 import org.ltae.manager.map.MapManager;
-import org.ltae.manager.map.serialize.json.ComponentJson;
+import org.ltae.manager.map.serialize.json.ComponentData;
 import org.ltae.system.B2dSystem;
 import org.ltae.manager.map.serialize.SerializeParam;
 import org.ltae.utils.ReflectionUtils;
 import org.ltae.utils.ShapeUtils;
-import org.ltae.manager.map.serialize.json.EntityJson;
+import org.ltae.manager.map.serialize.json.EntityData;
 
 
 /**
@@ -31,7 +32,7 @@ import org.ltae.manager.map.serialize.json.EntityJson;
  * @Date 2025/2/17 15:38
  * @Description Box2D身体
  **/
-public class B2dBody extends SerializeComponent {
+public class B2dBody extends SerializeComponent implements Disposable {
 
     private final static String TAG = B2dBody.class.getSimpleName();
     @SerializeParam
@@ -54,8 +55,8 @@ public class B2dBody extends SerializeComponent {
 
 
     @Override
-    public void reload(com.artemis.World world, EntityJson entityJson) {
-        super.reload(world,entityJson);
+    public void reload(com.artemis.World world, EntityData entityData) {
+        super.reload(world, entityData);
         //获取传入参数的属性
         if (!(mapObject instanceof TiledMapTileMapObject tileMapObject)) {
             return;
@@ -63,7 +64,7 @@ public class B2dBody extends SerializeComponent {
         MapProperties props = mapObject.getProperties();
         float posX = props.get("x", float.class);
         float posY = props.get("y", float.class);
-        ComponentJson pos = entityJson.getCompJson("Pos");
+        ComponentData pos = entityData.getCompJson("Pos");
         if (pos.containsKey(new String[]{"x","y"})) {
             posX = (float)pos.get("x", -1f);
             posY = (float)pos.get("y", -1f);
@@ -352,5 +353,10 @@ public class B2dBody extends SerializeComponent {
             return defFixData.entity;
         }
         return null;
+    }
+
+    @Override
+    public void dispose() {
+        b2dWorld.destroyBody(body);
     }
 }

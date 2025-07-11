@@ -5,7 +5,7 @@ import org.ltae.enums.HorizontalDir;
 import org.ltae.enums.OrthogonalDir;
 import org.ltae.enums.VerticalDir;
 import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.json.EntityJson;
+import org.ltae.manager.map.serialize.json.EntityData;
 
 /**
  * @Auther WenLong
@@ -24,8 +24,8 @@ public class Direction extends SerializeComponent{
     @SerializeParam
     public String verticalDir;
     @Override
-    public void reload(World world, EntityJson entityJson) {
-        super.reload(world,entityJson);
+    public void reload(World world, EntityData entityData) {
+        super.reload(world, entityData);
         if (!"NULL".equals(horizontalDir)){
             horizontal = HorizontalDir.valueOf(horizontalDir);
         }

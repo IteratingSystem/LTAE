@@ -7,7 +7,7 @@ import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
 import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.json.EntityJson;
+import org.ltae.manager.map.serialize.json.EntityData;
 
 
 import java.util.Arrays;
@@ -44,8 +44,8 @@ public class TileAnimation extends SerializeComponent{
 
 
     @Override
-    public void reload(World world, EntityJson entityJson) {
-        super.reload(world,entityJson);
+    public void reload(World world, EntityData entityData) {
+        super.reload(world, entityData);
         if (!(tiledMapTile instanceof AnimatedTiledMapTile animatedTile)) {
             return;
         }

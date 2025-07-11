@@ -3,7 +3,7 @@ package org.ltae.component;
 import com.artemis.World;
 import com.badlogic.gdx.math.Vector2;
 import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.json.EntityJson;
+import org.ltae.manager.map.serialize.json.EntityData;
 
 
 /**
@@ -18,8 +18,8 @@ public class Pos extends SerializeComponent{
     public float y = -1;
 
     @Override
-    public void reload(World world, EntityJson entityJson) {
-        super.reload(world,entityJson);
+    public void reload(World world, EntityData entityData) {
+        super.reload(world, entityData);
         if (x == -1 && y == -1){
             x = (float)mapObject.getProperties().get("x");
             y = (float)mapObject.getProperties().get("y");

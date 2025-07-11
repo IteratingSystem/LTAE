@@ -10,7 +10,7 @@ import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.manager.map.MapManager;
 import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.json.EntityJson;
+import org.ltae.manager.map.serialize.json.EntityData;
 
 import java.util.Iterator;
 
@@ -26,8 +26,8 @@ public class TileAnimations extends SerializeComponent{
     @SerializeParam
     public String current;
     @Override
-    public void reload(World world, EntityJson entityJson) {
-        super.reload(world,entityJson);
+    public void reload(World world, EntityData entityData) {
+        super.reload(world, entityData);
         table = new ObjectMap<>();
 
         MapManager mapManager = MapManager.getInstance();

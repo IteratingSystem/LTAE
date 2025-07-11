@@ -6,12 +6,11 @@ import com.artemis.utils.Bag;
 import com.badlogic.gdx.maps.*;
 import com.badlogic.gdx.utils.Json;
 import org.ltae.component.SerializeComponent;
-import org.ltae.manager.JsonManager;
 import org.ltae.manager.map.MapManager;
-import org.ltae.manager.map.serialize.json.ComponentJson;
-import org.ltae.manager.map.serialize.json.EntitiesJson;
-import org.ltae.manager.map.serialize.json.EntityJson;
-import org.ltae.manager.map.serialize.json.PropertyJson;
+import org.ltae.manager.map.serialize.json.ComponentData;
+import org.ltae.manager.map.serialize.json.EntitiesBag;
+import org.ltae.manager.map.serialize.json.EntityData;
+import org.ltae.manager.map.serialize.json.EntityProperty;
 import org.ltae.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -29,22 +28,22 @@ public class EntitySerializer {
         this.componentConfig = componentConfig;
     }
 
-    public EntitiesJson getEntitiesJson(String mapName){
+    public EntitiesBag getEntitiesJson(String mapName){
         MapManager mapManager = MapManager.getInstance();
         MapObjects mapObjects = mapManager.getMapObjects(mapName);
 
-        EntitiesJson entitiesJson = new EntitiesJson();
-        entitiesJson.entities = new Bag<>();
+        EntitiesBag entitiesBag = new EntitiesBag();
+        entitiesBag.entities = new Bag<>();
         for (MapObject mapObject : mapObjects) {
             String entityName = mapObject.getName();
             MapProperties properties = mapObject.getProperties();
 
-            EntityJson entityJson = new EntityJson();
-            entityJson.components = new Bag<>();
-            entityJson.mapObjectId = mapObject.getProperties().get("id",0,Integer.class);
+            EntityData entityData = new EntityData();
+            entityData.components = new Bag<>();
+            entityData.mapObjectId = mapObject.getProperties().get("id",0,Integer.class);
 
-            entityJson.name = entityName;
-            entityJson.type = properties.get("type", "", String.class);
+            entityData.name = entityName;
+            entityData.type = properties.get("type", "", String.class);
 
             Set<Class<? extends Component>> compClasses = ReflectionUtils.getClasses(componentConfig.compPackages, Component.class);
             for (Class<? extends Component> compClass : compClasses) {
@@ -53,9 +52,9 @@ public class EntitySerializer {
                 if (property == null) {
                     continue;
                 }
-                ComponentJson componentJson = new ComponentJson();
-                componentJson.props = new Bag<>();
-                componentJson.name = simpleName;
+                ComponentData componentData = new ComponentData();
+                componentData.props = new Bag<>();
+                componentData.name = simpleName;
 
                 Field[] fields = compClass.getFields();
                 for (int i = 0; i < fields.length; i++) {
@@ -64,33 +63,33 @@ public class EntitySerializer {
                         continue;
                     }
                     Class<?> type = field.getType();
-                    PropertyJson propertyJson = new PropertyJson();
-                    propertyJson.key = field.getName();
-                    propertyJson.type = type.getName();
-                    propertyJson.value = property.get(field.getName(), null, type);
-                    componentJson.props.add(propertyJson);
+                    EntityProperty entityProperty = new EntityProperty();
+                    entityProperty.key = field.getName();
+                    entityProperty.type = type.getName();
+                    entityProperty.value = property.get(field.getName(), null, type);
+                    componentData.props.add(entityProperty);
                 }
-                entityJson.components.add(componentJson);
+                entityData.components.add(componentData);
             }
             //添加默认组件
             for (Class<? extends Component> autoCompClass : componentConfig.autoCompClasses) {
                 String simpleName = autoCompClass.getSimpleName();
-                if (entityJson.hasComp(simpleName)) {
+                if (entityData.hasComp(simpleName)) {
                     continue;
                 }
-                ComponentJson componentJson = new ComponentJson();
-                componentJson.props = new Bag<>();
-                componentJson.name = simpleName;
-                entityJson.components.add(componentJson);
+                ComponentData componentData = new ComponentData();
+                componentData.props = new Bag<>();
+                componentData.name = simpleName;
+                entityData.components.add(componentData);
             }
-            entitiesJson.entities.add(entityJson);
+            entitiesBag.entities.add(entityData);
         }
-        return entitiesJson;
+        return entitiesBag;
     }
 
-    public EntitiesJson getEntitiesJson(World world){
-        EntitiesJson entitiesJson = new EntitiesJson();
-        entitiesJson.entities = new Bag<>();
+    public EntitiesBag getEntitiesJson(World world){
+        EntitiesBag entitiesBag = new EntitiesBag();
+        entitiesBag.entities = new Bag<>();
 
         AspectSubscriptionManager aspectSubscriptionManager = world.getSystem(AspectSubscriptionManager.class);
         EntitySubscription allEntities = aspectSubscriptionManager.get(Aspect.all());
@@ -104,7 +103,7 @@ public class EntitySerializer {
             }
 
 
-            EntityJson entity = new EntityJson();
+            EntityData entity = new EntityData();
             entity.entityId = entityId;
             TagManager tagManager = world.getSystem(TagManager.class);
             entity.name = tagManager.getTag(entityId);
@@ -121,9 +120,9 @@ public class EntitySerializer {
                 String compName = compClass.getSimpleName();
                 Field[] fields = compClass.getFields();
 
-                ComponentJson componentJson = new ComponentJson();
-                componentJson.name = compName;
-                componentJson.props = new Bag<>();
+                ComponentData componentData = new ComponentData();
+                componentData.name = compName;
+                componentData.props = new Bag<>();
                 for (Field field : fields) {
                     if (!field.isAnnotationPresent(SerializeParam.class)) {
                         continue;
@@ -136,37 +135,37 @@ public class EntitySerializer {
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
-                    PropertyJson prop = new PropertyJson();
+                    EntityProperty prop = new EntityProperty();
                     prop.key = key;
                     prop.value = value;
                     prop.type = type.getName();
 
-                    componentJson.props.add(prop);
+                    componentData.props.add(prop);
                 }
-                entity.components.add(componentJson);
+                entity.components.add(componentData);
             }
-            entitiesJson.entities.add(entity);
+            entitiesBag.entities.add(entity);
         }
-        return entitiesJson;
+        return entitiesBag;
     }
-    public void createEntities(World world, EntitiesJson entitiesJson){
+    public void createEntities(World world, EntitiesBag entitiesBag){
         TagManager tagManager = world.getSystem(TagManager.class);
 
-        for (EntityJson entityJson : entitiesJson.entities) {
+        for (EntityData entityData : entitiesBag.entities) {
             //创建
             int entityId = world.create();
-            entityJson.entityId = entityId;
+            entityData.entityId = entityId;
             //注册tag
-            if (!"".equals(entityJson.name)) {
-                tagManager.register(entityJson.name,entityId);
+            if (!"".equals(entityData.name)) {
+                tagManager.register(entityData.name,entityId);
             }
             //注册组件
-            Bag<ComponentJson> components = entityJson.components;
+            Bag<ComponentData> components = entityData.components;
             Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(componentConfig.compPackages, Component.class);
             for (Class<? extends Component> aClass : classes) {
                 String simpleName = aClass.getSimpleName();
-                for (ComponentJson componentJson : components) {
-                    if (!simpleName.equals(componentJson.name)) {
+                for (ComponentData componentData : components) {
+                    if (!simpleName.equals(componentData.name)) {
                         continue;
                     }
                     //通过类对象创建组件Mapper
@@ -177,8 +176,8 @@ public class EntitySerializer {
                     //通过组件Mapper创建组件
                     Component component = mapper.create(entityId);
                     //写入默认值
-                    Bag<PropertyJson> props = componentJson.props;
-                    for (PropertyJson prop : props) {
+                    Bag<EntityProperty> props = componentData.props;
+                    for (EntityProperty prop : props) {
                         String key = prop.key;
                         Object value = prop.value;
                         try {
@@ -193,14 +192,14 @@ public class EntitySerializer {
                     }
                     //执行reload
                     if (component instanceof SerializeComponent serializeComponent) {
-                        serializeComponent.reload(world,entityJson);
+                        serializeComponent.reload(world, entityData);
                         break;
                     }
                 }
             }
         }
     }
-    public String serializerEntitiesJson(EntitiesJson entitiesJson,Json json){
-        return json.toJson(entitiesJson);
+    public String serializerEntitiesJson(EntitiesBag entitiesBag, Json json){
+        return json.toJson(entitiesBag);
     }
 }

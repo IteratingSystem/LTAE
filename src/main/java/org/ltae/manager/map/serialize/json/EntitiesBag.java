@@ -7,6 +7,6 @@ import com.artemis.utils.Bag;
  * @Date 2025/7/4 10:41
  * @Description
  **/
-public class EntitiesJson {
-    public Bag<EntityJson> entities;
+public class EntitiesBag {
+    public Bag<EntityData> entities;
 }

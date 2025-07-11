@@ -10,12 +10,13 @@ import org.ltae.LtaePluginRule;
 import org.ltae.component.Pos;
 import org.ltae.component.Render;
 import org.ltae.component.ZIndex;
-import org.ltae.event.EntityFactoryEvent;
+import org.ltae.event.EntityEvent;
+import org.ltae.manager.EntityManager;
 import org.ltae.manager.JsonManager;
 import org.ltae.manager.map.serialize.ComponentConfig;
 import org.ltae.manager.map.serialize.EntityBuilder;
 import org.ltae.manager.map.serialize.EntitySerializer;
-import org.ltae.manager.map.serialize.json.EntitiesJson;
+import org.ltae.manager.map.serialize.json.EntitiesBag;
 
 
 /**
@@ -54,18 +55,21 @@ public class EntityFactory extends BaseSystem {
     private void createAll(){
         entityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
-    private void createAll(EntitiesJson entitiesJson){
-        entityBuilder.buildEntities(world,entitiesJson);
+    private void createAll(EntitiesBag entitiesBag){
+        entityBuilder.buildEntities(world, entitiesBag);
     }
-    private EntitiesJson getEntitiesJson(){
+    private EntitiesBag getEntitiesJson(){
         return entitySerializer.getEntitiesJson(world);
     }
     private String serializerEntitiesJson(){
-        EntitiesJson entitiesJson = entitySerializer.getEntitiesJson(world);
-        return JsonManager.toJson(entitiesJson);
+        EntitiesBag entitiesBag = entitySerializer.getEntitiesJson(world);
+        return JsonManager.toJson(entitiesBag);
+    }
+    private void deleteEntity(int entityId){
+        EntityManager.deleteEntity(world,entityId);
     }
     @Subscribe
-    public void onEvent(EntityFactoryEvent event){
+    public void onEvent(EntityEvent event){
 //        if (event.type == CreateEntityEvent.CREATE_ENTITY){
 //            event.entity = createEntity(event.mapObject,event.x,event.y);
 //            return ;
@@ -82,20 +86,24 @@ public class EntityFactory extends BaseSystem {
 //            event.mapObject = getPrefObject(event.name);
 //            return;
 //        }
-        if (event.type == EntityFactoryEvent.CREATE_ALL){
-            if (event.entitiesJson == null){
+        if (event.type == EntityEvent.CREATE_ALL){
+            if (event.entitiesBag == null){
                 createAll();
                 return;
             }
-            createAll(event.entitiesJson);
+            createAll(event.entitiesBag);
             return;
         }
 //        if (event.type == CreateEntityEvent.ADD_AUTO_COMP){
 //            addAutoComp(event.compClass);
 //            return;
 //        }
-        if (event.type == EntityFactoryEvent.SERIALIZER_ENTITIES){
+        if (event.type == EntityEvent.SERIALIZER_ENTITIES){
             event.entitiesStr = serializerEntitiesJson();
+            return;
+        }
+        if (event.type == EntityEvent.DELETE_ENTITY){
+            deleteEntity(event.entityId);
             return;
         }
     }
