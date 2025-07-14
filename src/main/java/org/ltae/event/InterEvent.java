@@ -11,5 +11,7 @@ public class InterEvent extends TypeEvent {
 
     public InterEvent(int fromId, int toId, int type) {
         super(type);
+        this.fromId = fromId;
+        this.toId = toId;
     }
 }
