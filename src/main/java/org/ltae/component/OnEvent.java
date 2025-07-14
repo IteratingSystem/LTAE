@@ -15,7 +15,6 @@ import org.ltae.utils.ReflectionUtils;
  * @Description 交互组件
  **/
 public class OnEvent extends SerializeComponent{
-    private static final String TAG = OnEvent.class.getSimpleName();
     @SerializeParam
     public String simpleName;
 
@@ -25,7 +24,7 @@ public class OnEvent extends SerializeComponent{
         String onEventPkg = LtaePluginRule.ON_EVENT_PKG;
         String className = onEventPkg + "." + simpleName;
         if (className.isEmpty()){
-            Gdx.app.error(TAG,"Failed to load OnEventComp,className is empty");
+            Gdx.app.error(getTag(),"Failed to load OnEventComp,className is empty");
             return;
         }
         EventSystem eventSystem = world.getSystem(EventSystem.class);

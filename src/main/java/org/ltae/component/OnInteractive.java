@@ -15,11 +15,4 @@ import org.ltae.manager.map.serialize.json.EntityData;
  * @Description 交互组件
  **/
 public class OnInteractive extends OnEvent{
-    @SerializeParam
-    public String simpleName;
-
-    @Override
-    public void reload(World world, EntityData entityData) {
-        super.reload(world, entityData);
-    }
 }
