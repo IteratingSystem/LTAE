@@ -221,7 +221,7 @@
                 "value": ""
             }
         ],
-        "name": "OnEventComp",
+        "name": "OnInteractive",
         "type": "class",
         "useAs": [
             "property",
