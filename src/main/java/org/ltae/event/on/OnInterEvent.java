@@ -18,6 +18,7 @@ public abstract class OnInterEvent {
     public OnInterEvent(Entity entity){
         this.entity = entity;
         world = entity.getWorld();
+        entityId = entity.getId();
     }
 
     @Subscribe
