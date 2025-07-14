@@ -1,0 +1,25 @@
+package org.ltae.component;
+
+import com.artemis.Entity;
+import com.artemis.World;
+import com.badlogic.gdx.Gdx;
+import net.mostlyoriginal.api.event.common.EventSystem;
+import org.ltae.LtaePluginRule;
+import org.ltae.manager.map.serialize.SerializeParam;
+import org.ltae.utils.ReflectionUtils;
+import org.ltae.manager.map.serialize.json.EntityData;
+
+/**
+ * @Auther WenLong
+ * @Date 2025/7/2 10:35
+ * @Description 交互组件
+ **/
+public class OnInteractive extends OnEvent{
+    @SerializeParam
+    public String simpleName;
+
+    @Override
+    public void reload(World world, EntityData entityData) {
+        super.reload(world, entityData);
+    }
+}

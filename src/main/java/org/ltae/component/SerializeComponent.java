@@ -33,4 +33,7 @@ public abstract class SerializeComponent extends Component {
             tiledMapTile = tileMapObject.getTile();
         }
     }
+    public String getTag(){
+        return getClass().getSimpleName();
+    }
 }
