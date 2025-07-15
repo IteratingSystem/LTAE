@@ -14,13 +14,9 @@ import org.ltae.manager.map.MapManager;
  **/
 public class TiledMapSystem extends BaseSystem {
     private String current;
-    public TiledMapSystem(String mapName){
+    public TiledMapSystem(String mapName, ObjectMap<String, String> entityLayers,ObjectMap<String, String> phyLayers){
         current = mapName;
-        ObjectMap<String, String> entityLayerNames = new ObjectMap<>();
-        ObjectMap<String, String> phyLayerNames = new ObjectMap<>();
-        entityLayerNames.put(LtaePluginRule.MAP_NAME,LtaePluginRule.ENTITY_LAYER);
-        phyLayerNames.put(LtaePluginRule.MAP_NAME,LtaePluginRule.PHY_LAYER);
-        MapManager.init(entityLayerNames,phyLayerNames);
+        MapManager.init(entityLayers,phyLayers);
     }
     public TiledMap getTiledMap(){
         MapManager mapManager = MapManager.getInstance();
