@@ -41,7 +41,7 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
     protected void process(int entityId) {
         Render render = mRender.get(entityId);
         //判断是否需要显示
-        if (!render.visible || render.keyframe.getTexture() == null) {
+        if (render.keyframe == null || render.keyframe.getTexture() == null || !render.visible) {
             return;
         }
 
