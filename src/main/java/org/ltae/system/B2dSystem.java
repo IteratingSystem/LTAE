@@ -4,10 +4,14 @@ import com.artemis.BaseSystem;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import dev.lyze.projectTrianglePlatforming.TiledTileCollisionToBox2d;
 import dev.lyze.projectTrianglePlatforming.TiledTileCollisionToBox2dOptions;
+import net.mostlyoriginal.api.event.common.Subscribe;
 import org.ltae.box2d.listener.DefContactListener;
+import org.ltae.event.B2dEvent;
 
 
 /**
@@ -54,8 +58,23 @@ public class B2dSystem extends BaseSystem {
             tiledTileCollisionToBox2d.parseLayer(tileLayer,box2DWorld);
         }
     }
+    private void delAllBodies(){
+        box2DWorld.step(world.delta, 6, 2);
+        Array<Body> bodies = new Array<>();
+        box2DWorld.getBodies(bodies);
+        for (Body body : bodies) {
+            box2DWorld.destroyBody(body);
+        }
+    }
     @Override
     protected void processSystem() {
         box2DWorld.step(world.delta,6,2);
+    }
+    @Subscribe
+    public void onEvent(B2dEvent event){
+        if (event.type == B2dEvent.DELETE_ALL_BODIES){
+            delAllBodies();
+            return;
+        }
     }
 }

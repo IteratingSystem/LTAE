@@ -25,29 +25,19 @@ public class MapManager {
     private ObjectMap<String, String> phyLayerNames;
     private ObjectMap<String, MapLayer> entityLayers;
     private ObjectMap<String, MapObjects> allMapObjects;
-    private Bag<TiledMapTileSet> tileSets;
 
     private MapManager(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String> phyLayerNames){
         this.entityLayerNames = entityLayerNames;
         this.phyLayerNames = phyLayerNames;
         allMaps = AssetManager.getInstance().getObjects(EXT,TiledMap.class);
-        entityLayers = new ObjectMap<>();
-        allMapObjects = new ObjectMap<>();
-        tileSets = new Bag<>();
+
         ObjectMap.Entries<String, String> layerNames = entityLayerNames.iterator();
         while (layerNames.hasNext()) {
             ObjectMap.Entry<String, String> next = layerNames.next();
             String layerName = next.value;
             TiledMap tiledMap = getTiledMap(next.key);
             MapLayer entityLayer = tiledMap.getLayers().get(layerName);
-            entityLayers.put(next.key,entityLayer);
             allMapObjects.put(next.key,entityLayer.getObjects());
-            for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
-                if (tileSets.contains(tileSet)) {
-                    continue;
-                }
-                tileSets.add(tileSet);
-            }
         }
     }
     public static synchronized void init(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String> phyLayerNames){
