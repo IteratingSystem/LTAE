@@ -23,6 +23,7 @@ public class B2dSystem extends BaseSystem {
     private boolean doSleep;
     private boolean combineTileCollisions;
     public World box2DWorld;
+    public TiledTileCollisionToBox2d tiledTileCollisionToBox2d;
 
     public B2dSystem(float gx,float gy,boolean doSleep,float worldScale,boolean combineTileCollisions){
         this.worldScale = worldScale;
@@ -36,18 +37,23 @@ public class B2dSystem extends BaseSystem {
         box2DWorld = new World(new Vector2(gx,gy),doSleep);
         box2DWorld.setContinuousPhysics(true);
         box2DWorld.setContactListener(new DefContactListener());
-        //绑定tiled中的物理形状
-        var builder = new TiledTileCollisionToBox2d(TiledTileCollisionToBox2dOptions.builder()
-            .scale(worldScale)
-            .combineTileCollisions(combineTileCollisions)
-            .triangulateInsteadOfThrow(true)
-            .build());
-        MapLayer phyLayer = tiledMapSystem.getPhyLayer();
-        if (phyLayer instanceof TiledMapTileLayer tileLayer) {
-            builder.parseLayer(tileLayer,box2DWorld);
-        }
+        updateMapShape();
     }
 
+    public void updateMapShape(){
+        if (tiledTileCollisionToBox2d == null){
+            //绑定tiled中的物理形状
+            tiledTileCollisionToBox2d = new TiledTileCollisionToBox2d(TiledTileCollisionToBox2dOptions.builder()
+                    .scale(worldScale)
+                    .combineTileCollisions(combineTileCollisions)
+                    .triangulateInsteadOfThrow(true)
+                    .build());
+        }
+        MapLayer phyLayer = tiledMapSystem.getPhyLayer();
+        if (phyLayer instanceof TiledMapTileLayer tileLayer) {
+            tiledTileCollisionToBox2d.parseLayer(tileLayer,box2DWorld);
+        }
+    }
     @Override
     protected void processSystem() {
         box2DWorld.step(world.delta,6,2);

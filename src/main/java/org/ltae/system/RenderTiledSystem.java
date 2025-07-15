@@ -18,6 +18,7 @@ import org.ltae.event.MapEvent;
 public class RenderTiledSystem extends BaseSystem {
     private final static String TAG = RenderTiledSystem.class.getSimpleName();
     private TiledMapSystem tiledMapSystem;
+    private B2dSystem b2dSystem;
     private CameraSystem cameraSystem;
     private TiledMap tiledMap;
     public OrthogonalTiledMapRenderer mapRenderer;
@@ -32,6 +33,7 @@ public class RenderTiledSystem extends BaseSystem {
         tiledMapSystem.changeCurrent(mapName);
         tiledMap = tiledMapSystem.getTiledMap();
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap,worldScale);
+        b2dSystem.updateMapShape();
     }
     @Override
     protected void initialize() {
@@ -47,7 +49,7 @@ public class RenderTiledSystem extends BaseSystem {
             return;
         }
 
-        ScreenUtils.clear(0.0f,0.7f,0.2f,1);
+        ScreenUtils.clear(0.0f,0.0f,0.0f,1);
         mapRenderer.setView(camera);
         mapRenderer.render();
     }
