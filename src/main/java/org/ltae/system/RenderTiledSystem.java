@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import net.mostlyoriginal.api.event.common.Subscribe;
+import org.ltae.event.MapEvent;
 
 /**
  * @Author: WenLong
@@ -48,5 +50,12 @@ public class RenderTiledSystem extends BaseSystem {
         ScreenUtils.clear(0.0f,0.7f,0.2f,1);
         mapRenderer.setView(camera);
         mapRenderer.render();
+    }
+    @Subscribe
+    public void onEvent(MapEvent event){
+        if (event.type == MapEvent.CHANGE_MAP) {
+            changeMap(event.mapName);
+            return;
+        }
     }
 }
