@@ -15,12 +15,12 @@ import org.ltae.utils.ReflectionUtils;
  * @Description 交互组件
  **/
 public class OnEvent extends SerializeComponent{
-    @SerializeParam
-    public String simpleName;
 
     @Override
     public void reload(World world, EntityData entityData) {
         super.reload(world, entityData);
+    }
+    public void registerEvent(String simpleName){
         String onEventPkg = LtaePluginRule.ON_EVENT_PKG;
         String className = onEventPkg + "." + simpleName;
         if (className.isEmpty()){
