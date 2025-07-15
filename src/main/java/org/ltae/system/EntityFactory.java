@@ -11,7 +11,7 @@ import org.ltae.component.Pos;
 import org.ltae.component.Render;
 import org.ltae.component.ZIndex;
 import org.ltae.event.EntityEvent;
-import org.ltae.manager.EntityManager;
+import org.ltae.manager.map.serialize.EntityDeleter;
 import org.ltae.manager.JsonManager;
 import org.ltae.manager.map.serialize.ComponentConfig;
 import org.ltae.manager.map.serialize.EntityBuilder;
@@ -53,9 +53,11 @@ public class EntityFactory extends BaseSystem {
 
     }
     private void createAll(){
+        EntityDeleter.deleteAll(world);
         entityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
     private void createAll(EntitiesBag entitiesBag){
+        EntityDeleter.deleteAll(world);
         entityBuilder.buildEntities(world, entitiesBag);
     }
     private EntitiesBag getEntitiesJson(){
@@ -66,7 +68,10 @@ public class EntityFactory extends BaseSystem {
         return JsonManager.toJson(entitiesBag);
     }
     private void deleteEntity(int entityId){
-        EntityManager.deleteEntity(world,entityId);
+        EntityDeleter.deleteEntity(world,entityId);
+    }
+    private void deleteAll(){
+        EntityDeleter.deleteAll(world);
     }
     @Subscribe
     public void onEvent(EntityEvent event){
@@ -104,6 +109,10 @@ public class EntityFactory extends BaseSystem {
         }
         if (event.type == EntityEvent.DELETE_ENTITY){
             deleteEntity(event.entityId);
+            return;
+        }
+        if (event.type == EntityEvent.DELETE_ALL){
+            deleteAll();
             return;
         }
     }
