@@ -31,13 +31,13 @@ public class RenderTiledSystem extends BaseSystem {
     public void changeMap(String mapName){
         tiledMapSystem.changeCurrent(mapName);
         tiledMap = tiledMapSystem.getTiledMap();
+        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap,worldScale);
     }
     @Override
     protected void initialize() {
+        tiledMap = tiledMapSystem.getTiledMap();
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap,worldScale);
         camera = cameraSystem.camera;
-
-        tiledMap = tiledMapSystem.getTiledMap();
     }
 
     @Override
