@@ -32,6 +32,7 @@ public class MapManager {
         this.entityLayerNames = entityLayerNames;
         this.phyLayerNames = phyLayerNames;
         allMaps = AssetManager.getInstance().getObjects(EXT,TiledMap.class);
+        allMapObjects = new ObjectMap<>();
         tileSets = new Bag<>();
         ObjectMap.Entries<String, String> layerNames = entityLayerNames.iterator();
         while (layerNames.hasNext()) {
