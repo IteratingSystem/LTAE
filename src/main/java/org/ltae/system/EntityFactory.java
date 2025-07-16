@@ -54,6 +54,7 @@ public class EntityFactory extends BaseSystem {
     }
     private void createAll(){
         EntityDeleter.deleteAll(world);
+        world.process();
         entityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
     private void createAll(EntitiesBag entitiesBag){
