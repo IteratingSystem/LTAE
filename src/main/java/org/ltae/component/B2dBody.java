@@ -71,9 +71,8 @@ public class B2dBody extends SerializeComponent implements Disposable {
         }
 
 
-        TiledMapTile tile = tileMapObject.getTile();
         MapObjects allObjects = new MapObjects();
-        MapObjects objects = tile.getObjects();
+        MapObjects objects = tiledMapTile.getObjects();
 
         B2dSystem b2dSystem = world.getSystem(B2dSystem.class);
         b2dWorld = b2dSystem.box2DWorld;

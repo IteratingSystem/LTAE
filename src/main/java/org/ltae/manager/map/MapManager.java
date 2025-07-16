@@ -3,6 +3,7 @@ package org.ltae.manager.map;
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
@@ -25,12 +26,13 @@ public class MapManager {
     private ObjectMap<String, String> phyLayerNames;
     private ObjectMap<String, MapLayer> entityLayers;
     private ObjectMap<String, MapObjects> allMapObjects;
+    private Bag<TiledMapTileSet> tileSets;
 
     private MapManager(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String> phyLayerNames){
         this.entityLayerNames = entityLayerNames;
         this.phyLayerNames = phyLayerNames;
         allMaps = AssetManager.getInstance().getObjects(EXT,TiledMap.class);
-
+        tileSets = new Bag<>();
         ObjectMap.Entries<String, String> layerNames = entityLayerNames.iterator();
         while (layerNames.hasNext()) {
             ObjectMap.Entry<String, String> next = layerNames.next();
@@ -38,6 +40,14 @@ public class MapManager {
             TiledMap tiledMap = getTiledMap(next.key);
             MapLayer entityLayer = tiledMap.getLayers().get(layerName);
             allMapObjects.put(next.key,entityLayer.getObjects());
+
+            for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
+                if (tileSets.contains(tileSet)) {
+                    continue;
+                }
+                tileSets.add(tileSet);
+            }
+
         }
     }
     public static synchronized void init(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String> phyLayerNames){
@@ -66,6 +76,17 @@ public class MapManager {
             return null;
         }
         return allMapObjects.get(mapName);
+    }
+    public MapObject getMapObject(String mapName,int objectId){
+        MapObjects mapObjects = getMapObjects(mapName);
+        for (MapObject mapObject : mapObjects) {
+            Integer id = mapObject.getProperties().get("id", -1, Integer.class);
+            if (objectId == id){
+                return mapObject;
+            }
+        }
+        Gdx.app.error(TAG,"Failed to getMapObject,No objects with the same id,objectId:"+objectId);
+        return null;
     }
     public String getPhyLayerName(String mapName){
         if (!phyLayerNames.containsKey(mapName)){

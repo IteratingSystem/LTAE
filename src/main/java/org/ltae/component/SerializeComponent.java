@@ -26,15 +26,8 @@ public abstract class SerializeComponent extends Component {
         String current = tiledMapSystem.getCurrent();
 
         MapManager mapManager = MapManager.getInstance();
-        MapObjects mapObjects = mapManager.getMapObjects(current);
+        mapObject = mapManager.getMapObject(current,mapObjectId);
 
-        for (MapObject mapObject_ : mapObjects) {
-            Integer id = mapObject_.getProperties().get("id", -1, Integer.class);
-            if (mapObjectId == id){
-                mapObject = mapObject_;
-                break;
-            }
-        }
         if (mapObject instanceof TiledMapTileMapObject tileMapObject) {
             tiledMapTile = tileMapObject.getTile();
         }
