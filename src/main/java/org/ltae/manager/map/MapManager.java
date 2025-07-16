@@ -9,6 +9,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSets;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.manager.AssetManager;
 
@@ -34,21 +35,19 @@ public class MapManager {
         allMaps = AssetManager.getInstance().getObjects(EXT,TiledMap.class);
         allMapObjects = new ObjectMap<>();
         tileSets = new Bag<>();
-        ObjectMap.Entries<String, String> layerNames = entityLayerNames.iterator();
-        while (layerNames.hasNext()) {
-            ObjectMap.Entry<String, String> next = layerNames.next();
-            String layerName = next.value;
-            TiledMap tiledMap = getTiledMap(next.key);
-            MapLayer entityLayer = tiledMap.getLayers().get(layerName);
-            allMapObjects.put(next.key,entityLayer.getObjects());
 
+        Array<String> mapKeys = allMaps.keys().toArray();
+        for (String mapName : mapKeys) {
+            String entityLayerName = entityLayerNames.get(mapName);
+            TiledMap tiledMap = getTiledMap(mapName);
+            MapLayer entityLayer = tiledMap.getLayers().get(entityLayerName);
+            allMapObjects.put(mapName,entityLayer.getObjects());
             for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
                 if (tileSets.contains(tileSet)) {
                     continue;
                 }
                 tileSets.add(tileSet);
             }
-
         }
     }
     public static synchronized void init(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String> phyLayerNames){
