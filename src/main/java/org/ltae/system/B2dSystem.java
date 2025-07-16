@@ -65,7 +65,6 @@ public class B2dSystem extends BaseSystem {
         for (Body body : bodies) {
             box2DWorld.destroyBody(body);
         }
-        world.process();
     }
     @Override
     protected void processSystem() {

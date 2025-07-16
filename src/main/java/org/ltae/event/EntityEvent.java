@@ -19,6 +19,7 @@ public class EntityEvent extends TypeEvent {
     public static final int SERIALIZER_ENTITIES = 6;
     public static final int DELETE_ENTITY = 7;
     public static final int DELETE_ALL = 8;
+    public static final int DEL_AND_CREATE_ALL = 9;
 
     public float x;
     public float y;

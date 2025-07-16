@@ -52,13 +52,18 @@ public class EntityFactory extends BaseSystem {
     protected void processSystem() {
 
     }
-    private void createAll(){
+    private void delAndCreateAll(){
         EntityDeleter.deleteAll(world);
-        world.process();
+        entityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
+    }
+    private void delAndCreateAll(EntitiesBag entitiesBag){
+        EntityDeleter.deleteAll(world);
+        entityBuilder.buildEntities(world, entitiesBag);
+    }
+    private void createAll(){
         entityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
     private void createAll(EntitiesBag entitiesBag){
-        EntityDeleter.deleteAll(world);
         entityBuilder.buildEntities(world, entitiesBag);
     }
     private EntitiesBag getEntitiesJson(){
@@ -98,6 +103,14 @@ public class EntityFactory extends BaseSystem {
                 return;
             }
             createAll(event.entitiesBag);
+            return;
+        }
+        if (event.type == EntityEvent.DEL_AND_CREATE_ALL){
+            if (event.entitiesBag == null){
+                delAndCreateAll();
+                return;
+            }
+            delAndCreateAll(event.entitiesBag);
             return;
         }
 //        if (event.type == CreateEntityEvent.ADD_AUTO_COMP){
