@@ -44,11 +44,9 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         if (render.keyframe == null || render.keyframe.getTexture() == null || !render.visible) {
             return;
         }
-
-
         //渲染
         Pos pos = mPos.get(entityId);
-
+        batch = renderTiledSystem.mapRenderer.getBatch();
         batch.begin();
 
         TextureRegion keyFrame = render.keyframe;
