@@ -7,6 +7,7 @@ import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Disposable;
 import org.ltae.event.EntityEvent;
+import org.ltae.manager.map.MapManager;
 
 import javax.swing.text.html.HTML;
 
@@ -24,6 +25,12 @@ public class EntityDeleter {
             if (component instanceof Disposable disposable) {
                 disposable.dispose();
             }
+        }
+        //删除实体同时取消注册的标签
+        TagManager tagManager = world.getSystem(TagManager.class);
+        String tag = tagManager.getTag(entityId);
+        if (tag != null && !"".equals(tag)) {
+            tagManager.unregister(tag);
         }
         world.delete(entityId);
     }
