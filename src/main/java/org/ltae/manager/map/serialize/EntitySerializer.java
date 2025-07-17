@@ -24,7 +24,7 @@ import java.util.Set;
  * @Description
  **/
 public class EntitySerializer {
-    public static EntitiesBag getEntitiesJson(MapObjects mapObjects){
+    public static EntitiesBag getEntities(String mapName,MapObjects mapObjects){
         EntitiesBag entitiesBag = new EntitiesBag();
         entitiesBag.entities = new Bag<>();
         for (MapObject mapObject : mapObjects) {
@@ -34,6 +34,7 @@ public class EntitySerializer {
             EntityData entityData = new EntityData();
             entityData.components = new Bag<>();
             entityData.mapObjectId = mapObject.getProperties().get("id",0,Integer.class);
+            entityData.fromMap = mapName;
 
             entityData.name = entityName;
             entityData.type = properties.get("type", "", String.class);
@@ -80,7 +81,7 @@ public class EntitySerializer {
         return entitiesBag;
     }
 
-    public static EntitiesBag getEntitiesJson(World world){
+    public static EntitiesBag getEntities(World world){
         EntitiesBag entitiesBag = new EntitiesBag();
         entitiesBag.entities = new Bag<>();
 
@@ -149,13 +150,17 @@ public class EntitySerializer {
     }
     public static void overlayEntityData(EntitiesBag entitiesBag,EntityData entityData){
         Bag<EntityData> entities = entitiesBag.entities;
-        for (EntityData entity : entities) {
-            if (entity.entityId != entityData.entityId) {
-                continue;
+        if (entitiesBag.hasEntityData(entityData)) {
+            for (EntityData entity : entities) {
+                if (entity.equals(entityData)) {
+                    entities.remove(entity);
+                    entities.add(entityData);
+                    break;
+                }
             }
-            entities.remove(entity);
-            entities.add(entityData);
+            return;
         }
+        entities.add(entityData);
     }
     public static void createEntities(World world, EntitiesBag entitiesBag){
         TagManager tagManager = world.getSystem(TagManager.class);

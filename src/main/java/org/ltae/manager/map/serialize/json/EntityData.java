@@ -11,6 +11,7 @@ import com.badlogic.gdx.Gdx;
 public class EntityData {
     public int entityId;
     public int mapObjectId;
+    public String fromMap;
     public String name;
     public String type;
     public Bag<ComponentData> components;
@@ -41,5 +42,8 @@ public class EntityData {
     }
     private String getTag(){
         return getClass().getSimpleName();
+    }
+    public boolean equals(EntityData entityData){
+        return entityData.fromMap == fromMap && entityData.mapObjectId == mapObjectId;
     }
 }

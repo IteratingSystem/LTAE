@@ -48,7 +48,7 @@ public class MapManager {
             MapLayer entityLayer = tiledMap.getLayers().get(entityLayerName);
             MapObjects mapObjects = entityLayer.getObjects();
             allMapObjects.put(mapName,mapObjects);
-            mapEntities.put(mapName,EntitySerializer.getEntitiesJson(mapObjects));
+            mapEntities.put(mapName,EntitySerializer.getEntities(mapName,mapObjects));
             for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
                 if (tileSets.contains(tileSet)) {
                     continue;
@@ -59,7 +59,7 @@ public class MapManager {
     }
     public void saveEntities(String mapName){
         MapObjects mapObjects = getMapObjects(mapName);
-        EntitiesBag entitiesJson = EntitySerializer.getEntitiesJson(mapObjects);
+        EntitiesBag entitiesJson = EntitySerializer.getEntities(mapName,mapObjects);
         mapEntities.put(mapName,entitiesJson);
     }
     public EntitiesBag getEntities(String mapName){

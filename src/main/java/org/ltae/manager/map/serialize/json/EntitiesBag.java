@@ -9,4 +9,15 @@ import com.artemis.utils.Bag;
  **/
 public class EntitiesBag {
     public Bag<EntityData> entities;
+    public boolean hasEntityData(EntityData entityData){
+        if (entities == null) {
+            return false;
+        }
+        for (EntityData entity : entities) {
+            if (entity.equals(entityData)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
