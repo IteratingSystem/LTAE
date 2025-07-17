@@ -20,6 +20,7 @@ public class EntityEvent extends TypeEvent {
     public static final int DELETE_ENTITY = 7;
     public static final int DELETE_ALL = 8;
     public static final int DEL_AND_CREATE_ALL = 9;
+    public static final int FILTER_DEL_ALL = 10;
 
     public float x;
     public float y;
@@ -27,8 +28,13 @@ public class EntityEvent extends TypeEvent {
     public String name;
     public Entity entity;
     public int entityId;
-    public String entitiesStr;
+
+    //序列化后的字符串,用于SERIALIZER_ENTITIES序列化后接受结果
+    public String serializerEntitiesStr;
+    //实体标签列表,用于FILTER_DEL_ALL过滤不要删除的实体
+    public String[] entityTags;
     public EntitiesBag entitiesBag;
+
     public Class<? extends Component> compClass;
 
     public EntityEvent(int type) {

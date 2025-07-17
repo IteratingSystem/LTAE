@@ -79,6 +79,9 @@ public class EntityFactory extends BaseSystem {
     private void deleteAll(){
         EntityDeleter.deleteAll(world);
     }
+    private void filterDeleteAll(String[] filterEntity){
+        EntityDeleter.deleteAll(world,filterEntity);
+    }
     @Subscribe
     public void onEvent(EntityEvent event){
 //        if (event.type == CreateEntityEvent.CREATE_ENTITY){
@@ -118,7 +121,7 @@ public class EntityFactory extends BaseSystem {
 //            return;
 //        }
         if (event.type == EntityEvent.SERIALIZER_ENTITIES){
-            event.entitiesStr = serializerEntitiesJson();
+            event.serializerEntitiesStr = serializerEntitiesJson();
             return;
         }
         if (event.type == EntityEvent.DELETE_ENTITY){
@@ -127,6 +130,10 @@ public class EntityFactory extends BaseSystem {
         }
         if (event.type == EntityEvent.DELETE_ALL){
             deleteAll();
+            return;
+        }
+        if (event.type == EntityEvent.FILTER_DEL_ALL){
+            filterDeleteAll(event.entityTags);
             return;
         }
     }
