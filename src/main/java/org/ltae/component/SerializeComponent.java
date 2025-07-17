@@ -18,6 +18,7 @@ public abstract class SerializeComponent extends Component {
     public int entityId;
     public MapObject mapObject;
     public TiledMapTile tiledMapTile;
+    public String fromMap;
     public void reload(World world, EntityData entityData){
         this.world = world;
         entityId = entityData.entityId;
@@ -26,7 +27,8 @@ public abstract class SerializeComponent extends Component {
         String current = tiledMapSystem.getCurrent();
 
         MapManager mapManager = MapManager.getInstance();
-        mapObject = mapManager.getMapObject(entityData.fromMap,mapObjectId);
+        fromMap = entityData.fromMap;
+        mapObject = mapManager.getMapObject(fromMap,mapObjectId);
 
         if (mapObject instanceof TiledMapTileMapObject tileMapObject) {
             tiledMapTile = tileMapObject.getTile();

@@ -111,11 +111,19 @@ public class EntitySerializer {
         entity.name = tagManager.getTag(entityId);
         Bag<Component> components = new Bag<>();
         world.getEntity(entityId).getComponents(components);
+
+        boolean isSetMapMsg = false;
         for (Component component : components) {
+            if (isSetMapMsg){
+                break;
+            }
             if (component instanceof SerializeComponent serializeComponent) {
                 entity.mapObjectId = serializeComponent.mapObject.getProperties().get("id",-1,Integer.class);
+                entity.fromMap = serializeComponent.fromMap;
+                isSetMapMsg = true;
             }
         }
+
         entity.components = new Bag<>();
         for (Component component : allComps) {
             Class<? extends Component> compClass = component.getClass();
