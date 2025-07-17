@@ -28,6 +28,7 @@ public class Render extends SerializeComponent{
             keyframe = textureMapObject.getTextureRegion();
             flipX = textureMapObject.getTextureRegion().isFlipX();
             flipY = textureMapObject.getTextureRegion().isFlipY();
+            visible = textureMapObject.isVisible();
             int regionWidth = keyframe.getRegionWidth();
             int regionHeight = keyframe.getRegionHeight();
             MapProperties properties = mapObject.getProperties();
@@ -35,8 +36,6 @@ public class Render extends SerializeComponent{
             float tileHeight = properties.get("height",(float)regionHeight, float.class);
             scaleWidth = tileWidth/regionWidth;
             scaleHeight = tileHeight/regionHeight;
-            int visibleInt = properties.get("visible", 1, int.class);
-            visible = visibleInt==1;
         }
 
     }
