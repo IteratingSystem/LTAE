@@ -3,6 +3,7 @@ package org.ltae.manager.map.serialize;
 import com.artemis.*;
 import com.artemis.managers.TagManager;
 import com.artemis.utils.Bag;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.maps.*;
 import com.badlogic.gdx.utils.Json;
 import org.ltae.component.SerializeComponent;
@@ -93,60 +94,76 @@ public class EntitySerializer {
 
         AspectSubscriptionManager aspectSubscriptionManager = world.getSystem(AspectSubscriptionManager.class);
         EntitySubscription allEntities = aspectSubscriptionManager.get(Aspect.all());
-
-        for (int i = 0; i < allEntities.getEntities().size(); i++) {
-            int entityId = allEntities.getEntities().get(i);
-            Bag<Component> allComps = new Bag<>();
-            world.getEntity(entityId).getComponents(allComps);
-            if (allComps.isEmpty()) {
+        IntBag entities = allEntities.getEntities();
+        for (int i = 0; i < entities.size(); i++) {
+            int entityId = entities.get(i);
+            EntityData entityData = getEntityData(world,entityId);
+            if (entityData == null){
                 continue;
             }
-
-
-            EntityData entity = new EntityData();
-            entity.entityId = entityId;
-            TagManager tagManager = world.getSystem(TagManager.class);
-            entity.name = tagManager.getTag(entityId);
-            Bag<Component> components = new Bag<>();
-            world.getEntity(entityId).getComponents(components);
-            for (Component component : components) {
-                if (component instanceof SerializeComponent serializeComponent) {
-                    entity.mapObjectId = serializeComponent.mapObject.getProperties().get("id",-1,Integer.class);
-                }
-            }
-            entity.components = new Bag<>();
-            for (Component component : allComps) {
-                Class<? extends Component> compClass = component.getClass();
-                String compName = compClass.getSimpleName();
-                Field[] fields = compClass.getFields();
-
-                ComponentData componentData = new ComponentData();
-                componentData.name = compName;
-                componentData.props = new Bag<>();
-                for (Field field : fields) {
-                    if (!field.isAnnotationPresent(SerializeParam.class)) {
-                        continue;
-                    }
-                    String key = field.getName();
-                    Class type = field.getType();
-                    Object value = new Object();
-                    try {
-                        value = field.get(component);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-                    EntityProperty prop = new EntityProperty();
-                    prop.key = key;
-                    prop.value = value;
-                    prop.type = type.getName();
-
-                    componentData.props.add(prop);
-                }
-                entity.components.add(componentData);
-            }
-            entitiesBag.entities.add(entity);
+            entitiesBag.entities.add(entityData);
         }
         return entitiesBag;
+    }
+    public EntityData getEntityData(World world,int entityId){
+        Bag<Component> allComps = new Bag<>();
+        world.getEntity(entityId).getComponents(allComps);
+        if (allComps.isEmpty()) {
+            return null;
+        }
+
+        EntityData entity = new EntityData();
+        entity.entityId = entityId;
+        TagManager tagManager = world.getSystem(TagManager.class);
+        entity.name = tagManager.getTag(entityId);
+        Bag<Component> components = new Bag<>();
+        world.getEntity(entityId).getComponents(components);
+        for (Component component : components) {
+            if (component instanceof SerializeComponent serializeComponent) {
+                entity.mapObjectId = serializeComponent.mapObject.getProperties().get("id",-1,Integer.class);
+            }
+        }
+        entity.components = new Bag<>();
+        for (Component component : allComps) {
+            Class<? extends Component> compClass = component.getClass();
+            String compName = compClass.getSimpleName();
+            Field[] fields = compClass.getFields();
+
+            ComponentData componentData = new ComponentData();
+            componentData.name = compName;
+            componentData.props = new Bag<>();
+            for (Field field : fields) {
+                if (!field.isAnnotationPresent(SerializeParam.class)) {
+                    continue;
+                }
+                String key = field.getName();
+                Class type = field.getType();
+                Object value = null;
+                try {
+                    value = field.get(component);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+                EntityProperty prop = new EntityProperty();
+                prop.key = key;
+                prop.value = value;
+                prop.type = type.getName();
+
+                componentData.props.add(prop);
+            }
+            entity.components.add(componentData);
+        }
+        return entity;
+    }
+    public void replaceOne(EntitiesBag entitiesBag,EntityData entityData){
+        Bag<EntityData> entities = entitiesBag.entities;
+        for (EntityData entity : entities) {
+            if (entity.entityId != entityData.entityId) {
+                continue;
+            }
+            entities.remove(entity);
+            entities.add(entityData);
+        }
     }
     public void createEntities(World world, EntitiesBag entitiesBag){
         TagManager tagManager = world.getSystem(TagManager.class);
