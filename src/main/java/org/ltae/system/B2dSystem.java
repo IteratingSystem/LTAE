@@ -82,15 +82,18 @@ public class B2dSystem extends BaseSystem {
 
 
     }
-
     /**
      * 删除以瓦片为基本的固定碰撞体
      */
-    private void delTileCollider(){
+    public void delTileCollider(){
         box2DWorld.step(world.delta, 6, 2);
         for (Body body : tileCollider) {
             box2DWorld.destroyBody(body);
         }
+    }
+    public void changeMap(){
+        delTileCollider();
+        createTileCollider();
     }
     @Override
     protected void processSystem() {

@@ -29,16 +29,14 @@ public class RenderTiledSystem extends BaseSystem {
         this.worldScale = worldScale;
     }
 
-    public void changeMap(String mapName){
-        tiledMapSystem.changeCurrent(mapName);
+    public void changeMap(){
         tiledMap = tiledMapSystem.getTiledMap();
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap,worldScale);
-        b2dSystem.updateMapShape();
     }
+
     @Override
     protected void initialize() {
-        tiledMap = tiledMapSystem.getTiledMap();
-        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap,worldScale);
+        changeMap();
         camera = cameraSystem.camera;
     }
 
@@ -52,12 +50,5 @@ public class RenderTiledSystem extends BaseSystem {
         ScreenUtils.clear(0.0f,0.0f,0.0f,1);
         mapRenderer.setView(camera);
         mapRenderer.render();
-    }
-    @Subscribe
-    public void onEvent(MapEvent event){
-        if (event.type == MapEvent.CHANGE_MAP) {
-            changeMap(event.mapName);
-            return;
-        }
     }
 }

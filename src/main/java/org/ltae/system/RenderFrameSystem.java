@@ -32,9 +32,9 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         super(principal);
         this.worldScale = worldScale;
     }
+
     @Override
     protected void initialize() {
-        batch = renderTiledSystem.mapRenderer.getBatch();
     }
 
     @Override
@@ -44,16 +44,16 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         if (render.keyframe == null || render.keyframe.getTexture() == null || !render.visible) {
             return;
         }
-        //渲染
+        //获取关键数据
         Pos pos = mPos.get(entityId);
-        batch = renderTiledSystem.mapRenderer.getBatch();
-        batch.begin();
-
         TextureRegion keyFrame = render.keyframe;
         int regionWidth = keyFrame.getRegionWidth();
         int regionHeight = keyFrame.getRegionHeight();
         float scaleWidth = render.scaleWidth;
         float scaleHeight = render.scaleHeight;
+        //渲染
+        batch = renderTiledSystem.mapRenderer.getBatch();
+        batch.begin();
         batch.draw(keyFrame.getTexture(), // 指定要绘制的纹理对象
                 worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY), // 指定绘制的起始位置（左下角）
                 0, 0, // 指定旋转的中心点（相对于绘制位置的偏移量）
