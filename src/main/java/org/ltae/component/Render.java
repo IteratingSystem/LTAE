@@ -35,6 +35,7 @@ public class Render extends SerializeComponent{
             float tileHeight = properties.get("height",(float)regionHeight, float.class);
             scaleWidth = tileWidth/regionWidth;
             scaleHeight = tileHeight/regionHeight;
+            visible = properties.get("visible",true, boolean.class);
         }
 
     }
