@@ -1,6 +1,10 @@
 package org.ltae;
 
+import com.artemis.Component;
 import com.badlogic.gdx.utils.ObjectMap;
+import org.ltae.component.Pos;
+import org.ltae.component.Render;
+import org.ltae.component.ZIndex;
 
 /**
  * @Auther WenLong
@@ -33,6 +37,7 @@ public class LtaePluginRule {
     public static String B2D_LISTENER_PKG = "com.game.contact";   // BOX2D监听器包路径
     public static String ON_EVENT_PKG = "com.game.event.on";//事件接收器包路径
     public static String SKIN_PATH = "skin/main.json"; //skin皮肤路劲
-
+    //就算没有维护也自动创建的组件
+    public static Class[] AUTO_COMP_CLASSES = {Pos.class, Render.class, ZIndex.class};
     private LtaePluginRule(){}
 }

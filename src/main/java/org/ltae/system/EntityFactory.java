@@ -28,8 +28,6 @@ public class EntityFactory extends BaseSystem {
     private final static String TAG = EntityFactory.class.getSimpleName();
     private TiledMapSystem tiledMapSystem;
     private ObjectMap<String, MapObject> prefabricatedObjects;
-    private EntitySerializer entitySerializer;
-    private EntityBuilder entityBuilder;
 
     public EntityFactory(){
         Bag<Class<? extends Component>> autoCompClasses = new Bag<>();
@@ -40,9 +38,6 @@ public class EntityFactory extends BaseSystem {
         ComponentConfig componentConfig = new ComponentConfig();
         componentConfig.compPackages = new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG};
         componentConfig.autoCompClasses = autoCompClasses;
-
-        entitySerializer = new EntitySerializer(componentConfig);
-        entityBuilder = new EntityBuilder(entitySerializer);
     }
     @Override
     protected void initialize() {
@@ -54,23 +49,23 @@ public class EntityFactory extends BaseSystem {
     }
     private void delAndCreateAll(){
         EntityDeleter.deleteAll(world);
-        entityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
+        EntityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
     private void delAndCreateAll(EntitiesBag entitiesBag){
         EntityDeleter.deleteAll(world);
-        entityBuilder.buildEntities(world, entitiesBag);
+        EntityBuilder.buildEntities(world, entitiesBag);
     }
     private void createAll(){
-        entityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
+        EntityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
     private void createAll(EntitiesBag entitiesBag){
-        entityBuilder.buildEntities(world, entitiesBag);
+        EntityBuilder.buildEntities(world, entitiesBag);
     }
     private EntitiesBag getEntitiesJson(){
-        return entitySerializer.getEntitiesJson(world);
+        return EntitySerializer.getEntitiesJson(world);
     }
     private String serializerEntitiesJson(){
-        EntitiesBag entitiesBag = entitySerializer.getEntitiesJson(world);
+        EntitiesBag entitiesBag = EntitySerializer.getEntitiesJson(world);
         return JsonManager.toJson(entitiesBag);
     }
     private void deleteEntity(int entityId){

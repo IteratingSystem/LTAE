@@ -78,9 +78,6 @@ public class B2dSystem extends BaseSystem {
             }
             tileCollider.add(afterBody);
         }
-
-
-
     }
     /**
      * 删除以瓦片为基本的固定碰撞体
@@ -91,9 +88,15 @@ public class B2dSystem extends BaseSystem {
             box2DWorld.destroyBody(body);
         }
     }
-    public void changeMap(){
-        delTileCollider();
-        createTileCollider();
+    public void delAllCollider(){
+        box2DWorld.step(world.delta, 6, 2);
+        Array<Body> bodies = new Array<>();
+        box2DWorld.getBodies(bodies);
+        // 转换为不可变数组
+        Body[] bodyArray = bodies.toArray();
+        for (Body body : bodyArray) {
+            box2DWorld.destroyBody(body);
+        }
     }
     @Override
     protected void processSystem() {

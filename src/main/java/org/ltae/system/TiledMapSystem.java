@@ -40,7 +40,8 @@ public class TiledMapSystem extends BaseSystem {
     private void changeMap(String mapName){
         changeCurrent(mapName);
         renderTiledSystem.changeMap();
-        b2dSystem.changeMap();
+        b2dSystem.delAllCollider();
+        b2dSystem.createTileCollider();
     }
     @Override
     protected void initialize() {

@@ -6,6 +6,7 @@ import com.artemis.utils.Bag;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.maps.*;
 import com.badlogic.gdx.utils.Json;
+import org.ltae.LtaePluginRule;
 import org.ltae.component.SerializeComponent;
 import org.ltae.manager.map.MapManager;
 import org.ltae.manager.map.serialize.json.ComponentData;
@@ -23,13 +24,7 @@ import java.util.Set;
  * @Description
  **/
 public class EntitySerializer {
-    private ComponentConfig componentConfig;
-
-    public EntitySerializer(ComponentConfig componentConfig) {
-        this.componentConfig = componentConfig;
-    }
-
-    public EntitiesBag getEntitiesJson(String mapName){
+    public static EntitiesBag getEntitiesJson(String mapName){
         MapManager mapManager = MapManager.getInstance();
         MapObjects mapObjects = mapManager.getMapObjects(mapName);
 
@@ -46,7 +41,7 @@ public class EntitySerializer {
             entityData.name = entityName;
             entityData.type = properties.get("type", "", String.class);
 
-            Set<Class<? extends Component>> compClasses = ReflectionUtils.getClasses(componentConfig.compPackages, Component.class);
+            Set<Class<? extends Component>> compClasses = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
             for (Class<? extends Component> compClass : compClasses) {
                 String simpleName = compClass.getSimpleName();
                 MapProperties property = properties.get(simpleName, null, MapProperties.class);
@@ -73,7 +68,7 @@ public class EntitySerializer {
                 entityData.components.add(componentData);
             }
             //添加默认组件
-            for (Class<? extends Component> autoCompClass : componentConfig.autoCompClasses) {
+            for (Class autoCompClass : LtaePluginRule.AUTO_COMP_CLASSES) {
                 String simpleName = autoCompClass.getSimpleName();
                 if (entityData.hasComp(simpleName)) {
                     continue;
@@ -88,7 +83,7 @@ public class EntitySerializer {
         return entitiesBag;
     }
 
-    public EntitiesBag getEntitiesJson(World world){
+    public static EntitiesBag getEntitiesJson(World world){
         EntitiesBag entitiesBag = new EntitiesBag();
         entitiesBag.entities = new Bag<>();
 
@@ -105,7 +100,7 @@ public class EntitySerializer {
         }
         return entitiesBag;
     }
-    public EntityData getEntityData(World world,int entityId){
+    public static EntityData getEntityData(World world,int entityId){
         Bag<Component> allComps = new Bag<>();
         world.getEntity(entityId).getComponents(allComps);
         if (allComps.isEmpty()) {
@@ -155,7 +150,7 @@ public class EntitySerializer {
         }
         return entity;
     }
-    public void replaceOne(EntitiesBag entitiesBag,EntityData entityData){
+    public static void overlayEntityData(EntitiesBag entitiesBag,EntityData entityData){
         Bag<EntityData> entities = entitiesBag.entities;
         for (EntityData entity : entities) {
             if (entity.entityId != entityData.entityId) {
@@ -165,7 +160,7 @@ public class EntitySerializer {
             entities.add(entityData);
         }
     }
-    public void createEntities(World world, EntitiesBag entitiesBag){
+    public static void createEntities(World world, EntitiesBag entitiesBag){
         TagManager tagManager = world.getSystem(TagManager.class);
 
         for (EntityData entityData : entitiesBag.entities) {
@@ -178,7 +173,7 @@ public class EntitySerializer {
             }
             //注册组件
             Bag<ComponentData> components = entityData.components;
-            Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(componentConfig.compPackages, Component.class);
+            Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
             for (Class<? extends Component> aClass : classes) {
                 String simpleName = aClass.getSimpleName();
                 for (ComponentData componentData : components) {
@@ -216,7 +211,7 @@ public class EntitySerializer {
             }
         }
     }
-    public String serializerEntitiesJson(EntitiesBag entitiesBag, Json json){
+    public static String serializerEntitiesJson(EntitiesBag entitiesBag, Json json){
         return json.toJson(entitiesBag);
     }
 }
