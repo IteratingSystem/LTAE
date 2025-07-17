@@ -1,6 +1,7 @@
 package org.ltae.system;
 
 import com.artemis.BaseSystem;
+import com.artemis.utils.Bag;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
@@ -28,6 +29,7 @@ public class B2dSystem extends BaseSystem {
     private boolean combineTileCollisions;
     public World box2DWorld;
     public TiledTileCollisionToBox2d tiledTileCollisionToBox2d;
+    public Bag<Body> tileCollider;
 
     public B2dSystem(float gx,float gy,boolean doSleep,float worldScale,boolean combineTileCollisions){
         this.worldScale = worldScale;
@@ -35,16 +37,25 @@ public class B2dSystem extends BaseSystem {
         this.gy = gy;
         this.doSleep = doSleep;
         this.combineTileCollisions = combineTileCollisions;
+
     }
     @Override
     protected void initialize() {
         box2DWorld = new World(new Vector2(gx,gy),doSleep);
         box2DWorld.setContinuousPhysics(true);
         box2DWorld.setContactListener(new DefContactListener());
-        updateMapShape();
+        tileCollider = new Bag<>();
+        createTileCollider();
     }
 
-    public void updateMapShape(){
+    /**
+     * 创建以瓦片为基本的固定碰撞体
+     */
+    public void createTileCollider(){
+        //保存刚开始的body
+        Array<Body> originalBodies = new Array<>();
+        box2DWorld.getBodies(originalBodies);
+        //创建body
         if (tiledTileCollisionToBox2d == null){
             //绑定tiled中的物理形状
             tiledTileCollisionToBox2d = new TiledTileCollisionToBox2d(TiledTileCollisionToBox2dOptions.builder()
@@ -57,12 +68,27 @@ public class B2dSystem extends BaseSystem {
         if (phyLayer instanceof TiledMapTileLayer tileLayer) {
             tiledTileCollisionToBox2d.parseLayer(tileLayer,box2DWorld);
         }
+        //构造tileCollider
+        tileCollider.clear();
+        Array<Body> afterBodies = new Array<>();
+        box2DWorld.getBodies(afterBodies);
+        for (Body afterBody : afterBodies) {
+            if (originalBodies.contains(afterBody,true)) {
+                continue;
+            }
+            tileCollider.add(afterBody);
+        }
+
+
+
     }
-    private void delAllBodies(){
+
+    /**
+     * 删除以瓦片为基本的固定碰撞体
+     */
+    private void delTileCollider(){
         box2DWorld.step(world.delta, 6, 2);
-        Array<Body> bodies = new Array<>();
-        box2DWorld.getBodies(bodies);
-        for (Body body : bodies) {
+        for (Body body : tileCollider) {
             box2DWorld.destroyBody(body);
         }
     }
@@ -72,8 +98,12 @@ public class B2dSystem extends BaseSystem {
     }
     @Subscribe
     public void onEvent(B2dEvent event){
-        if (event.type == B2dEvent.DELETE_ALL_BODIES){
-            delAllBodies();
+        if (event.type == B2dEvent.DEL_TILE_COLLIDER){
+            delTileCollider();
+            return;
+        }
+        if (event.type == B2dEvent.CREATE_TILE_COLLIDER){
+            createTileCollider();
             return;
         }
     }
