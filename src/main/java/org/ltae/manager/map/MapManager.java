@@ -46,8 +46,9 @@ public class MapManager {
             String entityLayerName = entityLayerNames.get(mapName);
             TiledMap tiledMap = getTiledMap(mapName);
             MapLayer entityLayer = tiledMap.getLayers().get(entityLayerName);
-            allMapObjects.put(mapName,entityLayer.getObjects());
-            mapEntities.put(mapName,EntitySerializer.getEntitiesJson(mapName));
+            MapObjects mapObjects = entityLayer.getObjects();
+            allMapObjects.put(mapName,mapObjects);
+            mapEntities.put(mapName,EntitySerializer.getEntitiesJson(mapObjects));
             for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
                 if (tileSets.contains(tileSet)) {
                     continue;
@@ -57,7 +58,9 @@ public class MapManager {
         }
     }
     public void saveEntities(String mapName){
-        mapEntities.put(mapName,EntitySerializer.getEntitiesJson(mapName));
+        MapObjects mapObjects = getMapObjects(mapName);
+        EntitiesBag entitiesJson = EntitySerializer.getEntitiesJson(mapObjects);
+        mapEntities.put(mapName,entitiesJson);
     }
     public EntitiesBag getEntities(String mapName){
         return mapEntities.get(mapName);

@@ -24,10 +24,7 @@ import java.util.Set;
  * @Description
  **/
 public class EntitySerializer {
-    public static EntitiesBag getEntitiesJson(String mapName){
-        MapManager mapManager = MapManager.getInstance();
-        MapObjects mapObjects = mapManager.getMapObjects(mapName);
-
+    public static EntitiesBag getEntitiesJson(MapObjects mapObjects){
         EntitiesBag entitiesBag = new EntitiesBag();
         entitiesBag.entities = new Bag<>();
         for (MapObject mapObject : mapObjects) {
