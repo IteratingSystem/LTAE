@@ -93,7 +93,7 @@ public class B2dSystem extends BaseSystem {
         Array<Body> bodies = new Array<>();
         box2DWorld.getBodies(bodies);
         // 转换为不可变数组
-        Body[] bodyArray = bodies.toArray();
+        Body[] bodyArray = bodies.toArray(Body.class);
         for (Body body : bodyArray) {
             box2DWorld.destroyBody(body);
         }
