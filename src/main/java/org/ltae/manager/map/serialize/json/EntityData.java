@@ -44,6 +44,6 @@ public class EntityData {
         return getClass().getSimpleName();
     }
     public boolean equals(EntityData entityData){
-        return entityData.fromMap == fromMap && entityData.mapObjectId == mapObjectId;
+        return entityData.fromMap.equals(fromMap)  && entityData.mapObjectId == mapObjectId;
     }
 }
