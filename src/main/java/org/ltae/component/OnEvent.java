@@ -3,6 +3,7 @@ package org.ltae.component;
 import com.artemis.Entity;
 import com.artemis.World;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Disposable;
 import net.mostlyoriginal.api.event.common.EventSystem;
 import org.ltae.LtaePluginRule;
 import org.ltae.manager.map.serialize.SerializeParam;
@@ -14,8 +15,9 @@ import org.ltae.utils.ReflectionUtils;
  * @Date 2025/7/2 10:35
  * @Description 交互组件
  **/
-public class OnEvent extends SerializeComponent{
+public class OnEvent extends SerializeComponent implements Disposable {
 
+    public Object onEvent;
     @Override
     public void reload(World world, EntityData entityData) {
         super.reload(world, entityData);
@@ -27,8 +29,12 @@ public class OnEvent extends SerializeComponent{
             Gdx.app.error(getTag(),"Failed to load OnEventComp,className is empty");
             return;
         }
-        EventSystem eventSystem = world.getSystem(EventSystem.class);
-        eventSystem.registerEvents(
-                ReflectionUtils.createInstance(className, new Class[]{Entity.class}, new Entity[]{world.getEntity(entityId)}));
+
+        onEvent = ReflectionUtils.createInstance(className, new Class[]{Entity.class}, new Entity[]{world.getEntity(entityId)});
+        eventSystem.registerEvents(onEvent);
+    }
+
+    @Override
+    public void dispose() {
     }
 }

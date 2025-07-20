@@ -7,6 +7,8 @@ import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.TeamManager;
 import net.mostlyoriginal.api.event.common.EventSystem;
+import net.mostlyoriginal.api.event.common.SubscribeAnnotationFinder;
+import net.mostlyoriginal.api.event.dispatcher.FastEventDispatcher;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.ExtendedComponentMapperPlugin;
 import net.mostlyoriginal.plugin.ProfilerPlugin;
 import org.ltae.system.*;
@@ -29,6 +31,9 @@ public class LtaePlugin implements ArtemisPlugin {
                 LtaePluginRule.GAME_HEIGHT,
                 LtaePluginRule.CAMERA_ZOOM,
                 LtaePluginRule.WORLD_SCALE);
+        SubscribeAnnotationFinder subscribeAnnotationFinder = new SubscribeAnnotationFinder();
+        FastEventDispatcher fastEventDispatcher = new FastEventDispatcher();
+        EventSystem eventSystem = new EventSystem(fastEventDispatcher,subscribeAnnotationFinder);
         //官方插件
         worldConfigurationBuilder.dependsOn(ExtendedComponentMapperPlugin.class);//拓展组件映射
         worldConfigurationBuilder.dependsOn(ProfilerPlugin.class);//监控查询
@@ -36,7 +41,7 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.dependsOn(PlayerManager.class);//玩家管理器
         worldConfigurationBuilder.dependsOn(TeamManager.class);//团队管理器
         worldConfigurationBuilder.dependsOn(EntityLinkManager.class);//实体连接管理器
-        worldConfigurationBuilder.dependsOn(EventSystem.class);//事件总线
+        worldConfigurationBuilder.with(eventSystem);//事件总线
         //初始系统
         worldConfigurationBuilder.with(new AssetSystem(LtaePluginRule.SKIN_PATH));//资源系统
         worldConfigurationBuilder.with(new TiledMapSystem(
