@@ -66,7 +66,7 @@ public class EntityFactory extends BaseSystem {
     }
     private String serializerEntitiesJson(){
         EntitiesBag entitiesBag = EntitySerializer.getEntities(world);
-        return JsonManager.toJson(entitiesBag);
+        return EntitySerializer.serializerEntitiesBag(entitiesBag);
     }
     private void deleteEntity(int entityId){
         EntityDeleter.deleteEntity(world,entityId);

@@ -1,6 +1,5 @@
 package org.ltae.manager.map;
 
-import com.artemis.World;
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapLayer;
@@ -9,7 +8,6 @@ import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
-import com.badlogic.gdx.maps.tiled.TiledMapTileSets;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.manager.AssetManager;
@@ -61,6 +59,15 @@ public class MapManager {
         MapObjects mapObjects = getMapObjects(mapName);
         EntitiesBag entitiesJson = EntitySerializer.getEntities(mapName,mapObjects);
         mapEntities.put(mapName,entitiesJson);
+    }
+    public ObjectMap<String, String> serialize(){
+        ObjectMap<String,String> serialize = new ObjectMap<>();
+        for (String key : mapEntities.keys().toArray()) {
+            EntitiesBag entitiesBag = mapEntities.get(key);
+            String entitiesJson = EntitySerializer.serializerEntitiesBag(entitiesBag);
+            serialize.put(key,entitiesJson);
+        }
+        return serialize;
     }
     public EntitiesBag getEntities(String mapName){
         return mapEntities.get(mapName);

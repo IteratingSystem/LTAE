@@ -8,6 +8,7 @@ import com.badlogic.gdx.maps.*;
 import com.badlogic.gdx.utils.Json;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.SerializeComponent;
+import org.ltae.manager.JsonManager;
 import org.ltae.manager.map.MapManager;
 import org.ltae.manager.map.serialize.json.ComponentData;
 import org.ltae.manager.map.serialize.json.EntitiesBag;
@@ -221,7 +222,7 @@ public class EntitySerializer {
             }
         }
     }
-    public static String serializerEntitiesJson(EntitiesBag entitiesBag, Json json){
-        return json.toJson(entitiesBag);
+    public static String serializerEntitiesBag(EntitiesBag entitiesBag){
+        return JsonManager.toJson(entitiesBag);
     }
 }
