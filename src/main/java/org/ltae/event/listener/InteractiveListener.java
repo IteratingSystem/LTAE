@@ -10,14 +10,14 @@ import org.ltae.event.InteractiveEvent;
  * @Date 2025/7/2 10:37
  * @Description 交互事件接收器
  **/
-public abstract class EntityEventListener {
+public abstract class InteractiveListener {
     public World world;
     public EventSystem eventSystem;
     public Entity entity;
     public int entityId;
 
 
-    public EntityEventListener(Entity entity){
+    public InteractiveListener(Entity entity){
         this.entity = entity;
         world = entity.getWorld();
         entityId = entity.getId();

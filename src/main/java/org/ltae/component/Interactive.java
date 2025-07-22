@@ -9,7 +9,7 @@ import org.ltae.manager.map.serialize.json.EntityData;
  * @Date 2025/7/2 10:35
  * @Description 交互组件
  **/
-public class InteractiveListener extends EventListener {
+public class Interactive extends EventListener {
     @SerializeParam
     public String simpleName;
 

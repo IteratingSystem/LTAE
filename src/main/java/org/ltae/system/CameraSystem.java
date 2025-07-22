@@ -78,6 +78,10 @@ public class CameraSystem extends BaseSystem {
         }
         return true;
     }
+    private void jumpToPos(Pos pos){
+        camera.position.x = pos.x;
+        camera.position.y = pos.y;
+    }
     private void followTarget() {
         if (!verifyTarget()){
             return;
@@ -142,5 +146,10 @@ public class CameraSystem extends BaseSystem {
             resize(event.width,event.height);
             return;
         }
+        if (event.type == CameraEvent.JUMP_POS) {
+            jumpToPos(event.pos);
+            return;
+        }
+
     }
 }
