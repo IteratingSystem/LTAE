@@ -4,9 +4,7 @@ import com.artemis.Entity;
 import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Disposable;
-import net.mostlyoriginal.api.event.common.EventSystem;
 import org.ltae.LtaePluginRule;
-import org.ltae.manager.map.serialize.SerializeParam;
 import org.ltae.manager.map.serialize.json.EntityData;
 import org.ltae.utils.ReflectionUtils;
 
@@ -36,5 +34,6 @@ public class OnEvent extends SerializeComponent implements Disposable {
 
     @Override
     public void dispose() {
+        onEvent = null;
     }
 }

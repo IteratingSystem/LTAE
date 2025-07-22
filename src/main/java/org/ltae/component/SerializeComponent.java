@@ -4,14 +4,11 @@ package org.ltae.component;
 import com.artemis.Component;
 import com.artemis.World;
 import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import net.mostlyoriginal.api.event.common.EventSystem;
-import org.ltae.LtaePluginRule;
 import org.ltae.manager.map.MapManager;
 import org.ltae.manager.map.serialize.json.EntityData;
-import org.ltae.system.TiledMapSystem;
 
 //组件继承于它可以自定义加载逻辑
 public abstract class SerializeComponent extends Component {
@@ -26,8 +23,6 @@ public abstract class SerializeComponent extends Component {
         eventSystem = world.getSystem(EventSystem.class);
         entityId = entityData.entityId;
         int mapObjectId = entityData.mapObjectId;
-        TiledMapSystem tiledMapSystem = world.getSystem(TiledMapSystem.class);
-        String current = tiledMapSystem.getCurrent();
 
         MapManager mapManager = MapManager.getInstance();
         fromMap = entityData.fromMap;
