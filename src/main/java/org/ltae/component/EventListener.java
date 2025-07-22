@@ -5,6 +5,7 @@ import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Disposable;
 import org.ltae.LtaePluginRule;
+import org.ltae.event.listener.EntityEventListener;
 import org.ltae.manager.map.serialize.json.EntityData;
 import org.ltae.utils.ReflectionUtils;
 
@@ -13,7 +14,7 @@ import org.ltae.utils.ReflectionUtils;
  * @Date 2025/7/2 10:35
  * @Description 交互组件
  **/
-public class OnEvent extends SerializeComponent implements Disposable {
+public class EventListener extends SerializeComponent implements Disposable {
 
     public Object onEvent;
     @Override
@@ -34,6 +35,8 @@ public class OnEvent extends SerializeComponent implements Disposable {
 
     @Override
     public void dispose() {
-        onEvent = null;
+        if (onEvent instanceof EntityEventListener entityEventListener) {
+            entityEventListener.entityId = -1;
+        }
     }
 }
