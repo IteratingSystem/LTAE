@@ -7,12 +7,12 @@ import com.artemis.utils.Bag;
  * @Date 2025/7/4 10:27
  * @Description
  **/
-public class ComponentData {
+public class CompData {
     public String name;
-    public Bag<EntityProperty> props;
+    public Bag<CompProp> props;
 
     public Object get (String key,Object defaultValue) {
-        for (EntityProperty prop : props) {
+        for (CompProp prop : props) {
             if (prop.key.equals(key)) {
                 return prop.value;
             }
@@ -20,7 +20,7 @@ public class ComponentData {
         return defaultValue;
     }
     public boolean containsKey(String key){
-        for (EntityProperty prop : props) {
+        for (CompProp prop : props) {
             if (prop.key.equals(key)) {
                 return true;
             }

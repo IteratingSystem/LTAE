@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.manager.AssetManager;
 import org.ltae.manager.map.serialize.EntitySerializer;
-import org.ltae.manager.map.serialize.json.EntitiesBag;
+import org.ltae.manager.map.serialize.json.EntityBag;
 
 /**
  * @Auther WenLong
@@ -28,7 +28,7 @@ public class MapManager {
     private ObjectMap<String, String> phyLayerNames;
     private ObjectMap<String, MapLayer> entityLayers;
     private ObjectMap<String, MapObjects> allMapObjects;
-    private ObjectMap<String, EntitiesBag> mapEntities;
+    private ObjectMap<String, EntityBag> mapEntities;
     private Bag<TiledMapTileSet> tileSets;
 
 
@@ -57,19 +57,27 @@ public class MapManager {
     }
     public void saveEntities(String mapName){
         MapObjects mapObjects = getMapObjects(mapName);
-        EntitiesBag entitiesJson = EntitySerializer.getEntities(mapName,mapObjects);
+        EntityBag entitiesJson = EntitySerializer.getEntities(mapName,mapObjects);
         mapEntities.put(mapName,entitiesJson);
     }
-    public ObjectMap<String, String> serialize(){
+    public MapSave saveMapState(){
+        MapSave mapSave = new MapSave();
         ObjectMap<String,String> serialize = new ObjectMap<>();
         for (String key : mapEntities.keys().toArray()) {
-            EntitiesBag entitiesBag = mapEntities.get(key);
-            String entitiesJson = EntitySerializer.serializerEntitiesBag(entitiesBag);
+            EntityBag entityBag = mapEntities.get(key);
+            String entitiesJson = EntitySerializer.toJson(entityBag);
             serialize.put(key,entitiesJson);
         }
-        return serialize;
+        mapSave.mapJsons = serialize;
+        return mapSave;
     }
-    public EntitiesBag getEntities(String mapName){
+    public void readMapState(MapSave mapSave){
+        for (ObjectMap.Entry<String, String> mapJson : mapSave.mapJsons) {
+            EntityBag entityBag = EntitySerializer.toEntityBag(mapJson.value);
+            mapEntities.put(mapJson.key,entityBag);
+        }
+    }
+    public EntityBag getEntities(String mapName){
         return mapEntities.get(mapName);
     }
     public static synchronized void init(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String> phyLayerNames){

@@ -5,15 +5,13 @@ import com.artemis.managers.TagManager;
 import com.artemis.utils.Bag;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.maps.*;
-import com.badlogic.gdx.utils.Json;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.SerializeComponent;
 import org.ltae.manager.JsonManager;
-import org.ltae.manager.map.MapManager;
-import org.ltae.manager.map.serialize.json.ComponentData;
-import org.ltae.manager.map.serialize.json.EntitiesBag;
+import org.ltae.manager.map.serialize.json.CompData;
+import org.ltae.manager.map.serialize.json.EntityBag;
 import org.ltae.manager.map.serialize.json.EntityData;
-import org.ltae.manager.map.serialize.json.EntityProperty;
+import org.ltae.manager.map.serialize.json.CompProp;
 import org.ltae.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -25,9 +23,9 @@ import java.util.Set;
  * @Description
  **/
 public class EntitySerializer {
-    public static EntitiesBag getEntities(String mapName,MapObjects mapObjects){
-        EntitiesBag entitiesBag = new EntitiesBag();
-        entitiesBag.entities = new Bag<>();
+    public static EntityBag getEntities(String mapName, MapObjects mapObjects){
+        EntityBag entityBag = new EntityBag();
+        entityBag.entities = new Bag<>();
         for (MapObject mapObject : mapObjects) {
             String entityName = mapObject.getName();
             MapProperties properties = mapObject.getProperties();
@@ -47,9 +45,9 @@ public class EntitySerializer {
                 if (property == null) {
                     continue;
                 }
-                ComponentData componentData = new ComponentData();
-                componentData.props = new Bag<>();
-                componentData.name = simpleName;
+                CompData compData = new CompData();
+                compData.props = new Bag<>();
+                compData.name = simpleName;
 
                 Field[] fields = compClass.getFields();
                 for (int i = 0; i < fields.length; i++) {
@@ -58,13 +56,13 @@ public class EntitySerializer {
                         continue;
                     }
                     Class<?> type = field.getType();
-                    EntityProperty entityProperty = new EntityProperty();
-                    entityProperty.key = field.getName();
-                    entityProperty.type = type.getName();
-                    entityProperty.value = property.get(field.getName(), null, type);
-                    componentData.props.add(entityProperty);
+                    CompProp compProp = new CompProp();
+                    compProp.key = field.getName();
+                    compProp.type = type.getName();
+                    compProp.value = property.get(field.getName(), null, type);
+                    compData.props.add(compProp);
                 }
-                entityData.components.add(componentData);
+                entityData.components.add(compData);
             }
             //添加默认组件
             for (Class autoCompClass : LtaePluginRule.AUTO_COMP_CLASSES) {
@@ -72,19 +70,19 @@ public class EntitySerializer {
                 if (entityData.hasComp(simpleName)) {
                     continue;
                 }
-                ComponentData componentData = new ComponentData();
-                componentData.props = new Bag<>();
-                componentData.name = simpleName;
-                entityData.components.add(componentData);
+                CompData compData = new CompData();
+                compData.props = new Bag<>();
+                compData.name = simpleName;
+                entityData.components.add(compData);
             }
-            entitiesBag.entities.add(entityData);
+            entityBag.entities.add(entityData);
         }
-        return entitiesBag;
+        return entityBag;
     }
 
-    public static EntitiesBag getEntities(World world){
-        EntitiesBag entitiesBag = new EntitiesBag();
-        entitiesBag.entities = new Bag<>();
+    public static EntityBag getEntities(World world){
+        EntityBag entityBag = new EntityBag();
+        entityBag.entities = new Bag<>();
 
         AspectSubscriptionManager aspectSubscriptionManager = world.getSystem(AspectSubscriptionManager.class);
         EntitySubscription allEntities = aspectSubscriptionManager.get(Aspect.all());
@@ -95,9 +93,9 @@ public class EntitySerializer {
             if (entityData == null){
                 continue;
             }
-            entitiesBag.entities.add(entityData);
+            entityBag.entities.add(entityData);
         }
-        return entitiesBag;
+        return entityBag;
     }
     public static EntityData getEntityData(World world,int entityId){
         Bag<Component> allComps = new Bag<>();
@@ -131,9 +129,9 @@ public class EntitySerializer {
             String compName = compClass.getSimpleName();
             Field[] fields = compClass.getFields();
 
-            ComponentData componentData = new ComponentData();
-            componentData.name = compName;
-            componentData.props = new Bag<>();
+            CompData compData = new CompData();
+            compData.name = compName;
+            compData.props = new Bag<>();
             for (Field field : fields) {
                 if (!field.isAnnotationPresent(SerializeParam.class)) {
                     continue;
@@ -146,20 +144,20 @@ public class EntitySerializer {
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
-                EntityProperty prop = new EntityProperty();
+                CompProp prop = new CompProp();
                 prop.key = key;
                 prop.value = value;
                 prop.type = type.getName();
 
-                componentData.props.add(prop);
+                compData.props.add(prop);
             }
-            entity.components.add(componentData);
+            entity.components.add(compData);
         }
         return entity;
     }
-    public static void overlayEntityData(EntitiesBag entitiesBag,EntityData entityData){
-        Bag<EntityData> entities = entitiesBag.entities;
-        if (entitiesBag.hasEntityData(entityData)) {
+    public static void overlayEntityData(EntityBag entityBag, EntityData entityData){
+        Bag<EntityData> entities = entityBag.entities;
+        if (entityBag.hasEntityData(entityData)) {
             for (EntityData entity : entities) {
                 if (entity.equals(entityData)) {
                     entities.remove(entity);
@@ -171,10 +169,10 @@ public class EntitySerializer {
         }
         entities.add(entityData);
     }
-    public static void createEntities(World world, EntitiesBag entitiesBag){
+    public static void createEntities(World world, EntityBag entityBag){
         TagManager tagManager = world.getSystem(TagManager.class);
 
-        for (EntityData entityData : entitiesBag.entities) {
+        for (EntityData entityData : entityBag.entities) {
             //创建
             int entityId = world.create();
             entityData.entityId = entityId;
@@ -183,12 +181,12 @@ public class EntitySerializer {
                 tagManager.register(entityData.name,entityId);
             }
             //注册组件
-            Bag<ComponentData> components = entityData.components;
+            Bag<CompData> components = entityData.components;
             Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
             for (Class<? extends Component> aClass : classes) {
                 String simpleName = aClass.getSimpleName();
-                for (ComponentData componentData : components) {
-                    if (!simpleName.equals(componentData.name)) {
+                for (CompData compData : components) {
+                    if (!simpleName.equals(compData.name)) {
                         continue;
                     }
                     //通过类对象创建组件Mapper
@@ -199,8 +197,8 @@ public class EntitySerializer {
                     //通过组件Mapper创建组件
                     Component component = mapper.create(entityId);
                     //写入默认值
-                    Bag<EntityProperty> props = componentData.props;
-                    for (EntityProperty prop : props) {
+                    Bag<CompProp> props = compData.props;
+                    for (CompProp prop : props) {
                         String key = prop.key;
                         Object value = prop.value;
                         try {
@@ -222,7 +220,10 @@ public class EntitySerializer {
             }
         }
     }
-    public static String serializerEntitiesBag(EntitiesBag entitiesBag){
-        return JsonManager.toJson(entitiesBag);
+    public static String toJson(EntityBag entityBag){
+        return JsonManager.toJson(entityBag);
+    }
+    public static EntityBag toEntityBag(String entityBag){
+        return JsonManager.fromJson(EntityBag.class,entityBag);
     }
 }

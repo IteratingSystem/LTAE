@@ -7,7 +7,7 @@ import com.artemis.utils.Bag;
  * @Date 2025/7/4 10:41
  * @Description
  **/
-public class EntitiesBag {
+public class EntityBag {
     public Bag<EntityData> entities;
     public boolean hasEntityData(EntityData entityData){
         if (entities == null) {

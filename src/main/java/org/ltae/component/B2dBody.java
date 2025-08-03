@@ -19,7 +19,7 @@ import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
 import org.ltae.box2d.setup.FixtureSetup;
 import org.ltae.manager.map.MapManager;
-import org.ltae.manager.map.serialize.json.ComponentData;
+import org.ltae.manager.map.serialize.json.CompData;
 import org.ltae.system.B2dSystem;
 import org.ltae.manager.map.serialize.SerializeParam;
 import org.ltae.utils.ReflectionUtils;
@@ -64,7 +64,7 @@ public class B2dBody extends SerializeComponent implements Disposable {
         MapProperties props = mapObject.getProperties();
         float posX = props.get("x", float.class);
         float posY = props.get("y", float.class);
-        ComponentData pos = entityData.getCompJson("Pos");
+        CompData pos = entityData.getCompJson("Pos");
         if (pos.containsKey(new String[]{"x","y"})) {
             posX = (float)pos.get("x", -1f);
             posY = (float)pos.get("y", -1f);

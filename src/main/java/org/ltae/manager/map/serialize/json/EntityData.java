@@ -14,26 +14,26 @@ public class EntityData {
     public String fromMap;
     public String name;
     public String type;
-    public Bag<ComponentData> components;
+    public Bag<CompData> components;
     public EntityData(){}
 
     public boolean hasComp(String compName){
         if (components == null){
             components = new Bag<>();
         }
-        for (ComponentData component : components) {
+        for (CompData component : components) {
             if (component.name.equals(compName)) {
                 return true;
             }
         }
         return false;
     }
-    public ComponentData getCompJson(String compName){
+    public CompData getCompJson(String compName){
         if (!hasComp(compName)) {
             Gdx.app.error(getTag(),"Failed to getCompJson,is not has component in components,compName:"+compName);
             return null;
         }
-        for (ComponentData component : components) {
+        for (CompData component : components) {
             if (component.name.equals(compName)) {
                 return component;
             }
