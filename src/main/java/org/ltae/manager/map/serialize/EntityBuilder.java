@@ -1,8 +1,8 @@
 package org.ltae.manager.map.serialize;
 
 import com.artemis.World;
-import org.ltae.manager.map.MapManager;
-import org.ltae.manager.map.serialize.json.EntityBag;
+import org.ltae.manager.map.WorldStateManager;
+import org.ltae.manager.map.serialize.json.EntityDataList;
 
 /**
  * @Auther WenLong
@@ -12,11 +12,10 @@ import org.ltae.manager.map.serialize.json.EntityBag;
 public class EntityBuilder {
     private final static String TAG = EntityBuilder.class.getSimpleName();
     public static void buildEntities(World world,String mapName) {
-//        EntitiesBag entitiesBag = EntitySerializer.getEntitiesJson(mapName);
-        EntityBag entityBag = MapManager.getInstance().getEntities(mapName);
-        buildEntities(world, entityBag);
+        EntityDataList entityDataList = WorldStateManager.getInstance().getEntityDataList(mapName);
+        buildEntities(world, entityDataList);
     }
-    public static void buildEntities(World world, EntityBag entityBag) {
-        EntitySerializer.createEntities(world, entityBag);
+    public static void buildEntities(World world, EntityDataList entityDataList) {
+        EntitySerializer.createEntities(world, entityDataList);
     }
 }

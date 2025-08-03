@@ -15,7 +15,8 @@ import org.ltae.manager.map.serialize.EntityDeleter;
 import org.ltae.manager.map.serialize.ComponentConfig;
 import org.ltae.manager.map.serialize.EntityBuilder;
 import org.ltae.manager.map.serialize.EntitySerializer;
-import org.ltae.manager.map.serialize.json.EntityBag;
+import org.ltae.manager.map.serialize.json.EntityDataList;
+import org.ltae.manager.map.serialize.json.EntityDataList;
 
 
 /**
@@ -50,22 +51,22 @@ public class EntityFactory extends BaseSystem {
         EntityDeleter.deleteAll(world);
         EntityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
-    private void delAndCreateAll(EntityBag entityBag){
+    private void delAndCreateAll(EntityDataList EntityDataList){
         EntityDeleter.deleteAll(world);
-        EntityBuilder.buildEntities(world, entityBag);
+        EntityBuilder.buildEntities(world, EntityDataList);
     }
     private void createAll(){
         EntityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
-    private void createAll(EntityBag entityBag){
-        EntityBuilder.buildEntities(world, entityBag);
+    private void createAll(EntityDataList entityDataList){
+        EntityBuilder.buildEntities(world, entityDataList);
     }
-    private EntityBag getEntitiesJson(){
-        return EntitySerializer.getEntities(world);
+    private EntityDataList getEntitiesJson(){
+        return EntitySerializer.getEntityDataList(world);
     }
     private String serializerEntitiesJson(){
-        EntityBag entityBag = EntitySerializer.getEntities(world);
-        return EntitySerializer.toJson(entityBag);
+        EntityDataList EntityDataList = EntitySerializer.getEntityDataList(world);
+        return EntitySerializer.toJson(EntityDataList);
     }
     private void deleteEntity(int entityId){
         EntityDeleter.deleteEntity(world,entityId);
@@ -95,19 +96,19 @@ public class EntityFactory extends BaseSystem {
 //            return;
 //        }
         if (event.type == EntityEvent.CREATE_ALL){
-            if (event.entityBag == null){
+            if (event.entityDataList == null){
                 createAll();
                 return;
             }
-            createAll(event.entityBag);
+            createAll(event.entityDataList);
             return;
         }
         if (event.type == EntityEvent.DEL_AND_CREATE_ALL){
-            if (event.entityBag == null){
+            if (event.entityDataList == null){
                 delAndCreateAll();
                 return;
             }
-            delAndCreateAll(event.entityBag);
+            delAndCreateAll(event.entityDataList);
             return;
         }
 //        if (event.type == CreateEntityEvent.ADD_AUTO_COMP){

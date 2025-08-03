@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.manager.AssetManager;
 import org.ltae.manager.map.serialize.EntitySerializer;
-import org.ltae.manager.map.serialize.json.EntityBag;
+import org.ltae.manager.map.serialize.json.EntityDataList;
 
 /**
  * @Auther WenLong
@@ -28,7 +28,8 @@ public class MapManager {
     private ObjectMap<String, String> phyLayerNames;
     private ObjectMap<String, MapLayer> entityLayers;
     private ObjectMap<String, MapObjects> allMapObjects;
-    private ObjectMap<String, EntityBag> mapEntities;
+    //每张地图对应的实体数据，作为原型，地图加载时默认存在的所有实体，也就是新游戏时创建实体的依据
+    private ObjectMap<String, EntityDataList> protoEntityData;
     private Bag<TiledMapTileSet> tileSets;
 
 
@@ -37,7 +38,7 @@ public class MapManager {
         this.phyLayerNames = phyLayerNames;
         allMaps = AssetManager.getInstance().getObjects(EXT,TiledMap.class);
         allMapObjects = new ObjectMap<>();
-        mapEntities =new ObjectMap<>();
+        protoEntityData =new ObjectMap<>();
         tileSets = new Bag<>();
         Array<String> mapKeys = allMaps.keys().toArray();
         for (String mapName : mapKeys) {
@@ -46,7 +47,7 @@ public class MapManager {
             MapLayer entityLayer = tiledMap.getLayers().get(entityLayerName);
             MapObjects mapObjects = entityLayer.getObjects();
             allMapObjects.put(mapName,mapObjects);
-            mapEntities.put(mapName,EntitySerializer.getEntities(mapName,mapObjects));
+            protoEntityData.put(mapName,EntitySerializer.getEntityDataList(mapName,mapObjects));
             for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
                 if (tileSets.contains(tileSet)) {
                     continue;
@@ -54,31 +55,6 @@ public class MapManager {
                 tileSets.add(tileSet);
             }
         }
-    }
-    public void saveEntities(String mapName){
-        MapObjects mapObjects = getMapObjects(mapName);
-        EntityBag entitiesJson = EntitySerializer.getEntities(mapName,mapObjects);
-        mapEntities.put(mapName,entitiesJson);
-    }
-    public MapSave saveMapState(){
-        MapSave mapSave = new MapSave();
-        ObjectMap<String,String> serialize = new ObjectMap<>();
-        for (String key : mapEntities.keys().toArray()) {
-            EntityBag entityBag = mapEntities.get(key);
-            String entitiesJson = EntitySerializer.toJson(entityBag);
-            serialize.put(key,entitiesJson);
-        }
-        mapSave.mapJsons = serialize;
-        return mapSave;
-    }
-    public void readMapState(MapSave mapSave){
-        for (ObjectMap.Entry<String, String> mapJson : mapSave.mapJsons) {
-            EntityBag entityBag = EntitySerializer.toEntityBag(mapJson.value);
-            mapEntities.put(mapJson.key,entityBag);
-        }
-    }
-    public EntityBag getEntities(String mapName){
-        return mapEntities.get(mapName);
     }
     public static synchronized void init(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String> phyLayerNames){
         if (instance != null){
@@ -92,6 +68,11 @@ public class MapManager {
         }
         return instance;
     }
+    public ObjectMap<String, EntityDataList> getProtoEntityDate(){
+        return protoEntityData;
+    }
+
+
     public TiledMap getTiledMap(String mapName){
         if (!allMaps.containsKey(mapName)){
             Gdx.app.error(TAG,"Failed to getTiledMap,allMaps is not contains is map,name:"+mapName);

@@ -9,7 +9,7 @@ import org.ltae.LtaePluginRule;
 import org.ltae.component.SerializeComponent;
 import org.ltae.manager.JsonManager;
 import org.ltae.manager.map.serialize.json.CompData;
-import org.ltae.manager.map.serialize.json.EntityBag;
+import org.ltae.manager.map.serialize.json.EntityDataList;
 import org.ltae.manager.map.serialize.json.EntityData;
 import org.ltae.manager.map.serialize.json.CompProp;
 import org.ltae.utils.ReflectionUtils;
@@ -25,9 +25,9 @@ import java.util.Set;
  * @Description
  **/
 public class EntitySerializer {
-    public static EntityBag getEntities(String mapName, MapObjects mapObjects){
-        EntityBag entityBag = new EntityBag();
-        entityBag.entities = new ArrayList<>();
+    public static EntityDataList getEntityDataList(String mapName, MapObjects mapObjects){
+        EntityDataList entityDateList = new EntityDataList();
+        entityDateList.entities = new ArrayList<>();
         for (MapObject mapObject : mapObjects) {
             String entityName = mapObject.getName();
             MapProperties properties = mapObject.getProperties();
@@ -77,14 +77,14 @@ public class EntitySerializer {
                 compData.name = simpleName;
                 entityData.components.add(compData);
             }
-            entityBag.entities.add(entityData);
+            entityDateList.entities.add(entityData);
         }
-        return entityBag;
+        return entityDateList;
     }
 
-    public static EntityBag getEntities(World world){
-        EntityBag entityBag = new EntityBag();
-        entityBag.entities = new ArrayList<>();
+    public static EntityDataList getEntityDataList(World world){
+        EntityDataList entityDateList = new EntityDataList();
+        entityDateList.entities = new ArrayList<>();
 
         AspectSubscriptionManager aspectSubscriptionManager = world.getSystem(AspectSubscriptionManager.class);
         EntitySubscription allEntities = aspectSubscriptionManager.get(Aspect.all());
@@ -95,9 +95,9 @@ public class EntitySerializer {
             if (entityData == null){
                 continue;
             }
-            entityBag.entities.add(entityData);
+            entityDateList.entities.add(entityData);
         }
-        return entityBag;
+        return entityDateList;
     }
     public static EntityData getEntityData(World world,int entityId){
         Bag<Component> allComps = new Bag<>();
@@ -157,9 +157,9 @@ public class EntitySerializer {
         }
         return entity;
     }
-    public static void overlayEntityData(EntityBag entityBag, EntityData entityData){
-        List<EntityData> entities = entityBag.entities;
-        if (entityBag.hasEntityData(entityData)) {
+    public static void overlayEntityData(EntityDataList entityDateList, EntityData entityData){
+        List<EntityData> entities = entityDateList.entities;
+        if (entityDateList.hasEntityData(entityData)) {
             for (EntityData entity : entities) {
                 if (entity.equals(entityData)) {
                     entities.remove(entity);
@@ -171,10 +171,10 @@ public class EntitySerializer {
         }
         entities.add(entityData);
     }
-    public static void createEntities(World world, EntityBag entityBag){
+    public static void createEntities(World world, EntityDataList entityDataList){
         TagManager tagManager = world.getSystem(TagManager.class);
 
-        for (EntityData entityData : entityBag.entities) {
+        for (EntityData entityData : entityDataList.entities) {
             //创建
             int entityId = world.create();
             entityData.entityId = entityId;
@@ -222,10 +222,10 @@ public class EntitySerializer {
             }
         }
     }
-    public static String toJson(EntityBag entityBag){
-        return JsonManager.toJson(entityBag);
+    public static String toJson(EntityDataList entityDataList){
+        return JsonManager.toJson(entityDataList);
     }
-    public static EntityBag toEntityBag(String entityBag){
-        return JsonManager.fromJson(EntityBag.class,entityBag);
+    public static EntityDataList toEntityBag(String entityDataList){
+        return JsonManager.fromJson(EntityDataList.class,entityDataList);
     }
 }

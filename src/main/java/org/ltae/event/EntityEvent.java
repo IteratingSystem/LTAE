@@ -3,7 +3,7 @@ package org.ltae.event;
 import com.artemis.Component;
 import com.artemis.Entity;
 import com.badlogic.gdx.maps.MapObject;
-import org.ltae.manager.map.serialize.json.EntityBag;
+import org.ltae.manager.map.serialize.json.EntityDataList;
 
 /**
  * @Auther WenLong
@@ -33,7 +33,7 @@ public class EntityEvent extends TypeEvent {
     public String serializerEntitiesStr;
     //实体标签列表,用于FILTER_DEL_ALL过滤不要删除的实体
     public String[] entityTags;
-    public EntityBag entityBag;
+    public EntityDataList entityDataList;
 
     public Class<? extends Component> compClass;
 

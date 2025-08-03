@@ -8,7 +8,7 @@ import java.util.List;
  * @Date 2025/7/4 10:41
  * @Description
  **/
-public class EntityBag {
+public class EntityDataList {
     public List<EntityData> entities;
     public boolean hasEntityData(EntityData entityData){
         if (entities == null) {
