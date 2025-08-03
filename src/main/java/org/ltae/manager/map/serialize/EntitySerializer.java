@@ -15,6 +15,8 @@ import org.ltae.manager.map.serialize.json.CompProp;
 import org.ltae.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -25,13 +27,13 @@ import java.util.Set;
 public class EntitySerializer {
     public static EntityBag getEntities(String mapName, MapObjects mapObjects){
         EntityBag entityBag = new EntityBag();
-        entityBag.entities = new Bag<>();
+        entityBag.entities = new ArrayList<>();
         for (MapObject mapObject : mapObjects) {
             String entityName = mapObject.getName();
             MapProperties properties = mapObject.getProperties();
 
             EntityData entityData = new EntityData();
-            entityData.components = new Bag<>();
+            entityData.components = new ArrayList<>();
             entityData.mapObjectId = mapObject.getProperties().get("id",0,Integer.class);
             entityData.fromMap = mapName;
 
@@ -46,7 +48,7 @@ public class EntitySerializer {
                     continue;
                 }
                 CompData compData = new CompData();
-                compData.props = new Bag<>();
+                compData.props = new ArrayList<>();
                 compData.name = simpleName;
 
                 Field[] fields = compClass.getFields();
@@ -71,7 +73,7 @@ public class EntitySerializer {
                     continue;
                 }
                 CompData compData = new CompData();
-                compData.props = new Bag<>();
+                compData.props = new ArrayList<>();
                 compData.name = simpleName;
                 entityData.components.add(compData);
             }
@@ -82,7 +84,7 @@ public class EntitySerializer {
 
     public static EntityBag getEntities(World world){
         EntityBag entityBag = new EntityBag();
-        entityBag.entities = new Bag<>();
+        entityBag.entities = new ArrayList<>();
 
         AspectSubscriptionManager aspectSubscriptionManager = world.getSystem(AspectSubscriptionManager.class);
         EntitySubscription allEntities = aspectSubscriptionManager.get(Aspect.all());
@@ -123,7 +125,7 @@ public class EntitySerializer {
             }
         }
 
-        entity.components = new Bag<>();
+        entity.components = new ArrayList<>();
         for (Component component : allComps) {
             Class<? extends Component> compClass = component.getClass();
             String compName = compClass.getSimpleName();
@@ -131,7 +133,7 @@ public class EntitySerializer {
 
             CompData compData = new CompData();
             compData.name = compName;
-            compData.props = new Bag<>();
+            compData.props = new ArrayList<>();
             for (Field field : fields) {
                 if (!field.isAnnotationPresent(SerializeParam.class)) {
                     continue;
@@ -156,7 +158,7 @@ public class EntitySerializer {
         return entity;
     }
     public static void overlayEntityData(EntityBag entityBag, EntityData entityData){
-        Bag<EntityData> entities = entityBag.entities;
+        List<EntityData> entities = entityBag.entities;
         if (entityBag.hasEntityData(entityData)) {
             for (EntityData entity : entities) {
                 if (entity.equals(entityData)) {
@@ -181,7 +183,7 @@ public class EntitySerializer {
                 tagManager.register(entityData.name,entityId);
             }
             //注册组件
-            Bag<CompData> components = entityData.components;
+            List<CompData> components = entityData.components;
             Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
             for (Class<? extends Component> aClass : classes) {
                 String simpleName = aClass.getSimpleName();
@@ -197,7 +199,7 @@ public class EntitySerializer {
                     //通过组件Mapper创建组件
                     Component component = mapper.create(entityId);
                     //写入默认值
-                    Bag<CompProp> props = compData.props;
+                    List<CompProp> props = compData.props;
                     for (CompProp prop : props) {
                         String key = prop.key;
                         Object value = prop.value;

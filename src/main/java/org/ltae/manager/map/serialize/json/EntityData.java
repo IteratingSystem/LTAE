@@ -1,7 +1,9 @@
 package org.ltae.manager.map.serialize.json;
 
-import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Auther WenLong
@@ -14,12 +16,12 @@ public class EntityData {
     public String fromMap;
     public String name;
     public String type;
-    public Bag<CompData> components;
+    public List<CompData> components;
     public EntityData(){}
 
     public boolean hasComp(String compName){
         if (components == null){
-            components = new Bag<>();
+            components = new ArrayList<>();
         }
         for (CompData component : components) {
             if (component.name.equals(compName)) {

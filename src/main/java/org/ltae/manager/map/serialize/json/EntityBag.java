@@ -1,6 +1,7 @@
 package org.ltae.manager.map.serialize.json;
 
-import com.artemis.utils.Bag;
+
+import java.util.List;
 
 /**
  * @Auther WenLong
@@ -8,7 +9,7 @@ import com.artemis.utils.Bag;
  * @Description
  **/
 public class EntityBag {
-    public Bag<EntityData> entities;
+    public List<EntityData> entities;
     public boolean hasEntityData(EntityData entityData){
         if (entities == null) {
             return false;

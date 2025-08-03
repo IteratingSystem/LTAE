@@ -1,6 +1,7 @@
 package org.ltae.manager.map.serialize.json;
 
-import com.artemis.utils.Bag;
+
+import java.util.List;
 
 /**
  * @Auther WenLong
@@ -9,7 +10,7 @@ import com.artemis.utils.Bag;
  **/
 public class CompData {
     public String name;
-    public Bag<CompProp> props;
+    public List<CompProp> props;
 
     public Object get (String key,Object defaultValue) {
         for (CompProp prop : props) {
