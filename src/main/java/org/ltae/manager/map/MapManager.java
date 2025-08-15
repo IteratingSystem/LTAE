@@ -42,8 +42,13 @@ public class MapManager {
         tileSets = new Bag<>();
         Array<String> mapKeys = allMaps.keys().toArray();
         for (String mapName : mapKeys) {
-            String entityLayerName = entityLayerNames.get(mapName);
             TiledMap tiledMap = getTiledMap(mapName);
+
+
+            if (!entityLayerNames.containsKey(mapName)) {
+                continue;
+            }
+            String entityLayerName = entityLayerNames.get(mapName);
             MapLayer entityLayer = tiledMap.getLayers().get(entityLayerName);
             MapObjects mapObjects = entityLayer.getObjects();
             allMapObjects.put(mapName,mapObjects);
