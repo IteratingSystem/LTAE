@@ -106,12 +106,17 @@ public class MapManager {
     }
     public String getPhyLayerName(String mapName){
         if (!phyLayerNames.containsKey(mapName)){
-            Gdx.app.error(TAG,"Failed to getPhyLayer,phyLayerNames is not contains mapName:"+mapName);
+            Gdx.app.error(TAG,"Failed to getPhyLayerName,phyLayerNames is not contains mapName:"+mapName);
+            return null;
         }
         return phyLayerNames.get(mapName);
     }
     public MapLayer getPhyLayer(String mapName){
         String phyLayerName = getPhyLayerName(mapName);
+        if (phyLayerName == null) {
+            Gdx.app.error(TAG, "Failed to getPhyLayer,phyLayerNames is not contains mapName:" + mapName);
+            return null;
+        }
         TiledMap tiledMap = getTiledMap(mapName);
         return tiledMap.getLayers().get(phyLayerName);
     }
