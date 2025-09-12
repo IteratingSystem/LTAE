@@ -173,7 +173,9 @@ public class EntitySerializer {
     }
     public static void createEntities(World world, EntityDataList entityDataList){
         TagManager tagManager = world.getSystem(TagManager.class);
-
+        if (entityDataList == null) {
+            return;
+        }
         for (EntityData entityData : entityDataList.entities) {
             //创建
             int entityId = world.create();
