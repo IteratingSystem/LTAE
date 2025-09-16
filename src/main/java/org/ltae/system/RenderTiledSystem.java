@@ -7,7 +7,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import net.mostlyoriginal.api.event.common.Subscribe;
-import org.ltae.component.singleton.Camera;
+
 import org.ltae.event.MapEvent;
 
 /**
@@ -19,8 +19,6 @@ import org.ltae.event.MapEvent;
 public class RenderTiledSystem extends BaseSystem {
     private final static String TAG = RenderTiledSystem.class.getSimpleName();
 
-    //单例组件
-    private Camera camera;
     //其它世界
     private TiledMapSystem tiledMapSystem;
     private B2dSystem b2dSystem;
@@ -51,7 +49,7 @@ public class RenderTiledSystem extends BaseSystem {
         }
 
         ScreenUtils.clear(0.0f,0.0f,0.0f,1);
-        mapRenderer.setView(camera.worldCamera);
+        mapRenderer.setView(cameraSystem.camera);
         mapRenderer.render();
     }
 }

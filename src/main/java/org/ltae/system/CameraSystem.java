@@ -18,7 +18,6 @@ import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.LtaePluginRule;
 import org.ltae.camera.CameraTarget;
 import org.ltae.component.Pos;
-import org.ltae.component.singleton.Camera;
 import org.ltae.event.CameraEvent;
 
 /**
@@ -29,10 +28,9 @@ import org.ltae.event.CameraEvent;
 public class CameraSystem extends BaseSystem {
     private final static String TAG = CameraSystem.class.getSimpleName();
     private final static float MOVE_SPEED = 5;
-
-    private Camera camera;
     public M<Pos> mPos;
 
+    public OrthographicCamera camera;
     private CameraTarget cameraTarget;
     private float worldScale;
     private float gameWidth;
@@ -46,9 +44,9 @@ public class CameraSystem extends BaseSystem {
     }
     @Override
     protected void initialize() {
-        camera.worldCamera = new OrthographicCamera();
+        camera = new OrthographicCamera();
 //        camera.setToOrtho(false, worldScale * SystemConstants.winWidth /4f,worldScale * SystemConstants.winHeight/4f);
-        camera.worldCamera.setToOrtho(false, worldScale * gameWidth / zoom,worldScale * gameHeight / zoom);
+        camera.setToOrtho(false, worldScale * gameWidth / zoom,worldScale * gameHeight / zoom);
     }
 
     @Override
@@ -57,7 +55,7 @@ public class CameraSystem extends BaseSystem {
             cameraCtrl();
         }
         followTarget();
-        camera.worldCamera.update();
+        camera.update();
     }
 
     private boolean verifyTarget(){
@@ -81,8 +79,8 @@ public class CameraSystem extends BaseSystem {
         return true;
     }
     private void jumpToPos(Pos pos){
-        camera.worldCamera.position.x = pos.x;
-        camera.worldCamera.position.y = pos.y;
+        camera.position.x = pos.x;
+        camera.position.y = pos.y;
     }
     private void followTarget() {
         if (!verifyTarget()){
@@ -98,11 +96,11 @@ public class CameraSystem extends BaseSystem {
         float activeHeight = cameraTarget.activeHeight;
 
         // 如果目标实体超出摄像机的活动区域，则调整摄像机位置,平滑过渡到目标位置
-        if (camera.worldCamera.position.x < centerX - activeWidth / 2 + cameraTarget.offsetX || camera.worldCamera.position.x > centerX + activeWidth / 2 + cameraTarget.offsetX) {
-            camera.worldCamera.position.x = MathUtils.lerp(camera.worldCamera.position.x, centerX, cameraTarget.progress); // 平滑过渡
+        if (camera.position.x < centerX - activeWidth / 2 + cameraTarget.offsetX || camera.position.x > centerX + activeWidth / 2 + cameraTarget.offsetX) {
+            camera.position.x = MathUtils.lerp(camera.position.x, centerX, cameraTarget.progress); // 平滑过渡
         }
-        if (camera.worldCamera.position.y < centerY - activeHeight / 2 + cameraTarget.offsetY || camera.worldCamera.position.y > centerY + activeHeight / 2 + cameraTarget.offsetY) {
-            camera.worldCamera.position.y = MathUtils.lerp(camera.worldCamera.position.y, centerY, cameraTarget.progress); // 平滑过渡
+        if (camera.position.y < centerY - activeHeight / 2 + cameraTarget.offsetY || camera.position.y > centerY + activeHeight / 2 + cameraTarget.offsetY) {
+            camera.position.y = MathUtils.lerp(camera.position.y, centerY, cameraTarget.progress); // 平滑过渡
         }
     }
 
@@ -119,23 +117,23 @@ public class CameraSystem extends BaseSystem {
      */
     private void cameraCtrl(){
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            camera.worldCamera.position.x = camera.worldCamera.position.x+MOVE_SPEED;
+            camera.position.x = camera.position.x+MOVE_SPEED;
         }else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            camera.worldCamera.position.x = camera.worldCamera.position.x-MOVE_SPEED;
+            camera.position.x = camera.position.x-MOVE_SPEED;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.UP)){
-            camera.worldCamera.position.y = camera.worldCamera.position.y+MOVE_SPEED;
+            camera.position.y = camera.position.y+MOVE_SPEED;
         }else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-            camera.worldCamera.position.y = camera.worldCamera.position.y-MOVE_SPEED;
+            camera.position.y = camera.position.y-MOVE_SPEED;
         }
     }
 
     private void resize(int width, int height) {
         float zoom = LtaePluginRule.CAMERA_ZOOM * width / LtaePluginRule.GAME_WIDTH;
-        camera.worldCamera.viewportWidth = width/zoom;
-        camera.worldCamera.viewportHeight = height/zoom;
-        camera.worldCamera.update();
+        camera.viewportWidth = width/zoom;
+        camera.viewportHeight = height/zoom;
+        camera.update();
     }
 
     @Subscribe
