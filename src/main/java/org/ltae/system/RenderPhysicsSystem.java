@@ -4,6 +4,7 @@ import com.artemis.BaseSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.Logger;
+import org.ltae.component.singleton.Camera;
 
 /**
  * @Auther WenLong
@@ -12,9 +13,8 @@ import com.badlogic.gdx.utils.Logger;
  **/
 public class RenderPhysicsSystem extends BaseSystem {
     private Box2DDebugRenderer debugRenderer;
-
+    private Camera camera;
     private B2dSystem b2DSystem;
-    private CameraSystem cameraSystem;
     public RenderPhysicsSystem(){
 
     }
@@ -28,7 +28,7 @@ public class RenderPhysicsSystem extends BaseSystem {
     @Override
     protected void processSystem() {
         if (Gdx.app.getLogLevel() == Logger.DEBUG){
-            debugRenderer.render(b2DSystem.box2DWorld,cameraSystem.camera.combined);
+            debugRenderer.render(b2DSystem.box2DWorld,camera.worldCamera.combined);
         }
     }
 }
