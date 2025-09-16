@@ -46,7 +46,8 @@ public class CameraSystem extends BaseSystem {
     protected void initialize() {
         camera = new OrthographicCamera();
 //        camera.setToOrtho(false, worldScale * SystemConstants.winWidth /4f,worldScale * SystemConstants.winHeight/4f);
-        camera.setToOrtho(false, worldScale * gameWidth / zoom,worldScale * gameHeight / zoom);
+        camera.setToOrtho(false, worldScale * gameWidth,worldScale * gameHeight);
+        camera.zoom = zoom;
     }
 
     @Override
