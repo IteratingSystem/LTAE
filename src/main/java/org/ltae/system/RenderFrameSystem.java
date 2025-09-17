@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import net.mostlyoriginal.api.system.delegate.DeferredEntityProcessingSystem;
 import net.mostlyoriginal.api.system.delegate.EntityProcessPrincipal;

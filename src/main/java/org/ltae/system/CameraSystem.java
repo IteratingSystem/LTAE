@@ -5,14 +5,8 @@ import com.artemis.managers.TagManager;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.PolygonBatch;
-import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Logger;
 import net.mostlyoriginal.api.event.common.Subscribe;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.LtaePluginRule;
@@ -45,9 +39,9 @@ public class CameraSystem extends BaseSystem {
     @Override
     protected void initialize() {
         camera = new OrthographicCamera();
-//        camera.setToOrtho(false, worldScale * SystemConstants.winWidth /4f,worldScale * SystemConstants.winHeight/4f);
-        camera.setToOrtho(false, worldScale * gameWidth,worldScale * gameHeight);
-        camera.zoom = zoom;
+        camera.setToOrtho(false, worldScale * gameWidth/zoom,worldScale * gameHeight/zoom);
+//        camera.zoom = zoom;
+//        camera.update();
     }
 
     @Override
