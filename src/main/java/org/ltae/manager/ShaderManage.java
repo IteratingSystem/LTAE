@@ -14,8 +14,8 @@ import com.badlogic.gdx.utils.ObjectSet;
 public class ShaderManage {
     private final static String TAG = ShaderManage.class.getSimpleName();
     private static ShaderManage instance;
-    public static final String VERTEX_EXT = ".vertex";
-    public static final String FRAGMENT_EXT = ".fragment";
+    public static final String VERTEX_EXT = ".vert";
+    public static final String FRAGMENT_EXT = ".frag";
     public String[] assetPathList;
 
     private FileHandle assetsHandle;
