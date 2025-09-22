@@ -12,6 +12,7 @@ import net.mostlyoriginal.api.system.delegate.DeferredEntityProcessingSystem;
 import net.mostlyoriginal.api.system.delegate.EntityProcessPrincipal;
 import org.ltae.component.Pos;
 import org.ltae.component.Render;
+import org.ltae.component.ShaderComp;
 
 /**
  * @Auther WenLong
@@ -26,6 +27,7 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
 
     private M<Render> mRender;
     private M<Pos> mPos;
+    private M<ShaderComp> mShaderComp;
 
     private Batch batch;
     private float worldScale;
@@ -52,9 +54,18 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         int regionHeight = keyFrame.getRegionHeight();
         float scaleWidth = render.scaleWidth;
         float scaleHeight = render.scaleHeight;
+
+        //获取着色器数据
+        ShaderProgram shaderProgram = null;
+        if (mShaderComp.has(entityId)) {
+            ShaderComp shaderComp = mShaderComp.get(entityId);
+            shaderProgram = shaderComp.shaderProgram;
+        }
+
         //渲染
         batch = renderTiledSystem.mapRenderer.getBatch();
         batch.begin();
+        batch.setShader(shaderProgram);
         batch.draw(keyFrame.getTexture(), // 指定要绘制的纹理对象
                 worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY), // 指定绘制的起始位置（左下角）
                 0, 0, // 指定旋转的中心点（相对于绘制位置的偏移量）
@@ -67,5 +78,7 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
                 render.flipY // y轴翻转
         );
         batch.end();
+        //恢复默认着色器
+        batch.setShader(null);
     }
 }

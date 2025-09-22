@@ -29,11 +29,24 @@ public class AssetManager {
     public static final String STORY_EXT = ".ink.json";
     private static AssetManager instance;
     private static FileHandleResolver resolver;
-    private static FileHandle assetsHandle;
+    private FileHandle assetsHandle;
+    public String[] assetPathList;
     private static com.badlogic.gdx.assets.AssetManager gdxAssetManager;
 
     private AssetManager() {
         // 私有构造器，防止外部直接实例化
+        assetsHandle = Gdx.files.internal("assets.txt");
+        if (!assetsHandle.exists()) {
+            Gdx.app.error(TAG,"assets.txt is not exists!");
+            return;
+        }
+        String assetsPath = assetsHandle.readString();
+        assetPathList = assetsPath.split("\n");
+    }
+    private static void initialize(){
+        resolver = new InternalFileHandleResolver();
+        instance = new AssetManager();
+        gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(resolver);
     }
 
     /**
@@ -42,10 +55,7 @@ public class AssetManager {
      */
     public static AssetManager getInstance() {
         if (instance == null) {
-            assetsHandle = Gdx.files.internal("assets.txt");
-            resolver = new InternalFileHandleResolver();
-            instance = new AssetManager();
-            gdxAssetManager = new com.badlogic.gdx.assets.AssetManager(resolver);
+            initialize();
         }
         return instance;
     }
@@ -80,13 +90,7 @@ public class AssetManager {
      * 依赖于assets模块中的assets.txt
      */
     public void loadAssets() {
-        if (!assetsHandle.exists()) {
-            Gdx.app.error(TAG,"assets.txt is not exists!");
-            return;
-        }
-        String assetsPath = assetsHandle.readString();
-        String[] assetPath = assetsPath.split("\n");
-        for (String path : assetPath) {
+        for (String path : assetPathList) {
             if (path.endsWith(TILED_EXT)) {
                 loadAsset(path,TiledMap.class);
                 continue;
