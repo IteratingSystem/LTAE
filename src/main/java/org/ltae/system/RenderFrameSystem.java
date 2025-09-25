@@ -39,13 +39,14 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
 
     @Override
     protected void initialize() {
+        batch = renderTiledSystem.mapRenderer.getBatch();
     }
 
-    @Override
-    protected void begin() {
-        batch = renderTiledSystem.mapRenderer.getBatch();
-        batch.begin();
-    }
+//    @Override
+//    protected void begin() {
+//
+//        batch.begin();
+//    }
     @Override
     protected void process(int entityId) {
         Render render = mRender.get(entityId);
@@ -81,12 +82,12 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
                 render.flipX, // x轴翻转
                 render.flipY // y轴翻转
         );
-
+        batch.flush();
     }
-    @Override
-    protected void end() {
-        batch.flush();                   // 送最后一次绘制
-        batch.end();
-        batch.setShader(null);           // 归位，防止污染其他系统
-    }
+//    @Override
+//    protected void end() {
+//        batch.flush();                   // 送最后一次绘制
+//        batch.end();
+//        batch.setShader(null);           // 归位，防止污染其他系统
+//    }
 }
