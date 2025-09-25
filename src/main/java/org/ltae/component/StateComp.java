@@ -2,6 +2,7 @@ package org.ltae.component;
 
 import com.artemis.Entity;
 import com.artemis.World;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
@@ -11,6 +12,7 @@ import org.ltae.manager.map.serialize.json.EntityData;
 import org.reflections.Reflections;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -37,9 +39,16 @@ public class StateComp extends SerializeComponent{
             if (!simpleName.equals(enumClass.getSimpleName())) {
                 continue;
             }
-            Enum enumValue = Enum.valueOf(enumClass, current);
+            @SuppressWarnings("unchecked")// 仅此处抑制；已知安全
+            Enum<?> enumValue = Enum.valueOf(enumClass, current);
+            /* --- 运行时检查是否真的实现了 State<Entity> --- */
+            if (!(enumValue instanceof State)) {
+                Gdx.app.error(TAG, "Enum constant '" + current
+                        + "' does not implement State<Entity>");
+            }
+            @SuppressWarnings("unchecked")// 此时安全
+            State<Entity> state = (State<Entity>) enumValue;
             Entity entity = world.getEntity(entityId);
-            State state = (State)enumValue;
             machine = new DefaultStateMachine<>(entity,state);
             break;
         }

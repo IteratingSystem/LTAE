@@ -22,13 +22,13 @@ public class BundleManager {
         BundleManager.assetManager = assetManager;
         BundleManager.path = path;
 
-        I18NBundleLoader.I18NBundleParameter bundleParameter = new I18NBundleLoader.I18NBundleParameter(new Locale(language));
+        I18NBundleLoader.I18NBundleParameter bundleParameter = new I18NBundleLoader.I18NBundleParameter(Locale.of(language));
         assetManager.load(path, I18NBundle.class,bundleParameter);
         assetManager.finishLoading();
         bundle = assetManager.get(path, I18NBundle.class);
     }
     public static void changeLanguage(String language){
-        I18NBundleLoader.I18NBundleParameter bundleParameter = new I18NBundleLoader.I18NBundleParameter(new Locale(language));
+        I18NBundleLoader.I18NBundleParameter bundleParameter = new I18NBundleLoader.I18NBundleParameter(Locale.of(language));
         assetManager.unload(path);
         assetManager.load(path, I18NBundle.class,bundleParameter);
         assetManager.finishLoading();

@@ -21,5 +21,6 @@ public class ShaderComp extends SerializeComponent {
         String vertexContext = shaderManage.getVertexContext(vertexName);
         String fragmentContext = shaderManage.getFragmentContext(fragmentName);
         shaderProgram = new ShaderProgram(vertexContext,fragmentContext);
+//        shaderProgram.bind();
     }
 }

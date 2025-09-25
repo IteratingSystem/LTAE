@@ -38,8 +38,16 @@ public class BTree extends SerializeComponent{
             return;
         }
         Entity entity = world.getEntity(entityId);
-        tree = bTreeData.get(treeName);
-        tree.setObject(entity);
-        tree.start();
+
+        BehaviorTree<?> rawTree = bTreeData.get(treeName);
+        if (rawTree instanceof BehaviorTree<?>) {
+            @SuppressWarnings("unchecked")
+            BehaviorTree<Entity> typedTree = (BehaviorTree<Entity>) rawTree;
+            tree = typedTree;
+            tree.setObject(entity);
+            tree.start();
+        } else {
+            Gdx.app.error(TAG, "BehaviorTree type mismatch for: " + treeName);
+        }
     }
 }

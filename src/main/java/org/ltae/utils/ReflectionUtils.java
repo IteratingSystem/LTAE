@@ -17,44 +17,60 @@ import java.util.Set;
  **/
 public class ReflectionUtils {
     private static final String TAG = ReflectionUtils.class.getSimpleName();
-    /**
-     * 通过类名和构造参数动态创建对象
-     *
-     * @param <T>          泛型类型
-     * @param className    完整类名（如 "com.example.MyClass"）
-     * @param paramTypes   构造参数类型数组（如 new Class[]{String.class, int.class}）
-     * @param paramValues  构造参数值数组（如 new Object[]{"hello", 123}）
-     * @return 创建的对象
-     * @throws Exception 如果类不存在、构造器不匹配或实例化失败
-     */
-    public static <T> T createInstance(String className, Class<?>[] paramTypes, Object[] paramValues) {
-        // 1. 加载类
-        @SuppressWarnings("unchecked")
-        T instance = null;
+//    /**
+//     * 通过类名和构造参数动态创建对象
+//     *
+//     * @param <T>          泛型类型
+//     * @param className    完整类名（如 "com.example.MyClass"）
+//     * @param paramTypes   构造参数类型数组（如 new Class[]{String.class, int.class}）
+//     * @param paramValues  构造参数值数组（如 new Object[]{"hello", 123}）
+//     * @return 创建的对象
+//     * @throws Exception 如果类不存在、构造器不匹配或实例化失败
+//     */
+//    public static <T> T createInstance(String className, Class<?>[] paramTypes, Object[] paramValues) {
+//        // 1. 加载类
+//        @SuppressWarnings("unchecked")
+//        T instance = null;
+//        try {
+//            Class<?> clazz = Class.forName(className);
+//            // 2. 获取匹配的构造器
+//            Constructor<?> constructor = clazz.getDeclaredConstructor(paramTypes);
+//            // 3. 设置构造器可访问（处理私有构造器）
+//            //constructor.setAccessible(true);
+//            // 4. 创建实例并返回
+//            instance = (T) constructor.newInstance(paramValues);
+//        } catch (ClassNotFoundException e) {
+//            Gdx.app.error(TAG,"Failed to createInstance,The specified class does not exist:"+className);
+//            throw new RuntimeException(e);
+//        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
+//                 IllegalAccessException e) {
+//            Gdx.app.error(TAG,"Failed to createInstance;");
+//            throw new RuntimeException(e);
+//        }
+//        return instance;
+//    }
+    public static <T> T createInstance(String className, Class<?>[] paramTypes, Object[] paramValues, Class<T> expectedType) {
         try {
             Class<?> clazz = Class.forName(className);
-            // 2. 获取匹配的构造器
+            if (!expectedType.isAssignableFrom(clazz)) {
+                throw new ClassCastException("Class " + className + " is not a subtype of " + expectedType.getName());
+            }
+
             Constructor<?> constructor = clazz.getDeclaredConstructor(paramTypes);
-            // 3. 设置构造器可访问（处理私有构造器）
-            //constructor.setAccessible(true);
-            // 4. 创建实例并返回
-            instance = (T) constructor.newInstance(paramValues);
-        } catch (ClassNotFoundException e) {
-            Gdx.app.error(TAG,"Failed to createInstance,The specified class does not exist:"+className);
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
-                 IllegalAccessException e) {
-            Gdx.app.error(TAG,"Failed to createInstance;");
+            @SuppressWarnings("unchecked")
+            T instance = (T) expectedType.cast(constructor.newInstance(paramValues));
+            return instance;
+        } catch (Exception e) {
+            Gdx.app.error(TAG, "Failed to createInstance: " + className);
             throw new RuntimeException(e);
         }
-        return instance;
     }
 
     /**
      * 简化版：无参构造
      */
-    public static <T> T createInstance(String className){
-        return createInstance(className, new Class<?>[0], new Object[0]);
+    public static <T> T createInstance(String className,Class<T> expectedType){
+        return createInstance(className, new Class<?>[0], new Object[0],expectedType);
     }
 
     /**
