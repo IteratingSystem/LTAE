@@ -42,11 +42,11 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         batch = renderTiledSystem.mapRenderer.getBatch();
     }
 
-//    @Override
-//    protected void begin() {
-//
+    @Override
+    protected void begin() {
+        System.out.println("begin");
 //        batch.begin();
-//    }
+    }
     @Override
     protected void process(int entityId) {
         Render render = mRender.get(entityId);
@@ -70,7 +70,9 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         }
 
         //渲染
+
         batch.setShader(shaderProgram);
+        batch.begin();
         batch.draw(keyFrame.getTexture(), // 指定要绘制的纹理对象
                 worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY), // 指定绘制的起始位置（左下角）
                 0, 0, // 指定旋转的中心点（相对于绘制位置的偏移量）
@@ -82,12 +84,15 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
                 render.flipX, // x轴翻转
                 render.flipY // y轴翻转
         );
-        batch.flush();
+        batch.end();
+        batch.setShader(null);
+//        batch.flush();
     }
-//    @Override
-//    protected void end() {
+    @Override
+    protected void end() {
 //        batch.flush();                   // 送最后一次绘制
 //        batch.end();
 //        batch.setShader(null);           // 归位，防止污染其他系统
-//    }
+        System.out.println("end");
+    }
 }
