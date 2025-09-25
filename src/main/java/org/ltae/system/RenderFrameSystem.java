@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import net.mostlyoriginal.api.system.delegate.DeferredEntityProcessingSystem;
 import net.mostlyoriginal.api.system.delegate.EntityProcessPrincipal;
@@ -60,6 +61,9 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         if (mShaderComp.has(entityId)) {
             ShaderComp shaderComp = mShaderComp.get(entityId);
             shaderProgram = shaderComp.shaderProgram;
+            if (!shaderProgram.isCompiled())
+                throw new GdxRuntimeException("Could not compile shader: "+shaderProgram.getLog());
+            shaderProgram.bind();
         }
 
         //渲染
