@@ -44,6 +44,7 @@ public class RenderBatchingSystem extends BaseSystem implements EntityProcessPri
         BagUtils.sort(sortedJobs);
 //        EntityProcessAgent activeAgent = null;
         final Object[] data = sortedJobs.getData();
+        batch.begin();
         for (int i = 0,s = sortedJobs.size();i < s;i++){
             final Job job = (Job)data[i];
             final EntityProcessAgent agent = job.agent;
@@ -57,6 +58,7 @@ public class RenderBatchingSystem extends BaseSystem implements EntityProcessPri
 //            }
             agent.process(job.entityId);
         }
+        batch.end();
     }
 
     @Override
