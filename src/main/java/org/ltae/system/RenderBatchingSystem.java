@@ -5,6 +5,7 @@ import com.artemis.World;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import net.mostlyoriginal.api.system.delegate.EntityProcessAgent;
 import net.mostlyoriginal.api.system.delegate.EntityProcessPrincipal;
@@ -22,6 +23,9 @@ public class RenderBatchingSystem extends BaseSystem implements EntityProcessPri
     private final static String TAG = RenderBatchingSystem.class.getSimpleName();
     private M<Render> mRender;
     private M<ZIndex> mZIndex;
+    private RenderTiledSystem renderTiledSystem;
+
+    private Batch batch;
     protected final Bag<Job> sortedJobs = new Bag<>();
 
     @Override
@@ -30,21 +34,27 @@ public class RenderBatchingSystem extends BaseSystem implements EntityProcessPri
     }
 
     @Override
+    protected void initialize() {
+        super.initialize();
+        batch = renderTiledSystem.mapRenderer.getBatch();
+    }
+
+    @Override
     protected void processSystem() {
         BagUtils.sort(sortedJobs);
-        EntityProcessAgent activeAgent = null;
+//        EntityProcessAgent activeAgent = null;
         final Object[] data = sortedJobs.getData();
         for (int i = 0,s = sortedJobs.size();i < s;i++){
             final Job job = (Job)data[i];
             final EntityProcessAgent agent = job.agent;
 
-            if (agent != activeAgent){
-                if (activeAgent != null){
-//                    activeAgent.end();
-                }
-                activeAgent = agent;
-//                activeAgent.begin();
-            }
+//            if (agent != activeAgent){
+//                if (activeAgent != null){
+////                    activeAgent.end();
+//                }
+//                activeAgent = agent;
+////                activeAgent.begin();
+//            }
             agent.process(job.entityId);
         }
     }
