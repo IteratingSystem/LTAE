@@ -40,10 +40,10 @@ public class RenderBatchingSystem extends BaseSystem implements EntityProcessPri
 
             if (agent != activeAgent){
                 if (activeAgent != null){
-                    activeAgent.end();
+//                    activeAgent.end();
                 }
                 activeAgent = agent;
-                activeAgent.begin();
+//                activeAgent.begin();
             }
             agent.process(job.entityId);
         }
