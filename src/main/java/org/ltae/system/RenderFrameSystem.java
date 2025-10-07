@@ -44,7 +44,6 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
 
     @Override
     protected void process(int entityId) {
-        System.out.println("process");
         Render render = mRender.get(entityId);
         //判断是否需要显示
         if (render.keyframe == null || render.keyframe.getTexture() == null || !render.visible) {
