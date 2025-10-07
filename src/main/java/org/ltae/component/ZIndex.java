@@ -14,4 +14,6 @@ public class ZIndex extends Component {
     public float index = 0;
     @SerializeParam
     public float offset = 0;
+    @SerializeParam
+    public boolean followY = false;
 }

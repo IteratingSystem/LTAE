@@ -93,6 +93,7 @@ public class RenderBatchingSystem extends BaseSystem implements EntityProcessPri
             this.entityId = entityId;
             this.agent = agent;
         }
+        //渲染顺序,越小越提前渲染,也就越滞后
         @Override
         public int compareTo(Job o) {
             int entityIdO = o.entityId;
@@ -100,11 +101,11 @@ public class RenderBatchingSystem extends BaseSystem implements EntityProcessPri
             float endNum = 0;
             if (mZIndex.has(entityIdO)) {
                 ZIndex zIndex0 = mZIndex.get(entityIdO);
-                startNum = zIndex0.index + zIndex0.offset;
+                endNum = zIndex0.index;
             }
             if (mZIndex.has(entityId)){
                 ZIndex zIndex = mZIndex.get(entityId);
-                endNum = zIndex.index + zIndex.offset;
+                startNum = zIndex.index;
             }
             return (int)(startNum-endNum);
         }
