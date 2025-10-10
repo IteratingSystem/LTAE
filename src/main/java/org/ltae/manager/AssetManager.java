@@ -6,11 +6,10 @@ import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLoader;
 import com.badlogic.gdx.assets.AssetLoaderParameters;
 import com.badlogic.gdx.assets.loaders.AssetLoader;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
-import com.badlogic.gdx.assets.loaders.SkinLoader;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.bladecoder.ink.runtime.Story;
 import org.ltae.loader.EcsMapLoader;
@@ -27,6 +26,7 @@ public class AssetManager {
     public static final String TILED_EXT = ".tmx";
     public static final String TREE_EXT = ".tree";
     public static final String STORY_EXT = ".ink.json";
+    public static final String NOISE_EXT = ".noise.png";
     private static AssetManager instance;
     private static FileHandleResolver resolver;
     private FileHandle assetsHandle;
@@ -101,6 +101,10 @@ public class AssetManager {
             }
             if (path.endsWith(STORY_EXT)) {
                 loadAsset(path,Story.class);
+                continue;
+            }
+            if (path.endsWith(NOISE_EXT)) {
+                loadAsset(path, Texture.class);
                 continue;
             }
         }

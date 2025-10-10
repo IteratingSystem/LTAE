@@ -24,6 +24,7 @@ public class AssetSystem extends BaseSystem {
     private String skinPath;
     //行为树数据
     public ObjectMap<String, BehaviorTree> bTreeData;
+    public ObjectMap<String, Texture> noiseData;
     public Skin skin;
     public AssetSystem (String skinPath){
         this.skinPath = skinPath;
@@ -35,6 +36,8 @@ public class AssetSystem extends BaseSystem {
         skin = SkinManage.getSkin(skinPath);
         //行为树
         bTreeData = AssetManager.getInstance().getObjects(AssetManager.TREE_EXT,BehaviorTree.class);
+        //噪声图
+        noiseData = AssetManager.getInstance().getObjects(AssetManager.NOISE_EXT,Texture.class);
     }
 
     @Override
