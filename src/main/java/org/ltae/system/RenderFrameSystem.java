@@ -74,9 +74,10 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         float scaleHeight = render.scaleHeight;
 
 
-        //渲染
-        batch.setShader(shaderProgram);
+        //渲染前获取shader以及传参
         setShaderUniforms(entityId);
+        batch.setShader(shaderProgram);
+        //渲染
         batch.draw(keyFrame.getTexture(), // 指定要绘制的纹理对象
                 worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY), // 指定绘制的起始位置（左下角）
                 0, 0, // 指定旋转的中心点（相对于绘制位置的偏移量）
