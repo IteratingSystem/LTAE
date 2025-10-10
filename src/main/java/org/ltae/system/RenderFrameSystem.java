@@ -44,7 +44,7 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
     }
 
     //着色器更新
-    private void processShader(int entityId) {
+    private void setShaderUniforms(int entityId) {
         //获取着色器
         shaderProgram = null;
         if (!mShaderComp.has(entityId)){
@@ -56,7 +56,7 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         if (shaderComp.shaderUniforms == null){
             return;
         }
-        shaderComp.shaderUniforms.update(world.getDelta());
+        shaderComp.shaderUniforms.setUniforms(world.getDelta());
     }
     @Override
     protected void process(int entityId) {
@@ -74,10 +74,9 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         float scaleHeight = render.scaleHeight;
 
 
-        //渲染前更新着色器
-        processShader(entityId);
         //渲染
         batch.setShader(shaderProgram);
+        setShaderUniforms(entityId);
         batch.draw(keyFrame.getTexture(), // 指定要绘制的纹理对象
                 worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY), // 指定绘制的起始位置（左下角）
                 0, 0, // 指定旋转的中心点（相对于绘制位置的偏移量）

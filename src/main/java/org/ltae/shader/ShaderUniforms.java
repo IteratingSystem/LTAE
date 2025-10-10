@@ -64,19 +64,14 @@ public abstract class ShaderUniforms {
         iChannelResolution = new Vector3[4];
         iMouse = new Vector4();
         iChannel0 = 0;
-        iChannel1 = 0;
-        iChannel2 = 0;
-        iChannel3 = 0;
+        iChannel1 = 1;
+        iChannel2 = 2;
+        iChannel3 = 3;
         iDate = new Vector4();
     }
 
-    /** 子类可重写，一次性初始化纹理、帧缓冲等。 */
-    public void initialize(){
-
-
-    };
     /** 每帧更新 uniform 数据；子类先 super.update(delta)，再按需传值。 */
-    public void update(float delta){
+    public void setUniforms(float delta){
         iTime += delta;
         iTimeDelta = delta;
         iFrame += 1;
@@ -92,6 +87,7 @@ public abstract class ShaderUniforms {
         iDate.set( d.getYear(),d.getMonthValue(),d.getDayOfMonth(),secOfDay);
 
 //        子列按需添加示例
+//        shaderProgram.bind();
 //        shaderProgram.setUniformf("iResolution", iResolution);
 //        shaderProgram.setUniformf("iTime", iTime);
 //        shaderProgram.setUniformf("iTimeDelta", iTimeDelta);

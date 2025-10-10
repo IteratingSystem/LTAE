@@ -51,6 +51,5 @@ public class ShaderComp extends SerializeComponent {
         }
         String className = LtaePluginRule.SHADER_UNIFORMS_PKG + "." + uniformSimpleName;
         shaderUniforms = ReflectionUtils.createObject(className,new Class[]{Entity.class},new Entity[]{world.getEntity(entityId)},ShaderUniforms.class);
-        shaderUniforms.initialize();
     }
 }
