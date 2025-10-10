@@ -29,7 +29,7 @@ public class EventListener extends SerializeComponent implements Disposable {
             return;
         }
 
-        onEvent = ReflectionUtils.createInstance(className, new Class[]{Entity.class}, new Entity[]{world.getEntity(entityId)},Object.class);
+        onEvent = ReflectionUtils.createObject(className, new Class[]{Entity.class}, new Entity[]{world.getEntity(entityId)},Object.class);
         eventSystem.registerEvents(onEvent);
     }
 

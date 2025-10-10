@@ -165,7 +165,7 @@ public class B2dBody extends SerializeComponent implements Disposable {
             if (listenerSimpleName != null && !listenerSimpleName.isEmpty()
             && b2dListenerPkg != null && !b2dListenerPkg.isEmpty()){
                 String className = b2dListenerPkg + "." + listenerSimpleName;
-                ecsContactListener = ReflectionUtils.createInstance(className, new Class[]{Entity.class}, new Entity[]{world.getEntity(entityId)},EcsContactListener.class);
+                ecsContactListener = ReflectionUtils.createObject(className, new Class[]{Entity.class}, new Entity[]{world.getEntity(entityId)},EcsContactListener.class);
             }
 
             Shape shape = ShapeUtils.getShapeByMapObject(object, worldScale,scaleWidth,scaleHeight);

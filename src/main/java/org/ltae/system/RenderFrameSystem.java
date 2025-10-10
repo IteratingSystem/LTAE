@@ -31,6 +31,7 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
     private M<ShaderComp> mShaderComp;
 
     private Batch batch;
+    private ShaderProgram shaderProgram;
     private float worldScale;
     public RenderFrameSystem(EntityProcessPrincipal principal,float worldScale) {
         super(principal);
@@ -42,6 +43,21 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         batch = renderTiledSystem.mapRenderer.getBatch();
     }
 
+    //着色器更新
+    private void processShader(int entityId) {
+        //获取着色器
+        shaderProgram = null;
+        if (!mShaderComp.has(entityId)){
+            return;
+        }
+        ShaderComp shaderComp = mShaderComp.get(entityId);
+        shaderProgram = shaderComp.shaderProgram;
+        //更新入参
+        if (shaderComp.shaderUniforms == null){
+            return;
+        }
+        shaderComp.shaderUniforms.update(world.getDelta());
+    }
     @Override
     protected void process(int entityId) {
         Render render = mRender.get(entityId);
@@ -57,13 +73,9 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         float scaleWidth = render.scaleWidth;
         float scaleHeight = render.scaleHeight;
 
-        //获取着色器数据
-        ShaderProgram shaderProgram = null;
-        if (mShaderComp.has(entityId)) {
-            ShaderComp shaderComp = mShaderComp.get(entityId);
-            shaderProgram = shaderComp.shaderProgram;
-        }
 
+        //渲染前更新着色器
+        processShader(entityId);
         //渲染
         batch.setShader(shaderProgram);
         batch.draw(keyFrame.getTexture(), // 指定要绘制的纹理对象
