@@ -47,7 +47,7 @@ public class SamplingUtil {
 
 
         fbo.begin();
-        ScreenUtils.clear(0.0f,0.0f,0.0f,1);
+//        ScreenUtils.clear(0.0f,0.0f,0.0f,0);
         mapRenderer.getBatch().begin();
         mapRenderer.renderTileLayer(mapLayer);
         mapRenderer.getBatch().end();

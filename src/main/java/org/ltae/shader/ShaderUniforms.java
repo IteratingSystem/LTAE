@@ -88,13 +88,13 @@ public abstract class ShaderUniforms {
 
 //        子列按需添加示例
 //        shaderProgram.bind();
-//        shaderProgram.setUniformf("iResolution", iResolution);
-//        shaderProgram.setUniformf("iTime", iTime);
-//        shaderProgram.setUniformf("iTimeDelta", iTimeDelta);
-//        shaderProgram.setUniformf("iFrameRate", iFrameRate);
-//        shaderProgram.setUniformi("iFrame", iFrame);
-//        shaderProgram.setUniformf("iMouse", iMouse);
-//        shaderProgram.setUniformf("iDate", iDate);
-//        shaderProgram.setUniformi("iChannel1", 1);//Texture.bind(1)
+//        shaderProgram.setUniformf("i_Resolution", iResolution);
+//        shaderProgram.setUniformf("i_Time", iTime);
+//        shaderProgram.setUniformf("i_TimeDelta", iTimeDelta);
+//        shaderProgram.setUniformf("i_FrameRate", iFrameRate);
+//        shaderProgram.setUniformi("i_Frame", iFrame);
+//        shaderProgram.setUniformf("i_Mouse", iMouse);
+//        shaderProgram.setUniformf("i_Date", iDate);
+//        shaderProgram.setUniformi("i_Channel1", 1);//Texture.bind(1)
     };
 }
