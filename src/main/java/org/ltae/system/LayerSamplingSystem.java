@@ -19,25 +19,17 @@ public class LayerSamplingSystem extends IteratingSystem {
     private M<LayerSampling> mSampling;
     private M<Pos> mPos;
 
-    private boolean isSampled;
-
-    @Override
-    protected void initialize() {
-        super.initialize();
-        isSampled = false;
-
-    }
 
     @Override
     protected void process(int entityId) {
         LayerSampling sampling = mSampling.get(entityId);
-        if (isSampled && !sampling.update){
+        if (sampling.isSampled && !sampling.update){
             return;
         }
         TextureRegion textureRegion = SamplingUtil.getInstance().samplingLayer(tiledMapSystem.getTiledMap(),sampling.layerName);
 
         Render render = mRender.get(entityId);
         render.keyframe = textureRegion;
-        isSampled = true;
+        sampling.isSampled = true;
     }
 }

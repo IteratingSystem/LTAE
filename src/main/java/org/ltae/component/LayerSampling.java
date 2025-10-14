@@ -11,4 +11,6 @@ public class LayerSampling extends Component {
     public String layerName;
     @SerializeParam
     public boolean update;
+
+    public boolean isSampled = false;
 }

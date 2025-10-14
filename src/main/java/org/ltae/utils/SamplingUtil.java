@@ -55,6 +55,7 @@ public class SamplingUtil {
 
         Texture texture = fbo.getColorBufferTexture();
         texture.setFilter(minFilter, magFilter);
+        fbo.dispose();
         return new TextureRegion(texture);
     }
 }
