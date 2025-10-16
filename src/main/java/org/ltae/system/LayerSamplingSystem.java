@@ -53,6 +53,7 @@ public class LayerSamplingSystem extends IteratingSystem {
 
             TileAnimation tileAnimation = mTileAnimation.create(entityId);
             tileAnimation.initialize(animatedTiledMapTile, Animation.PlayMode.LOOP,0,0);
+            return;
         }
 
         //采样时间
