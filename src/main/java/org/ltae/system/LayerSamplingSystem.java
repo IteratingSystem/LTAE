@@ -49,7 +49,7 @@ public class LayerSamplingSystem extends IteratingSystem {
             for (TextureRegion region : sampling.regions) {
                 staticTiledMapTiles.add(new StaticTiledMapTile(region));
             }
-            AnimatedTiledMapTile animatedTiledMapTile = new AnimatedTiledMapTile(sampling.interval,staticTiledMapTiles);
+            AnimatedTiledMapTile animatedTiledMapTile = new AnimatedTiledMapTile(sampling.interval/1000f,staticTiledMapTiles);
 
             TileAnimation tileAnimation = mTileAnimation.create(entityId);
             tileAnimation.initialize(animatedTiledMapTile, Animation.PlayMode.LOOP,0,0);
@@ -57,7 +57,7 @@ public class LayerSamplingSystem extends IteratingSystem {
         }
 
         //采样时间
-        float samplingTime = sampling.crtNum * sampling.interval/60f;
+        float samplingTime = sampling.crtNum * sampling.interval/1000f;
         //没到时间则不采样
 
         if (totalTime < samplingTime){
