@@ -2,6 +2,7 @@ package org.ltae.component;
 
 import com.artemis.World;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
@@ -48,7 +49,7 @@ public class TileAnimations extends SerializeComponent{
             float offsetX = animProp.get("offsetX", float.class);
             float offsetY = animProp.get("offsetY", float.class);
             TileAnimation tileAnimation = new TileAnimation();
-            tileAnimation.initialize(animatedTile,playModeName,offsetX,offsetY);
+            tileAnimation.initialize(animatedTile, Animation.PlayMode.valueOf(playModeName),offsetX,offsetY);
             if (table.containsKey(name)){
                 Gdx.app.log(TAG,"Repetitive animation naming:"+name);
                 continue;
