@@ -50,7 +50,7 @@ public class TileAnimation extends SerializeComponent{
             return;
         }
 
-        initialize(animatedTile,playModeName,offsetX,offsetY);
+        initialize(animatedTile,Animation.PlayMode.valueOf(playModeName),offsetX,offsetY);
     }
 
     /**
@@ -58,9 +58,9 @@ public class TileAnimation extends SerializeComponent{
      * 传入一个AnimatedTiledMapTile以及playModeName
      *
      * @param animatedTile
-     * @param playModeName
+     * @param playMode
      */
-    public void initialize(AnimatedTiledMapTile animatedTile,String playModeName,float offsetX,float offsetY) {
+    public void initialize(AnimatedTiledMapTile animatedTile,Animation.PlayMode playMode,float offsetX,float offsetY) {
         stateTime = 0;
         int[] animationIntervals = animatedTile.getAnimationIntervals();
         frameDurations = new float[animationIntervals.length];
@@ -78,7 +78,7 @@ public class TileAnimation extends SerializeComponent{
         for (int i = 0; i < frameTiles.length; i++) {
             keyframes[i] = frameTiles[i].getTextureRegion();
         }
-        playMode = Animation.PlayMode.valueOf(playModeName);
+        this.playMode = playMode;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
     }
