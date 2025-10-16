@@ -25,9 +25,17 @@ public class LayerSamplingSystem extends IteratingSystem {
     private M<Pos> mPos;
     private M<TileAnimation> mTileAnimation;
 
+    private float totalTime;
+
+    @Override
+    protected void initialize() {
+        super.initialize();
+        totalTime = 0f;
+    }
 
     @Override
     protected void process(int entityId) {
+        totalTime += world.getDelta();
         LayerSampling sampling = mSampling.get(entityId);
 
         //采样完成
@@ -50,7 +58,8 @@ public class LayerSamplingSystem extends IteratingSystem {
         //采样时间
         float samplingTime = sampling.crtNum * sampling.interval/60f;
         //没到时间则不采样
-        if (world.getDelta() < samplingTime){
+
+        if (totalTime < samplingTime){
             return;
         }
         //采样
