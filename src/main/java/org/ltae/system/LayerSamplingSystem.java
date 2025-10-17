@@ -56,8 +56,7 @@ public class LayerSamplingSystem extends IteratingSystem {
         }
 
         //当前时间会采样到第n帧
-        float intervalSeconds = sampling.interval / 1000f;
-        int n = (int)(totalTimeSystem.totalTime / intervalSeconds) % sampling.needNum;
+        int n = ((int)(totalTimeSystem.totalTime*1000 / sampling.interval)) % sampling.needNum;
 
         //判断当前帧是否采样,已采样则跳过
         if(sampling.regions[n] != null){
