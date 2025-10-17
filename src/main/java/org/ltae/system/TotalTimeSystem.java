@@ -3,6 +3,7 @@ package org.ltae.system;
 import com.artemis.BaseSystem;
 
 public class TotalTimeSystem extends BaseSystem {
+    //以秒为单位
     public float totalTime;
 
     @Override
