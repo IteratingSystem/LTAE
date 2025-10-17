@@ -44,6 +44,9 @@ public class LayerSampling extends SerializeComponent {
         for (int i = 0; i < width; i++) {
             for (int i1 = 0; i1 < height; i1++) {
                 TiledMapTileLayer.Cell cell = mapLayer.getCell(i, i1);
+                if (cell == null){
+                    continue;
+                }
                 TiledMapTile tile = cell.getTile();
                 if (tile instanceof AnimatedTiledMapTile animatedTiledMapTile) {
                     if (flagAnimTile == null || flagAnimTile.getAnimationIntervals().length < animatedTiledMapTile.getAnimationIntervals().length){
