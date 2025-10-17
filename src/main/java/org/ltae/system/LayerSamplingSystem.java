@@ -46,8 +46,9 @@ public class LayerSamplingSystem extends IteratingSystem {
             }
 
             Array<StaticTiledMapTile> staticTiledMapTiles = new Array<>();
-            for (TextureRegion region : sampling.regions) {
-                staticTiledMapTiles.add(new StaticTiledMapTile(region));
+            Array.ArrayIterator<TextureRegion> iterator = sampling.regions.iterator();
+            while (iterator.hasNext()){
+                staticTiledMapTiles.add(new StaticTiledMapTile(iterator.next()));
             }
             AnimatedTiledMapTile animatedTiledMapTile = new AnimatedTiledMapTile(sampling.interval/1000f,staticTiledMapTiles);
 
