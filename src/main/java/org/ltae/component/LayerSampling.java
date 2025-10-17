@@ -24,12 +24,22 @@ public class LayerSampling extends SerializeComponent {
     //已采样次数
     public int crtNum;
     //已采样纹理
-    public Array<TextureRegion> regions;
+    public TextureRegion[] regions;
 
     @Override
     public void reload(World world, EntityData entityData) {
         super.reload(world, entityData);
         crtNum = 0;
-        regions = new Array<>();
+        regions = new TextureRegion[needNum];
+    }
+
+    //是否已经采样完成
+    public boolean isSampled(){
+        for (int i = 0; i < needNum; i++) {
+            if (regions[i] == null) {
+                return false;
+            }
+        }
+        return true;
     }
 }

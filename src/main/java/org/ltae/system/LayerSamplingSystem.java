@@ -38,7 +38,7 @@ public class LayerSamplingSystem extends IteratingSystem {
         LayerSampling sampling = mSampling.get(entityId);
 
         //采样完成
-        if (sampling.crtNum == sampling.needNum){
+        if (sampling.isSampled()){
             //如果帧数大于1并且没有动画组件,则创建动画组件,反向判断
             if (sampling.needNum == 1 || mTileAnimation.has(entityId)){
                 return;
@@ -55,16 +55,17 @@ public class LayerSamplingSystem extends IteratingSystem {
             return;
         }
 
-        //采样时间
-        float samplingTime = sampling.crtNum * sampling.interval / 1000f;
+        //当前时间会采样到第n帧
+        float intervalSeconds = sampling.interval / 1000f;
+        int n = (int)(totalTimeSystem.totalTime / intervalSeconds) % sampling.needNum;
 
-        //没到时间则不采样
-        if (totalTimeSystem.totalTime < samplingTime){
+        //判断当前帧是否采样,已采样则跳过
+        if(sampling.regions[n] != null){
             return;
         }
         //采样
         TextureRegion textureRegion = SamplingUtil.getInstance().samplingLayer(tiledMapSystem.getTiledMap(),sampling.layerName);
-        sampling.regions.add(textureRegion);
+        sampling.regions[n] = textureRegion;
         Render render = mRender.get(entityId);
         render.keyframe = textureRegion;
         //一次采样完成
