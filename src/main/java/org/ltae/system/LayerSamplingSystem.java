@@ -58,9 +58,9 @@ public class LayerSamplingSystem extends IteratingSystem {
 
         //采样时间
         float samplingTime = sampling.crtNum * sampling.interval/1000f;
+        float nextSamplingTime = (sampling.crtNum+1) * sampling.interval/1000f;
         //没到时间则不采样
-
-        if (totalTime <= samplingTime){
+        if (totalTime <= samplingTime || totalTime > nextSamplingTime){
             return;
         }
         //采样
