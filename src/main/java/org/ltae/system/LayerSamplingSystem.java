@@ -2,6 +2,7 @@ package org.ltae.system;
 
 import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
@@ -19,23 +20,21 @@ public class LayerSamplingSystem extends IteratingSystem {
     private RenderTiledSystem renderTiledSystem;
     private TiledMapSystem tiledMapSystem;
     private CameraSystem cameraSystem;
+    private TotalTimeSystem totalTimeSystem;
 
     private M<Render> mRender;
     private M<LayerSampling> mSampling;
     private M<Pos> mPos;
     private M<TileAnimation> mTileAnimation;
 
-    private float totalTime;
 
     @Override
     protected void initialize() {
         super.initialize();
-        totalTime = 0f;
     }
 
     @Override
     protected void process(int entityId) {
-        totalTime += world.getDelta();
         LayerSampling sampling = mSampling.get(entityId);
 
         //采样完成
@@ -60,7 +59,7 @@ public class LayerSamplingSystem extends IteratingSystem {
         float samplingTime = sampling.crtNum * sampling.interval;
 
         //没到时间则不采样
-        if (totalTime < samplingTime){
+        if (totalTimeSystem.totalTime < samplingTime){
             return;
         }
         //采样
