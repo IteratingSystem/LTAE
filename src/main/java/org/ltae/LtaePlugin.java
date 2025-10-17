@@ -43,7 +43,6 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.dependsOn(EntityLinkManager.class);//实体连接管理器
         worldConfigurationBuilder.with(eventSystem);//事件总线
         //初始系统
-        worldConfigurationBuilder.with(new TotalTimeSystem());//总耗时系统
         worldConfigurationBuilder.with(new AssetSystem(LtaePluginRule.SKIN_PATH));//资源系统
         worldConfigurationBuilder.with(new TiledMapSystem(
                 LtaePluginRule.MAP_NAME,

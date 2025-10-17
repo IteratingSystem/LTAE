@@ -2,7 +2,6 @@ package org.ltae.system;
 
 import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
@@ -17,14 +16,10 @@ import org.ltae.utils.SamplingUtil;
 
 @All({LayerSampling.class, Render.class, Pos.class})
 public class LayerSamplingSystem extends IteratingSystem {
-    private RenderTiledSystem renderTiledSystem;
     private TiledMapSystem tiledMapSystem;
-    private CameraSystem cameraSystem;
-    private TotalTimeSystem totalTimeSystem;
 
     private M<Render> mRender;
     private M<LayerSampling> mSampling;
-    private M<Pos> mPos;
     private M<TileAnimation> mTileAnimation;
 
 
@@ -39,8 +34,8 @@ public class LayerSamplingSystem extends IteratingSystem {
 
         //采样完成
         if (sampling.isSampled()){
-            //如果帧数大于1并且没有动画组件,则创建动画组件,反向判断
-            if (sampling.needNum == 1 || mTileAnimation.has(entityId)){
+            //如果如果没有动画瓦片或者已经有动画组件则直接返回,否则生成动画组件
+            if (sampling.flagAnimTile == null || mTileAnimation.has(entityId)){
                 return;
             }
 
@@ -48,26 +43,30 @@ public class LayerSamplingSystem extends IteratingSystem {
             for (TextureRegion region : sampling.regions) {
                 staticTiledMapTiles.add(new StaticTiledMapTile(region));
             }
-            AnimatedTiledMapTile animatedTiledMapTile = new AnimatedTiledMapTile(sampling.interval/1000f,staticTiledMapTiles);
+            AnimatedTiledMapTile animatedTiledMapTile = new AnimatedTiledMapTile(sampling.flagAnimTile.getAnimationIntervals()[0]/1000f,staticTiledMapTiles);
 
             TileAnimation tileAnimation = mTileAnimation.create(entityId);
             tileAnimation.initialize(animatedTiledMapTile, Animation.PlayMode.LOOP,0,0);
             return;
         }
 
-        //当前时间会采样到第n帧
-        int n = ((int)(totalTimeSystem.totalTime*1000 / sampling.interval)) % sampling.needNum;
-
-        //判断当前帧是否采样,已采样则跳过
-        if(sampling.regions[n] != null){
+        //静态图层采样
+        if (sampling.flagAnimTile == null){
+            TextureRegion textureRegion = SamplingUtil.getInstance().samplingLayer(tiledMapSystem.getTiledMap(),sampling.layerName);
+            sampling.regions[0] = textureRegion;
+            Render render = mRender.get(entityId);
+            render.keyframe = textureRegion;
             return;
         }
-        //采样
+
+        //动画图层采样
+        int currentFrameIndex = sampling.flagAnimTile.getCurrentFrameIndex();
+        if (sampling.regions[currentFrameIndex] != null) {
+            return;
+        }
         TextureRegion textureRegion = SamplingUtil.getInstance().samplingLayer(tiledMapSystem.getTiledMap(),sampling.layerName);
-        sampling.regions[n] = textureRegion;
+        sampling.regions[currentFrameIndex] = textureRegion;
         Render render = mRender.get(entityId);
         render.keyframe = textureRegion;
-        //一次采样完成
-        sampling.crtNum++;
     }
 }

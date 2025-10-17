@@ -13,6 +13,7 @@ import java.util.List;
 public class EntityData {
     public int entityId;
     public int mapObjectId;
+    //地图名称
     public String fromMap;
     public String name;
     public String type;
