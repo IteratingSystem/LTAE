@@ -91,6 +91,9 @@ public class TileAnimation extends SerializeComponent{
      * @return
      */
     public boolean isLast(int lastCount){
+        if (keyframes == null){
+            return true;
+        }
         int frameNumber = this.getKeyframeIndex(stateTime);
         int length = keyframes.length;
         return length - frameNumber - 1 <= lastCount;
@@ -102,8 +105,11 @@ public class TileAnimation extends SerializeComponent{
      * @return keyFrame
      */
     public TextureRegion getKeyFrame() {
+        if (keyframes == null){
+            return null;
+        }
         int frameNumber = this.getKeyframeIndex(stateTime);
-        return this.keyframes[frameNumber];
+        return keyframes[frameNumber];
     }
 
     /**
@@ -142,6 +148,9 @@ public class TileAnimation extends SerializeComponent{
      * @return keyFrame
      */
     private TextureRegion getKeyFrame(float stateTime) {
+        if (keyframes == null){
+            return null;
+        }
         int frameNumber = this.getKeyframeIndex(stateTime);
         return this.keyframes[frameNumber];
     }
