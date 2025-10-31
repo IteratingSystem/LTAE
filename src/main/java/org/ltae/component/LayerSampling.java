@@ -23,6 +23,7 @@ public class LayerSampling extends SerializeComponent {
     //已采样纹理
     public TextureRegion[] regions;
     public AnimatedTiledMapTile flagAnimTile;
+    public boolean isCreateAnim = false;
 
     @Override
     public void reload(World world, EntityData entityData) {

@@ -35,18 +35,19 @@ public class LayerSamplingSystem extends IteratingSystem {
         //采样完成
         if (sampling.isSampled()){
             //如果如果没有动画瓦片或者已经有动画组件则直接返回,否则生成动画组件
-            if (sampling.flagAnimTile == null || mTileAnimation.has(entityId)){
+            if (sampling.flagAnimTile == null || sampling.isCreateAnim){
                 return;
             }
-
             Array<StaticTiledMapTile> staticTiledMapTiles = new Array<>();
             for (TextureRegion region : sampling.regions) {
                 staticTiledMapTiles.add(new StaticTiledMapTile(region));
             }
             AnimatedTiledMapTile animatedTiledMapTile = new AnimatedTiledMapTile(sampling.flagAnimTile.getAnimationIntervals()[0]/1000f,staticTiledMapTiles);
 
+            mTileAnimation.remove(entityId);
             TileAnimation tileAnimation = mTileAnimation.create(entityId);
             tileAnimation.initialize(animatedTiledMapTile, Animation.PlayMode.LOOP,0,0);
+            sampling.isCreateAnim = true;
             return;
         }
 
