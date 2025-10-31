@@ -161,7 +161,7 @@ public class TileAnimation extends SerializeComponent{
      * @return
      */
     public int getKeyframeIndex(float stateTime) {
-        if (this.keyframes.length == 1) {
+        if (this.keyframes == null || this.keyframes.length == 1) {
             return 0;
         }
 
