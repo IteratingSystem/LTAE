@@ -23,12 +23,12 @@ public class LayerSampling extends SerializeComponent {
     //已采样纹理
     public TextureRegion[] regions;
     public AnimatedTiledMapTile flagAnimTile;
-    public boolean isCreateAnim = false;
+    public boolean isCreateAnim;
 
     @Override
     public void reload(World world, EntityData entityData) {
         super.reload(world, entityData);
-
+        isCreateAnim = false;
         //获取地图
         TiledMap tiledMap = MapManager.getInstance().getTiledMap(entityData.fromMap);
         //获取图层

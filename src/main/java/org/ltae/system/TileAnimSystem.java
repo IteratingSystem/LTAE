@@ -33,6 +33,9 @@ public class TileAnimSystem extends IteratingSystem {
         }else {
             tileAnimation = mTileAnimation.get(entityId);
         }
+        if (tileAnimation.getKeyFrame() == null) {
+            return;
+        }
         tileAnimation.stateTime += world.getDelta();
         render.keyframe = tileAnimation.getKeyFrame();
         render.offsetX = tileAnimation.offsetX;
