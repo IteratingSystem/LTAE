@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
  **/
 public class UIEvent extends TypeEvent{
     public static final int HIDE = 1;
+    //显示ui,需要传入uiClass作为需要显示的目标ui
     public static final int SHOW = 2;
     public static final int REGISTER = 3;
     public static final int GET_TABLE = 4;
