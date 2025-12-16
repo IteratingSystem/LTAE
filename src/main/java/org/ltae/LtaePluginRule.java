@@ -19,8 +19,11 @@ public class LtaePluginRule {
     //ui视图宽高
     public static int UI_WIDTH = 640;
     public static int UI_HEIGHT = 480;
+    public static float UI_ZOOM = 1f;
+
     public static float GAME_WIDTH = 640;      // 窗口宽度
     public static float GAME_HEIGHT = 480;     // 窗口高度
+
     public static float CAMERA_ZOOM = 1.0f;      //相机放大比例
     public static float WORLD_SCALE = 1.0f;      // 世界缩放比例
     public static float G_X = 0.0f;              // 默认横向重力
