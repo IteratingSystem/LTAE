@@ -24,7 +24,10 @@ public abstract class InteractiveListener {
         eventSystem = world.getSystem(EventSystem.class);
     }
 
+    public String getTag(){
+        return getClass().getSimpleName();
+    }
 
-    void onEvent(InteractiveEvent event) {
+    public void onEvent(InteractiveEvent event) {
     }
 }
