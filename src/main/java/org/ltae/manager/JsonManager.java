@@ -1,5 +1,6 @@
 package org.ltae.manager;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.Null;
@@ -24,5 +25,8 @@ public class JsonManager {
     }
     public static @Null <T> T fromJson (Class<T> type, String json) {
         return  getJson().fromJson(type,json);
+    }
+    public static @Null <T> T fromJson (Class<T> type, FileHandle fileHandle) {
+        return  getJson().fromJson(type,fileHandle);
     }
 }
