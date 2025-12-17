@@ -1,6 +1,7 @@
 package org.ltae.system;
 
 import com.artemis.annotations.All;
+import com.artemis.annotations.Exclude;
 import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -12,6 +13,7 @@ import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.box2d.KeyframeShapeData;
 import org.ltae.box2d.setup.FixtureSetup;
 import org.ltae.component.B2dBody;
+import org.ltae.component.Inert;
 import org.ltae.component.Render;
 import org.ltae.component.TileAnimations;
 import org.ltae.utils.ShapeUtils;
@@ -22,6 +24,7 @@ import org.ltae.utils.ShapeUtils;
  * @Description 动画帧中响应的形状
  **/
 @All({B2dBody.class, TileAnimations.class, Render.class})
+//@Exclude(Inert.class)
 public class KeyframeShapeSystem extends IteratingSystem {
     private M<B2dBody> mB2dBody;
     private M<TileAnimations> mTileAnimations;

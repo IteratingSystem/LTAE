@@ -1,10 +1,12 @@
 package org.ltae.system;
 
 import com.artemis.annotations.All;
+import com.artemis.annotations.Exclude;
 import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
+import org.ltae.component.Inert;
 import org.ltae.component.Pos;
 import org.ltae.component.ZIndex;
 
@@ -14,6 +16,7 @@ import org.ltae.component.ZIndex;
  * @Description ZIndex跟随角色坐标就行改变
  **/
 @All({ZIndex.class, Pos.class})
+@Exclude(Inert.class)
 public class ZIndexSystem extends IteratingSystem {
     private M<Pos> mPos;
     private M<ZIndex> mZIndex;

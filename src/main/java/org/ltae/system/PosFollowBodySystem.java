@@ -1,10 +1,12 @@
 package org.ltae.system;
 
 import com.artemis.annotations.All;
+import com.artemis.annotations.Exclude;
 import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.math.Vector2;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.component.B2dBody;
+import org.ltae.component.Inert;
 import org.ltae.component.Pos;
 
 
@@ -14,6 +16,7 @@ import org.ltae.component.Pos;
  * @Description 坐标跟随b2dBody
  **/
 @All({Pos.class, B2dBody.class})
+@Exclude(Inert.class)
 public class PosFollowBodySystem extends IteratingSystem {
     private M<Pos> mPos;
     private M<B2dBody> mB2dBody;

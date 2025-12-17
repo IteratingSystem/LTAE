@@ -1,8 +1,10 @@
 package org.ltae.system;
 
 import com.artemis.annotations.All;
+import com.artemis.annotations.Exclude;
 import com.artemis.systems.IteratingSystem;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
+import org.ltae.component.Inert;
 import org.ltae.component.StateComp;
 
 /**
@@ -11,6 +13,7 @@ import org.ltae.component.StateComp;
  * @Description 状态系统
  **/
 @All(StateComp.class)
+@Exclude(Inert.class)
 public class StateSystem extends IteratingSystem {
     private M<StateComp> mStateComp;
     @Override

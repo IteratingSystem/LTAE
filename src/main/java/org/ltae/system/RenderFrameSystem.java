@@ -1,6 +1,7 @@
 package org.ltae.system;
 
 import com.artemis.annotations.All;
+import com.artemis.annotations.Exclude;
 import com.artemis.annotations.Wire;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import net.mostlyoriginal.api.system.delegate.DeferredEntityProcessingSystem;
 import net.mostlyoriginal.api.system.delegate.EntityProcessPrincipal;
+import org.ltae.component.Inert;
 import org.ltae.component.Pos;
 import org.ltae.component.Render;
 import org.ltae.component.ShaderComp;
@@ -22,6 +24,7 @@ import org.ltae.component.ShaderComp;
  **/
 @Wire
 @All({Render.class, Pos.class})
+@Exclude(Inert.class)
 public class RenderFrameSystem extends DeferredEntityProcessingSystem {
     private RenderTiledSystem renderTiledSystem;
     private CameraSystem cameraSystem;

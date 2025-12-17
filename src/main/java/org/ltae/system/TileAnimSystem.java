@@ -1,9 +1,11 @@
 package org.ltae.system;
 
 import com.artemis.annotations.All;
+import com.artemis.annotations.Exclude;
 import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
+import org.ltae.component.Inert;
 import org.ltae.component.Render;
 import org.ltae.component.TileAnimation;
 import org.ltae.component.TileAnimations;
@@ -14,6 +16,7 @@ import org.ltae.component.TileAnimations;
  * @Description 瓦片动画系统
  **/
 @All({TileAnimation.class, Render.class})
+@Exclude(Inert.class)
 public class TileAnimSystem extends IteratingSystem {
     private final static String TAG = TileAnimSystem.class.getSimpleName();
     private M<TileAnimations> mTileAnimations;
