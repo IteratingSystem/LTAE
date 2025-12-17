@@ -17,6 +17,7 @@ public class EntityEvent extends TypeEvent {
     public static final int CREATE_ALL = 4;
     public static final int ADD_AUTO_COMP = 5;
     public static final int SERIALIZER_ENTITIES = 6;
+    //传要删除的entityId
     public static final int DELETE_ENTITY = 7;
     public static final int DELETE_ALL = 8;
     public static final int DEL_AND_CREATE_ALL = 9;
@@ -27,7 +28,7 @@ public class EntityEvent extends TypeEvent {
     public MapObject mapObject;
     public String name;
     public Entity entity;
-    public int entityId;
+    public int entityId = -1;
 
     //序列化后的字符串,用于SERIALIZER_ENTITIES序列化后接受结果
     public String serializerEntitiesStr;
