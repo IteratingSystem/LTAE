@@ -13,7 +13,7 @@ import org.ltae.manager.map.serialize.json.EntityDatum;
 public class EntityBuilder {
     private final static String TAG = EntityBuilder.class.getSimpleName();
     public static void buildEntities(World world,String mapName) {
-        EntityData entityData = WorldStateManager.getInstance().getEntityDataList(mapName);
+        EntityData entityData = WorldStateManager.getInstance().getEntityData(mapName);
         buildEntities(world, entityData);
     }
     public static void buildEntities(World world, EntityData entityData) {

@@ -33,7 +33,7 @@ public class WorldStateManager {
         EntityData entityData = EntitySerializer.createEntityData(world);
         worldState.entityData.put(curtMap, entityData);
     }
-    public EntityData getEntityDataList(String mapName){
+    public EntityData getEntityData(String mapName){
         return worldState.entityData.get(mapName);
     }
     public String serializeState(){
