@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.manager.AssetManager;
 import org.ltae.manager.map.serialize.EntitySerializer;
-import org.ltae.manager.map.serialize.json.EntityDataList;
+import org.ltae.manager.map.serialize.json.EntityData;
 
 /**
  * @Auther WenLong
@@ -29,7 +29,7 @@ public class MapManager {
     private ObjectMap<String, MapLayer> entityLayers;
     private ObjectMap<String, MapObjects> allMapObjects;
     //每张地图对应的实体数据，作为原型，地图加载时默认存在的所有实体，也就是新游戏时创建实体的依据
-    private ObjectMap<String, EntityDataList> protoEntityData;
+    private ObjectMap<String, EntityData> protoEntityData;
     private Bag<TiledMapTileSet> tileSets;
 
 
@@ -73,7 +73,7 @@ public class MapManager {
         }
         return instance;
     }
-    public ObjectMap<String, EntityDataList> getProtoEntityDate(){
+    public ObjectMap<String, EntityData> getProtoEntityDate(){
         return protoEntityData;
     }
 

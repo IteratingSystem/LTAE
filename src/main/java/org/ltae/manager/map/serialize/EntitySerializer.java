@@ -9,8 +9,8 @@ import org.ltae.LtaePluginRule;
 import org.ltae.component.SerializeComponent;
 import org.ltae.manager.JsonManager;
 import org.ltae.manager.map.serialize.json.CompData;
-import org.ltae.manager.map.serialize.json.EntityDataList;
 import org.ltae.manager.map.serialize.json.EntityData;
+import org.ltae.manager.map.serialize.json.EntityDatum;
 import org.ltae.manager.map.serialize.json.CompProp;
 import org.ltae.utils.ReflectionUtils;
 
@@ -25,20 +25,19 @@ import java.util.Set;
  * @Description
  **/
 public class EntitySerializer {
-    public static EntityDataList getEntityDataList(String mapName, MapObjects mapObjects){
-        EntityDataList entityDateList = new EntityDataList();
-        entityDateList.entities = new ArrayList<>();
+    public static EntityData getEntityDataList(String mapName, MapObjects mapObjects){
+        EntityData entityDateList = new EntityData();
         for (MapObject mapObject : mapObjects) {
             String entityName = mapObject.getName();
             MapProperties properties = mapObject.getProperties();
 
-            EntityData entityData = new EntityData();
-            entityData.components = new ArrayList<>();
-            entityData.mapObjectId = mapObject.getProperties().get("id",0,Integer.class);
-            entityData.fromMap = mapName;
+            EntityDatum entityDatum = new EntityDatum();
+            entityDatum.components = new ArrayList<>();
+            entityDatum.mapObjectId = mapObject.getProperties().get("id",0,Integer.class);
+            entityDatum.fromMap = mapName;
 
-            entityData.name = entityName;
-            entityData.type = properties.get("type", "", String.class);
+            entityDatum.name = entityName;
+            entityDatum.type = properties.get("type", "", String.class);
 
             Set<Class<? extends Component>> compClasses = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
             for (Class<? extends Component> compClass : compClasses) {
@@ -64,49 +63,48 @@ public class EntitySerializer {
                     compProp.value = property.get(field.getName(), null, type);
                     compData.props.add(compProp);
                 }
-                entityData.components.add(compData);
+                entityDatum.components.add(compData);
             }
             //添加默认组件
             for (Class autoCompClass : LtaePluginRule.AUTO_COMP_CLASSES) {
                 String simpleName = autoCompClass.getSimpleName();
-                if (entityData.hasComp(simpleName)) {
+                if (entityDatum.hasComp(simpleName)) {
                     continue;
                 }
                 CompData compData = new CompData();
                 compData.props = new ArrayList<>();
                 compData.name = simpleName;
-                entityData.components.add(compData);
+                entityDatum.components.add(compData);
             }
-            entityDateList.entities.add(entityData);
+            entityDateList.add(entityDatum);
         }
         return entityDateList;
     }
 
-    public static EntityDataList getEntityDataList(World world){
-        EntityDataList entityDateList = new EntityDataList();
-        entityDateList.entities = new ArrayList<>();
+    public static EntityData createEntityData(World world){
+        EntityData entityDateList = new EntityData();
 
         AspectSubscriptionManager aspectSubscriptionManager = world.getSystem(AspectSubscriptionManager.class);
         EntitySubscription allEntities = aspectSubscriptionManager.get(Aspect.all());
         IntBag entities = allEntities.getEntities();
         for (int i = 0; i < entities.size(); i++) {
             int entityId = entities.get(i);
-            EntityData entityData = getEntityData(world,entityId);
-            if (entityData == null){
+            EntityDatum entityDatum = createEntityDatum(world,entityId);
+            if (entityDatum == null){
                 continue;
             }
-            entityDateList.entities.add(entityData);
+            entityDateList.add(entityDatum);
         }
         return entityDateList;
     }
-    public static EntityData getEntityData(World world,int entityId){
+    public static EntityDatum createEntityDatum(World world, int entityId){
         Bag<Component> allComps = new Bag<>();
         world.getEntity(entityId).getComponents(allComps);
         if (allComps.isEmpty()) {
             return null;
         }
 
-        EntityData entity = new EntityData();
+        EntityDatum entity = new EntityDatum();
         entity.entityId = entityId;
         TagManager tagManager = world.getSystem(TagManager.class);
         entity.name = tagManager.getTag(entityId);
@@ -157,77 +155,80 @@ public class EntitySerializer {
         }
         return entity;
     }
-    public static void overlayEntityData(EntityDataList entityDateList, EntityData entityData){
-        List<EntityData> entities = entityDateList.entities;
-        if (entityDateList.hasEntityData(entityData)) {
-            for (EntityData entity : entities) {
-                if (entity.equals(entityData)) {
-                    entities.remove(entity);
-                    entities.add(entityData);
+    //覆盖entityDatum,更新了新的数据覆盖上去,相对于复制过去替换掉
+    public static void overlayEntityData(EntityData entityData, EntityDatum entityDatum){
+        if (entityData.hasEntityData(entityDatum)) {
+            for (EntityDatum entity : entityData) {
+                if (entity.equals(entityDatum)) {
+                    entityData.remove(entity);
+                    entityData.add(entityDatum);
                     break;
                 }
             }
             return;
         }
-        entities.add(entityData);
+        entityData.add(entityDatum);
     }
-    public static void createEntities(World world, EntityDataList entityDataList){
+    public static void buildEntity(World world,EntityDatum entityDatum){
         TagManager tagManager = world.getSystem(TagManager.class);
-        if (entityDataList == null) {
-            return;
+        //创建
+        int entityId = world.create();
+        entityDatum.entityId = entityId;
+        //注册tag
+        if (!"".equals(entityDatum.name)) {
+            tagManager.register(entityDatum.name,entityId);
         }
-        for (EntityData entityData : entityDataList.entities) {
-            //创建
-            int entityId = world.create();
-            entityData.entityId = entityId;
-            //注册tag
-            if (!"".equals(entityData.name)) {
-                tagManager.register(entityData.name,entityId);
-            }
-            //注册组件
-            List<CompData> components = entityData.components;
-            Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
-            for (Class<? extends Component> aClass : classes) {
-                String simpleName = aClass.getSimpleName();
-                for (CompData compData : components) {
-                    if (!simpleName.equals(compData.name)) {
-                        continue;
-                    }
-                    //通过类对象创建组件Mapper
-                    ComponentMapper<? extends Component> mapper = world.getMapper(aClass);
-                    if (mapper == null) {
-                        break;
-                    }
-                    //通过组件Mapper创建组件
-                    Component component = mapper.create(entityId);
-                    //写入默认值
-                    List<CompProp> props = compData.props;
-                    for (CompProp prop : props) {
-                        String key = prop.key;
-                        Object value = prop.value;
-                        try {
-                            Field declaredField = aClass.getDeclaredField(key);
-                            if (!declaredField.isAnnotationPresent(SerializeParam.class)) {
-                                continue;
-                            }
-                            declaredField.set(component,value);
-                        } catch (NoSuchFieldException | IllegalAccessException e) {
-                            throw new RuntimeException(e);
+        //注册组件
+        List<CompData> components = entityDatum.components;
+        Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
+        for (Class<? extends Component> aClass : classes) {
+            String simpleName = aClass.getSimpleName();
+            for (CompData compData : components) {
+                if (!simpleName.equals(compData.name)) {
+                    continue;
+                }
+                //通过类对象创建组件Mapper
+                ComponentMapper<? extends Component> mapper = world.getMapper(aClass);
+                if (mapper == null) {
+                    break;
+                }
+                //通过组件Mapper创建组件
+                Component component = mapper.create(entityId);
+                //写入默认值
+                List<CompProp> props = compData.props;
+                for (CompProp prop : props) {
+                    String key = prop.key;
+                    Object value = prop.value;
+                    try {
+                        Field declaredField = aClass.getDeclaredField(key);
+                        if (!declaredField.isAnnotationPresent(SerializeParam.class)) {
+                            continue;
                         }
+                        declaredField.set(component,value);
+                    } catch (NoSuchFieldException | IllegalAccessException e) {
+                        throw new RuntimeException(e);
                     }
-                    //执行reload
-                    if (component instanceof SerializeComponent serializeComponent) {
-                        serializeComponent.reload(world, entityData);
-                        break;
-                    }
+                }
+                //执行reload
+                if (component instanceof SerializeComponent serializeComponent) {
+                    serializeComponent.reload(world, entityDatum);
+                    break;
                 }
             }
         }
     }
-    public static String toJson(EntityDataList entityDataList){
-        return JsonManager.toJson(entityDataList);
+    public static void buildEntities(World world, EntityData entityData){
+        if (entityData == null) {
+            return;
+        }
+        for (EntityDatum entityDatum : entityData) {
+            buildEntity(world,entityDatum);
+        }
     }
-    public static EntityDataList toEntityBag(String entityDataList){
-        return JsonManager.fromJson(EntityDataList.class,entityDataList);
+    public static String toJson(EntityData entityData){
+        return JsonManager.toJson(entityData);
+    }
+    public static EntityData toEntityBag(String entityDataList){
+        return JsonManager.fromJson(EntityData.class,entityDataList);
     }
 }

@@ -6,7 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Disposable;
 import org.ltae.LtaePluginRule;
 import org.ltae.event.listener.InteractiveListener;
-import org.ltae.manager.map.serialize.json.EntityData;
+import org.ltae.manager.map.serialize.json.EntityDatum;
 import org.ltae.utils.ReflectionUtils;
 
 /**
@@ -18,8 +18,8 @@ public class EventListener extends SerializeComponent implements Disposable {
 
     public Object onEvent;
     @Override
-    public void reload(World world, EntityData entityData) {
-        super.reload(world, entityData);
+    public void reload(World world, EntityDatum entityDatum) {
+        super.reload(world, entityDatum);
     }
     public void registerEvent(String simpleName){
         String onEventPkg = LtaePluginRule.ON_EVENT_PKG;

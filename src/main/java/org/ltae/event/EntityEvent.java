@@ -3,7 +3,8 @@ package org.ltae.event;
 import com.artemis.Component;
 import com.artemis.Entity;
 import com.badlogic.gdx.maps.MapObject;
-import org.ltae.manager.map.serialize.json.EntityDataList;
+import org.ltae.manager.map.serialize.json.EntityData;
+import org.ltae.manager.map.serialize.json.EntityDatum;
 
 /**
  * @Auther WenLong
@@ -22,6 +23,10 @@ public class EntityEvent extends TypeEvent {
     public static final int DELETE_ALL = 8;
     public static final int DEL_AND_CREATE_ALL = 9;
     public static final int FILTER_DEL_ALL = 10;
+    //传entityDatum
+    public static final int BUILD_ENTITY = 11;
+    //传entityData
+    public static final int BUILD_ENTITIES = 12;
 
     public float x;
     public float y;
@@ -34,7 +39,8 @@ public class EntityEvent extends TypeEvent {
     public String serializerEntitiesStr;
     //实体标签列表,用于FILTER_DEL_ALL过滤不要删除的实体
     public String[] entityTags;
-    public EntityDataList entityDataList;
+    public EntityData entityData;
+    public EntityDatum entityDatum;
 
     public Class<? extends Component> compClass;
 

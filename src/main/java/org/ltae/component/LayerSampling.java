@@ -9,7 +9,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import org.ltae.manager.map.MapManager;
 import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.json.EntityData;
+import org.ltae.manager.map.serialize.json.EntityDatum;
 
 
 /**
@@ -26,11 +26,11 @@ public class LayerSampling extends SerializeComponent {
     public boolean isCreateAnim;
 
     @Override
-    public void reload(World world, EntityData entityData) {
-        super.reload(world, entityData);
+    public void reload(World world, EntityDatum entityDatum) {
+        super.reload(world, entityDatum);
         isCreateAnim = false;
         //获取地图
-        TiledMap tiledMap = MapManager.getInstance().getTiledMap(entityData.fromMap);
+        TiledMap tiledMap = MapManager.getInstance().getTiledMap(entityDatum.fromMap);
         //获取图层
         TiledMapTileLayer mapLayer = null;
         try{

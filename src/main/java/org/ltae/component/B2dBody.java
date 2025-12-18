@@ -24,7 +24,7 @@ import org.ltae.system.B2dSystem;
 import org.ltae.manager.map.serialize.SerializeParam;
 import org.ltae.utils.ReflectionUtils;
 import org.ltae.utils.ShapeUtils;
-import org.ltae.manager.map.serialize.json.EntityData;
+import org.ltae.manager.map.serialize.json.EntityDatum;
 
 
 /**
@@ -55,8 +55,8 @@ public class B2dBody extends SerializeComponent implements Disposable {
 
 
     @Override
-    public void reload(com.artemis.World world, EntityData entityData) {
-        super.reload(world, entityData);
+    public void reload(com.artemis.World world, EntityDatum entityDatum) {
+        super.reload(world, entityDatum);
         //获取传入参数的属性
         if (!(mapObject instanceof TiledMapTileMapObject tileMapObject)) {
             return;
@@ -64,7 +64,7 @@ public class B2dBody extends SerializeComponent implements Disposable {
         MapProperties props = mapObject.getProperties();
         float posX = props.get("x", float.class);
         float posY = props.get("y", float.class);
-        CompData pos = entityData.getCompJson("Pos");
+        CompData pos = entityDatum.getCompJson("Pos");
         if (pos.containsKey(new String[]{"x","y"})) {
             posX = (float)pos.get("x", -1f);
             posY = (float)pos.get("y", -1f);

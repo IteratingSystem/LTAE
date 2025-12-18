@@ -15,8 +15,8 @@ import org.ltae.manager.map.serialize.EntityDeleter;
 import org.ltae.manager.map.serialize.ComponentConfig;
 import org.ltae.manager.map.serialize.EntityBuilder;
 import org.ltae.manager.map.serialize.EntitySerializer;
-import org.ltae.manager.map.serialize.json.EntityDataList;
-import org.ltae.manager.map.serialize.json.EntityDataList;
+import org.ltae.manager.map.serialize.json.EntityData;
+import org.ltae.manager.map.serialize.json.EntityDatum;
 
 
 /**
@@ -51,22 +51,25 @@ public class EntityFactory extends BaseSystem {
         EntityDeleter.deleteAll(world);
         EntityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
-    private void delAndCreateAll(EntityDataList EntityDataList){
+    private void delAndCreateAll(EntityData EntityData){
         EntityDeleter.deleteAll(world);
-        EntityBuilder.buildEntities(world, EntityDataList);
+        EntityBuilder.buildEntities(world, EntityData);
     }
     private void createAll(){
         EntityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
-    private void createAll(EntityDataList entityDataList){
-        EntityBuilder.buildEntities(world, entityDataList);
+    private void buildEntities(EntityData entityData){
+        EntityBuilder.buildEntities(world, entityData);
     }
-    private EntityDataList getEntitiesJson(){
-        return EntitySerializer.getEntityDataList(world);
+    private void buildEntity(EntityDatum entityDatum){
+        EntityBuilder.buildEntity(world, entityDatum);
+    }
+    private EntityData getEntitiesJson(){
+        return EntitySerializer.createEntityData(world);
     }
     private String serializerEntitiesJson(){
-        EntityDataList EntityDataList = EntitySerializer.getEntityDataList(world);
-        return EntitySerializer.toJson(EntityDataList);
+        EntityData EntityData = EntitySerializer.createEntityData(world);
+        return EntitySerializer.toJson(EntityData);
     }
     private void deleteEntity(int entityId){
         EntityDeleter.deleteEntity(world,entityId);
@@ -79,36 +82,20 @@ public class EntityFactory extends BaseSystem {
     }
     @Subscribe
     public void onEvent(EntityEvent event){
-//        if (event.type == CreateEntityEvent.CREATE_ENTITY){
-//            event.entity = createEntity(event.mapObject,event.x,event.y);
-//            return ;
-//        }
-//        if (event.type == CreateEntityEvent.CREATE_PREFAB){
-//            if (event.x == 0 && event.y == 0) {
-//                event.entity = createPrefabEntity(event.name);
-//                return;
-//            }
-//            event.entity = createPrefabEntity(event.name,event.x,event.y);
-//            return;
-//        }
-//        if (event.type == CreateEntityEvent.GET_MAP_OBJECT){
-//            event.mapObject = getPrefObject(event.name);
-//            return;
-//        }
         if (event.type == EntityEvent.CREATE_ALL){
-            if (event.entityDataList == null){
-                createAll();
-                return;
-            }
-            createAll(event.entityDataList);
+            createAll();
+            return;
+        }
+        if (event.type == EntityEvent.BUILD_ENTITIES){
+            buildEntities(event.entityData);
             return;
         }
         if (event.type == EntityEvent.DEL_AND_CREATE_ALL){
-            if (event.entityDataList == null){
+            if (event.entityData == null){
                 delAndCreateAll();
                 return;
             }
-            delAndCreateAll(event.entityDataList);
+            delAndCreateAll(event.entityData);
             return;
         }
 //        if (event.type == CreateEntityEvent.ADD_AUTO_COMP){
@@ -129,6 +116,10 @@ public class EntityFactory extends BaseSystem {
         }
         if (event.type == EntityEvent.FILTER_DEL_ALL){
             filterDeleteAll(event.entityTags);
+            return;
+        }
+        if (event.type == EntityEvent.BUILD_ENTITY){
+            buildEntity(event.entityDatum);
             return;
         }
     }

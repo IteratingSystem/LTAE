@@ -7,7 +7,7 @@ import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.system.AssetSystem;
 import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.json.EntityData;
+import org.ltae.manager.map.serialize.json.EntityDatum;
 
 /**
  * @Auther WenLong
@@ -21,8 +21,8 @@ public class BTree extends SerializeComponent{
     @SerializeParam
     public String treeName;
     @Override
-    public void reload(World world, EntityData entityData) {
-        super.reload(world, entityData);
+    public void reload(World world, EntityDatum entityDatum) {
+        super.reload(world, entityDatum);
         AssetSystem assetSystem = world.getSystem(AssetSystem.class);
         if (assetSystem == null){
             Gdx.app.error(TAG,"assetSystem is null!");

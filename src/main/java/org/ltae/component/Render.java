@@ -4,7 +4,7 @@ import com.artemis.World;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
-import org.ltae.manager.map.serialize.json.EntityData;
+import org.ltae.manager.map.serialize.json.EntityDatum;
 
 /**
  * @Auther WenLong
@@ -22,8 +22,8 @@ public class Render extends SerializeComponent{
     public  boolean flipY = false;
 
     @Override
-    public void reload(World world, EntityData entityData) {
-        super.reload(world, entityData);
+    public void reload(World world, EntityDatum entityDatum) {
+        super.reload(world, entityDatum);
         if (mapObject instanceof TextureMapObject textureMapObject) {
             keyframe = textureMapObject.getTextureRegion();
             flipX = textureMapObject.getTextureRegion().isFlipX();

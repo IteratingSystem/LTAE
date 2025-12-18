@@ -8,11 +8,10 @@ import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import org.ltae.LtaePluginRule;
 import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.json.EntityData;
+import org.ltae.manager.map.serialize.json.EntityDatum;
 import org.reflections.Reflections;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 /**
@@ -30,8 +29,8 @@ public class StateComp extends SerializeComponent{
     public  StateMachine<Entity,State<Entity>> machine;
 
     @Override
-    public void reload(World world, EntityData entityData) {
-        super.reload(world, entityData);
+    public void reload(World world, EntityDatum entityDatum) {
+        super.reload(world, entityDatum);
         String statePkg = LtaePluginRule.STATE_PKG;
         Reflections reflections = new Reflections(statePkg);
         Set<Class<? extends Enum>> enumsClass = reflections.getSubTypesOf(Enum.class);

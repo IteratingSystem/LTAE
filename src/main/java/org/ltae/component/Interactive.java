@@ -2,7 +2,7 @@ package org.ltae.component;
 
 import com.artemis.World;
 import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.json.EntityData;
+import org.ltae.manager.map.serialize.json.EntityDatum;
 
 /**
  * @Auther WenLong
@@ -14,8 +14,8 @@ public class Interactive extends EventListener {
     public String simpleName;
 
     @Override
-    public void reload(World world, EntityData entityData) {
-        super.reload(world, entityData);
+    public void reload(World world, EntityDatum entityDatum) {
+        super.reload(world, entityDatum);
         registerEvent(simpleName);
     }
 }

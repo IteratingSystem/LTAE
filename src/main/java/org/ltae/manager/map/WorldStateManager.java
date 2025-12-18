@@ -3,7 +3,7 @@ package org.ltae.manager.map;
 import com.artemis.World;
 import org.ltae.manager.JsonManager;
 import org.ltae.manager.map.serialize.EntitySerializer;
-import org.ltae.manager.map.serialize.json.EntityDataList;
+import org.ltae.manager.map.serialize.json.EntityData;
 import org.ltae.system.TiledMapSystem;
 
 public class WorldStateManager {
@@ -30,10 +30,10 @@ public class WorldStateManager {
         String curtMap = tiledMapSystem.getCurrent();
         worldState.curtMap = curtMap;
 
-        EntityDataList entityDataList = EntitySerializer.getEntityDataList(world);
-        worldState.entityData.put(curtMap,entityDataList);
+        EntityData entityData = EntitySerializer.createEntityData(world);
+        worldState.entityData.put(curtMap, entityData);
     }
-    public EntityDataList getEntityDataList(String mapName){
+    public EntityData getEntityDataList(String mapName){
         return worldState.entityData.get(mapName);
     }
     public String serializeState(){
