@@ -52,7 +52,7 @@ public class MapManager {
             MapLayer entityLayer = tiledMap.getLayers().get(entityLayerName);
             MapObjects mapObjects = entityLayer.getObjects();
             allMapObjects.put(mapName,mapObjects);
-            protoEntityData.put(mapName,EntitySerializer.getEntityDataList(mapName,mapObjects));
+            protoEntityData.put(mapName,EntitySerializer.createEntityData(mapName,mapObjects));
             for (TiledMapTileSet tileSet : tiledMap.getTileSets()) {
                 if (tileSets.contains(tileSet)) {
                     continue;

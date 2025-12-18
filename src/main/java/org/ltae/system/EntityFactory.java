@@ -55,7 +55,7 @@ public class EntityFactory extends BaseSystem {
         EntityDeleter.deleteAll(world);
         EntityBuilder.buildEntities(world, EntityData);
     }
-    private void createAll(){
+    private void buildAll(){
         EntityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
     }
     private void buildEntities(EntityData entityData){
@@ -64,8 +64,11 @@ public class EntityFactory extends BaseSystem {
     private void buildEntity(EntityDatum entityDatum){
         EntityBuilder.buildEntity(world, entityDatum);
     }
-    private EntityData getEntitiesJson(){
+    private EntityData createEntityData(){
         return EntitySerializer.createEntityData(world);
+    }
+    private EntityDatum createEntityDatum(int entityId){
+        return EntitySerializer.createEntityDatum(world,entityId);
     }
     private String serializerEntitiesJson(){
         EntityData EntityData = EntitySerializer.createEntityData(world);
@@ -82,8 +85,8 @@ public class EntityFactory extends BaseSystem {
     }
     @Subscribe
     public void onEvent(EntityEvent event){
-        if (event.type == EntityEvent.CREATE_ALL){
-            createAll();
+        if (event.type == EntityEvent.BUILD_ALL){
+            buildAll();
             return;
         }
         if (event.type == EntityEvent.BUILD_ENTITIES){
@@ -98,10 +101,6 @@ public class EntityFactory extends BaseSystem {
             delAndCreateAll(event.entityData);
             return;
         }
-//        if (event.type == CreateEntityEvent.ADD_AUTO_COMP){
-//            addAutoComp(event.compClass);
-//            return;
-//        }
         if (event.type == EntityEvent.SERIALIZER_ENTITIES){
             event.serializerEntitiesStr = serializerEntitiesJson();
             return;
@@ -120,6 +119,10 @@ public class EntityFactory extends BaseSystem {
         }
         if (event.type == EntityEvent.BUILD_ENTITY){
             buildEntity(event.entityDatum);
+            return;
+        }
+        if (event.type == EntityEvent.CREATE_ENTITY_DATUM){
+            event.entityDatum = createEntityDatum(event.entityId);
             return;
         }
     }

@@ -25,7 +25,7 @@ import java.util.Set;
  * @Description
  **/
 public class EntitySerializer {
-    public static EntityData getEntityDataList(String mapName, MapObjects mapObjects){
+    public static EntityData createEntityData(String mapName, MapObjects mapObjects){
         EntityData entityDateList = new EntityData();
         for (MapObject mapObject : mapObjects) {
             String entityName = mapObject.getName();
