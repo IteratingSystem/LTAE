@@ -15,6 +15,9 @@ public class SlotData {
     public EntityDatum entityDatum;
 
     public TextureRegionDrawable getDrawable(World world) {
+        if (entityDatum == null){
+            return null;
+        }
         Entity entity = world.getEntity(entityDatum.entityId);
         Render render = entity.getComponent(Render.class);
         return new TextureRegionDrawable(render.keyframe);

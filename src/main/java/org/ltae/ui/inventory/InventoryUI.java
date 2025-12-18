@@ -104,7 +104,7 @@ public class InventoryUI extends BaseEcsUI {
         payload.setDragActor(dragActor);
         return payload;
     }
-    //拖到空地，回滚
+    //拖到空地丢弃
     public void onDragStop(InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload, DragAndDrop.Target target){
     }
     //拖拽后松开按钮
