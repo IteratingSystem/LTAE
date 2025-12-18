@@ -1,0 +1,160 @@
+package org.ltae.ui.inventory;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.utils.Align;
+
+public class InventorySlot extends WidgetGroup {
+    private SlotData slotData;
+
+    private InventorySlotStyle style;
+    private Image bg;      // 背景
+    private Image icon;    // 物品图标
+    private Label amount;  // 右下角数量
+    private boolean hovered, pressed, checked, disabled;
+
+    public InventorySlot(Skin skin, String styleName) {
+        this(skin.get(styleName, InventorySlotStyle.class));
+    }
+
+    public InventorySlot(InventorySlotStyle style) {
+        this.style = style;
+
+        bg = new Image();
+        icon = new Image();
+        amount = new Label("", new Label.LabelStyle(style.font, style.fontColor));
+        amount.setAlignment(Align.bottomRight);
+
+        addActor(bg);
+        addActor(icon);
+        addActor(amount);
+
+        // 统一大小
+        setSize(style.up.getMinWidth(), style.up.getMinHeight());
+        //首次绘制
+        refreshDrawables();
+        // 按钮事件（悬停/按下/点击）
+        addListener(new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, com.badlogic.gdx.scenes.scene2d.Actor fromActor) {
+                hovered = true;
+                refreshDrawables();
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, com.badlogic.gdx.scenes.scene2d.Actor toActor) {
+                hovered = false;
+                refreshDrawables();
+            }
+
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                pressed = true;
+                refreshDrawables();
+                return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                pressed = false;
+                refreshDrawables();
+            }
+        });
+    }
+
+    /* =============== 外部调用 =============== */
+
+    /** 换背景图（普通/装备/任务…） */
+    public void setBackground(Drawable drawable) {
+        style.up = drawable;
+        refreshDrawables();
+    }
+
+    public Image getIcon() {
+        return icon;
+    }
+
+    /** 换物品图标 */
+    private void setIcon(Drawable drawable) {
+        icon.setDrawable(drawable);
+        icon.setVisible(drawable != null);
+    }
+
+    public int getAmount() {
+        String amountStr = amount.getText().toString();
+        if (amountStr.isBlank()){
+            amountStr = "0";
+        }
+        return Integer.parseInt(amountStr);
+    }
+    /** 数量文本 */
+    private void setAmount(int count) {
+        amount.setText(count <= 1 ? "" : String.valueOf(count));
+    }
+
+    public SlotData getSlotData() {
+        return slotData;
+    }
+
+    public void setSlotData(SlotData slotData) {
+        this.slotData = slotData;
+        if (slotData == null){
+            slotData = new SlotData();
+        }
+        setIcon(slotData.drawable);
+        setAmount(slotData.stackAmount);
+    }
+
+    /** 选中状态 */
+    public void setChecked(boolean checked) {
+        this.checked = checked;
+        refreshDrawables();
+    }
+
+    public boolean isChecked() { return checked; }
+
+    /** 禁用状态 */
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+        refreshDrawables();
+    }
+
+    public boolean isDisabled() { return disabled; }
+
+    /* =============== 内部 =============== */
+
+    public void refreshDrawables() {
+        // 背景状态机
+        Drawable front = style.up;
+        if (disabled && style.disabled != null) front = style.disabled;
+        else if (pressed && style.down != null) front = style.down;
+        else if (hovered && style.over != null) front = style.over;
+        else if (checked && style.checked != null) front = style.checked;
+        bg.setDrawable(front);
+
+        // 图标染色（可选）
+        Color tint = disabled ? Color.GRAY : Color.WHITE;
+        icon.setColor(tint);
+
+        icon.setDrawable(icon.getDrawable());
+    }
+
+
+    @Override
+    public void layout() {
+        // 背景铺满
+        bg.setBounds(0, 0, getWidth(), getHeight());
+        // 图标居中
+        float iconSize = Math.min(getWidth(), getHeight()) * 0.8f;
+        icon.setBounds((getWidth() - iconSize) / 2, (getHeight() - iconSize) / 2, iconSize, iconSize);
+        // 数量右下角
+        amount.setBounds(getWidth() - amount.getPrefWidth() - 6, 2, amount.getPrefWidth(), amount.getPrefHeight());
+    }
+
+
+    public static class InventorySlotStyle extends TextButton.TextButtonStyle {
+    }
+}
