@@ -24,7 +24,7 @@ public class InventoryUI extends BaseEcsUI {
     }
 
     /* ===== 一次性画好所有格子并打开拖拽 ===== */
-    protected void rebuild(SlotData[][] slotData) {
+    public void rebuild(SlotData[][] slotData) {
         this.slotData = slotData;
         clear();
         int rows = slotData.length;
@@ -91,7 +91,7 @@ public class InventoryUI extends BaseEcsUI {
 
     /* ===== 子类唯一要关心的两个钩子 ===== */
     //按住开始拖拽
-    protected DragAndDrop.Payload onDragStart(InventorySlot slot) {
+    public DragAndDrop.Payload onDragStart(InventorySlot slot) {
         DragAndDrop.Payload payload = new DragAndDrop.Payload();
         Image dragActor = new Image(slot.getIcon().getDrawable());
         dragActor.setScale(4f);
@@ -102,7 +102,7 @@ public class InventoryUI extends BaseEcsUI {
     public void onDragStop(InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload, DragAndDrop.Target target){
     }
     //拖拽后松开按钮
-    protected void onDrop(DragAndDrop.Source source,
+    public void onDrop(DragAndDrop.Source source,
                           DragAndDrop.Payload payload,
                           Actor targetActor) {
         if (slots == null) {
