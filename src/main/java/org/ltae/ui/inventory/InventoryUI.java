@@ -6,12 +6,12 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-import com.game.component.Inventory;
 import org.ltae.ui.BaseEcsUI;
 
 public class InventoryUI extends BaseEcsUI {
     private final DragAndDrop dragAndDrop;
     private InventorySlot[][] slots;
+    private SlotData[][] slotData;
 
     public InventoryUI(World world) {
         super(world);
@@ -24,11 +24,11 @@ public class InventoryUI extends BaseEcsUI {
     }
 
     /* ===== 一次性画好所有格子并打开拖拽 ===== */
-    protected void rebuild(Inventory inventory) {
+    protected void rebuild(SlotData[][] slotData) {
+        this.slotData = slotData;
         clear();
-        SlotData[][] data = inventory.data;
-        int rows = data.length;
-        int cols = data[0].length;
+        int rows = slotData.length;
+        int cols = slotData[0].length;
         slots = new InventorySlot[rows][cols];
 
         for (int r = 0; r < rows; r++) {
@@ -38,13 +38,20 @@ public class InventoryUI extends BaseEcsUI {
                 slots[r][c] = inventorySlot;
                 enableDrag(inventorySlot);
 
-                SlotData slotData = data[r][c];
-                inventorySlot.setSlotData(slotData);
+                SlotData slotDatum = slotData[r][c];
+                inventorySlot.setSlotData(slotDatum);
             }
             row();
         }
     }
 
+    public SlotData[][] getSlotData() {
+        return slotData;
+    }
+
+    public void setSlotData(SlotData[][] slotData) {
+        this.slotData = slotData;
+    }
 
     /* ===== 拖拽能力 ===== */
     private void enableDrag(InventorySlot slot) {
