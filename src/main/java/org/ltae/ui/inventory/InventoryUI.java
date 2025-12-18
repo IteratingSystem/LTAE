@@ -17,16 +17,16 @@ public class InventoryUI extends BaseEcsUI {
     private InventorySlot[][] slots;
     private SlotData[][] slotData;
 
-    public InventoryUI(World world, InventorySlot.InventorySlotStyle inventorySlotStyle) {
+    public InventoryUI(World world, String inventorySlotStyleName) {
         super(world);
-        this.inventorySlotStyle = inventorySlotStyle;
+        inventorySlotStyle = skin.get(inventorySlotStyleName, InventorySlot.InventorySlotStyle.class);
         dragAndDrop = new DragAndDrop();
         dragAndDrop.setDragTime(100);
     }
-    public InventoryUI(World world,DragAndDrop dragAndDrop,InventorySlot.InventorySlotStyle inventorySlotStyle) {
+    public InventoryUI(World world,DragAndDrop dragAndDrop,String inventorySlotStyleName) {
         super(world);
         this.dragAndDrop = dragAndDrop;
-        this.inventorySlotStyle = inventorySlotStyle;
+        inventorySlotStyle = skin.get(inventorySlotStyleName, InventorySlot.InventorySlotStyle.class);
     }
 
     /* ===== 一次性画好所有格子并打开拖拽 ===== */
