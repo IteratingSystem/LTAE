@@ -1,5 +1,6 @@
 package org.ltae.ui.inventory;
 
+import com.artemis.World;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.utils.Align;
  * 库存单元格,默认拥有图片和堆叠数量,需要增加其它的数据或者样式直接继承就可以了
  */
 public class InventorySlot extends WidgetGroup {
+    private World world;
     private SlotData slotData;
 
     private InventorySlotStyle style;
@@ -19,11 +21,12 @@ public class InventorySlot extends WidgetGroup {
     private Label amount;  // 右下角数量
     private boolean hovered, pressed, checked, disabled;
 
-    public InventorySlot(Skin skin, String styleName) {
-        this(skin.get(styleName, InventorySlotStyle.class));
+    public InventorySlot(World world, Skin skin, String styleName) {
+        this(world,skin.get(styleName, InventorySlotStyle.class));
     }
 
-    public InventorySlot(InventorySlotStyle style) {
+    public InventorySlot(World world,InventorySlotStyle style) {
+        this.world = world;
         this.style = style;
 
         bg = new Image();
@@ -107,7 +110,7 @@ public class InventorySlot extends WidgetGroup {
         if (slotData == null){
             slotData = new SlotData();
         }
-        setIcon(slotData.drawable);
+        setIcon(slotData.getDrawable(world));
         setAmount(slotData.stackAmount);
     }
 

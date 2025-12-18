@@ -12,18 +12,21 @@ import org.ltae.ui.BaseEcsUI;
  * 库存UI
  */
 public class InventoryUI extends BaseEcsUI {
-    private final DragAndDrop dragAndDrop;
+    private DragAndDrop dragAndDrop;
+    private InventorySlot.InventorySlotStyle inventorySlotStyle;
     private InventorySlot[][] slots;
     private SlotData[][] slotData;
 
-    public InventoryUI(World world) {
+    public InventoryUI(World world, InventorySlot.InventorySlotStyle inventorySlotStyle) {
         super(world);
+        this.inventorySlotStyle = inventorySlotStyle;
         dragAndDrop = new DragAndDrop();
         dragAndDrop.setDragTime(100);
     }
-    public InventoryUI(World world,DragAndDrop dragAndDrop) {
+    public InventoryUI(World world,DragAndDrop dragAndDrop,InventorySlot.InventorySlotStyle inventorySlotStyle) {
         super(world);
         this.dragAndDrop = dragAndDrop;
+        this.inventorySlotStyle = inventorySlotStyle;
     }
 
     /* ===== 一次性画好所有格子并打开拖拽 ===== */
@@ -36,7 +39,7 @@ public class InventoryUI extends BaseEcsUI {
 
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                InventorySlot inventorySlot = new InventorySlot(skin, "default");
+                InventorySlot inventorySlot = new InventorySlot(world,inventorySlotStyle);
                 add(inventorySlot).size(64);
                 slots[r][c] = inventorySlot;
                 enableDrag(inventorySlot);
