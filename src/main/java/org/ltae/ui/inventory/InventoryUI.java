@@ -8,6 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import org.ltae.ui.BaseEcsUI;
 
+/**
+ * 库存UI
+ */
 public class InventoryUI extends BaseEcsUI {
     private final DragAndDrop dragAndDrop;
     private InventorySlot[][] slots;

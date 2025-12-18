@@ -7,6 +7,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 
+/**
+ * 库存单元格,默认拥有图片和堆叠数量,需要增加其它的数据或者样式直接继承就可以了
+ */
 public class InventorySlot extends WidgetGroup {
     private SlotData slotData;
 
