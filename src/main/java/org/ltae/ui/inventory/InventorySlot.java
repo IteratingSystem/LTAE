@@ -84,7 +84,7 @@ public class InventorySlot extends WidgetGroup {
     }
 
     public void setPosForInventory(int x,int y) {
-        this.posForInventory = posForInventory;
+        this.posForInventory.set(x,y);
     }
 
 
