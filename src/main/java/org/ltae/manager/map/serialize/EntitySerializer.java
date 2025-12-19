@@ -160,7 +160,7 @@ public class EntitySerializer {
         if (entityData.hasEntityData(entityDatum)) {
             for (EntityDatum entity : entityData) {
                 if (entity.equals(entityDatum)) {
-                    entityData.remove(entity);
+                    entityData.removeValue(entity,true);
                     entityData.add(entityDatum);
                     break;
                 }
