@@ -8,7 +8,7 @@ import com.badlogic.gdx.maps.*;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.SerializeComponent;
 import org.ltae.manager.JsonManager;
-import org.ltae.manager.map.serialize.json.CompData;
+import org.ltae.manager.map.serialize.json.CompDatum;
 import org.ltae.manager.map.serialize.json.EntityData;
 import org.ltae.manager.map.serialize.json.EntityDatum;
 import org.ltae.manager.map.serialize.json.CompProp;
@@ -46,9 +46,9 @@ public class EntitySerializer {
                 if (property == null) {
                     continue;
                 }
-                CompData compData = new CompData();
-                compData.props = new ArrayList<>();
-                compData.name = simpleName;
+                CompDatum compDatum = new CompDatum();
+                compDatum.props = new ArrayList<>();
+                compDatum.name = simpleName;
 
                 Field[] fields = compClass.getFields();
                 for (int i = 0; i < fields.length; i++) {
@@ -61,9 +61,9 @@ public class EntitySerializer {
                     compProp.key = field.getName();
                     compProp.type = type.getName();
                     compProp.value = property.get(field.getName(), null, type);
-                    compData.props.add(compProp);
+                    compDatum.props.add(compProp);
                 }
-                entityDatum.components.add(compData);
+                entityDatum.components.add(compDatum);
             }
             //添加默认组件
             for (Class autoCompClass : LtaePluginRule.AUTO_COMP_CLASSES) {
@@ -71,10 +71,10 @@ public class EntitySerializer {
                 if (entityDatum.hasComp(simpleName)) {
                     continue;
                 }
-                CompData compData = new CompData();
-                compData.props = new ArrayList<>();
-                compData.name = simpleName;
-                entityDatum.components.add(compData);
+                CompDatum compDatum = new CompDatum();
+                compDatum.props = new ArrayList<>();
+                compDatum.name = simpleName;
+                entityDatum.components.add(compDatum);
             }
             entityDateList.add(entityDatum);
         }
@@ -129,9 +129,9 @@ public class EntitySerializer {
             String compName = compClass.getSimpleName();
             Field[] fields = compClass.getFields();
 
-            CompData compData = new CompData();
-            compData.name = compName;
-            compData.props = new ArrayList<>();
+            CompDatum compDatum = new CompDatum();
+            compDatum.name = compName;
+            compDatum.props = new ArrayList<>();
             for (Field field : fields) {
                 if (!field.isAnnotationPresent(SerializeParam.class)) {
                     continue;
@@ -149,9 +149,9 @@ public class EntitySerializer {
                 prop.value = value;
                 prop.type = type.getName();
 
-                compData.props.add(prop);
+                compDatum.props.add(prop);
             }
-            entity.components.add(compData);
+            entity.components.add(compDatum);
         }
         return entity;
     }
@@ -179,12 +179,12 @@ public class EntitySerializer {
             tagManager.register(entityDatum.name,entityId);
         }
         //注册组件
-        List<CompData> components = entityDatum.components;
+        List<CompDatum> components = entityDatum.components;
         Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
         for (Class<? extends Component> aClass : classes) {
             String simpleName = aClass.getSimpleName();
-            for (CompData compData : components) {
-                if (!simpleName.equals(compData.name)) {
+            for (CompDatum compDatum : components) {
+                if (!simpleName.equals(compDatum.name)) {
                     continue;
                 }
                 //通过类对象创建组件Mapper
@@ -195,7 +195,7 @@ public class EntitySerializer {
                 //通过组件Mapper创建组件
                 Component component = mapper.create(entityId);
                 //写入默认值
-                List<CompProp> props = compData.props;
+                List<CompProp> props = compDatum.props;
                 for (CompProp prop : props) {
                     String key = prop.key;
                     Object value = prop.value;

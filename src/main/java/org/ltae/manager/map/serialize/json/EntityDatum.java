@@ -17,26 +17,26 @@ public class EntityDatum {
     public String fromMap;
     public String name;
     public String type;
-    public List<CompData> components;
+    public List<CompDatum> components;
     public EntityDatum(){}
 
     public boolean hasComp(String compName){
         if (components == null){
             components = new ArrayList<>();
         }
-        for (CompData component : components) {
+        for (CompDatum component : components) {
             if (component.name.equals(compName)) {
                 return true;
             }
         }
         return false;
     }
-    public CompData getCompJson(String compName){
+    public CompDatum getCompJson(String compName){
         if (!hasComp(compName)) {
             Gdx.app.error(getTag(),"Failed to getCompJson,is not has component in components,compName:"+compName);
             return null;
         }
-        for (CompData component : components) {
+        for (CompDatum component : components) {
             if (component.name.equals(compName)) {
                 return component;
             }
