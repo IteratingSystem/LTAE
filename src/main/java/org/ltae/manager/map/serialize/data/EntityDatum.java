@@ -1,6 +1,7 @@
 package org.ltae.manager.map.serialize.data;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,12 +18,12 @@ public class EntityDatum {
     public String fromMap;
     public String name;
     public String type;
-    public List<CompDatum> components;
+    public Array<CompDatum> components;
     public EntityDatum(){}
 
     public boolean hasComp(String compName){
         if (components == null){
-            components = new ArrayList<>();
+            components = new Array<>();
         }
         for (CompDatum component : components) {
             if (component.name.equals(compName)) {

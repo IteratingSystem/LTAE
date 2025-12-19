@@ -33,7 +33,7 @@ public class EntitySerializer {
             MapProperties properties = mapObject.getProperties();
 
             EntityDatum entityDatum = new EntityDatum();
-            entityDatum.components = new ArrayList<>();
+            entityDatum.components = new Array<>();
             entityDatum.mapObjectId = mapObject.getProperties().get("id",0,Integer.class);
             entityDatum.fromMap = mapName;
 
@@ -124,7 +124,7 @@ public class EntitySerializer {
             }
         }
 
-        entity.components = new ArrayList<>();
+        entity.components = new Array<>();
         for (Component component : allComps) {
             Class<? extends Component> compClass = component.getClass();
             String compName = compClass.getSimpleName();
@@ -180,7 +180,7 @@ public class EntitySerializer {
             tagManager.register(entityDatum.name,entityId);
         }
         //注册组件
-        List<CompDatum> components = entityDatum.components;
+        Array<CompDatum> components = entityDatum.components;
         Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
         for (Class<? extends Component> aClass : classes) {
             String simpleName = aClass.getSimpleName();
