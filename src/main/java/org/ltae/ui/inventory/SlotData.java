@@ -32,7 +32,11 @@ public class SlotData {
         Render render = entityEvent.entity.getComponent(Render.class);
         ComponentMapper<Inert> mInert = world.getMapper(Inert.class);
         mInert.create(entityEvent.entity);
+        TextureRegionDrawable textureRegionDrawable = new TextureRegionDrawable(render.keyframe);
 
-        return new TextureRegionDrawable(render.keyframe);
+        entityEvent.type = EntityEvent.DELETE_ENTITY;
+        eventSystem.dispatch(entityEvent);
+
+        return textureRegionDrawable;
     }
 }
