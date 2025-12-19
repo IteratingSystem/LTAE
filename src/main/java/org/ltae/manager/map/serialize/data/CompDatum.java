@@ -1,7 +1,7 @@
 package org.ltae.manager.map.serialize.data;
 
 
-import java.util.List;
+import com.artemis.utils.Bag;
 
 /**
  * @Auther WenLong
@@ -10,7 +10,7 @@ import java.util.List;
  **/
 public class CompDatum {
     public String name;
-    public List<CompProp> props;
+    public Bag<CompProp> props;
 
 
     //获取该组件某key的值,如果没有这个key则直接返回defaultValue

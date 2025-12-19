@@ -47,7 +47,7 @@ public class EntitySerializer {
                     continue;
                 }
                 CompDatum compDatum = new CompDatum();
-                compDatum.props = new ArrayList<>();
+                compDatum.props = new Bag<>();
                 compDatum.name = simpleName;
 
                 Field[] fields = compClass.getFields();
@@ -72,7 +72,7 @@ public class EntitySerializer {
                     continue;
                 }
                 CompDatum compDatum = new CompDatum();
-                compDatum.props = new ArrayList<>();
+                compDatum.props = new Bag<>();
                 compDatum.name = simpleName;
                 entityDatum.components.add(compDatum);
             }
@@ -131,7 +131,7 @@ public class EntitySerializer {
 
             CompDatum compDatum = new CompDatum();
             compDatum.name = compName;
-            compDatum.props = new ArrayList<>();
+            compDatum.props = new Bag<>();
             for (Field field : fields) {
                 if (!field.isAnnotationPresent(SerializeParam.class)) {
                     continue;
@@ -195,7 +195,7 @@ public class EntitySerializer {
                 //通过组件Mapper创建组件
                 Component component = mapper.create(entityId);
                 //写入默认值
-                List<CompProp> props = compDatum.props;
+                Bag<CompProp> props = compDatum.props;
                 for (CompProp prop : props) {
                     String key = prop.key;
                     Object value = prop.value;
