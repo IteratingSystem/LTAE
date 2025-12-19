@@ -2,6 +2,7 @@ package org.ltae.manager.map.serialize.data;
 
 
 import com.artemis.utils.Bag;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * @Auther WenLong
@@ -10,7 +11,7 @@ import com.artemis.utils.Bag;
  **/
 public class CompDatum {
     public String name;
-    public Bag<CompProp> props;
+    public Array<CompProp> props;
 
 
     //获取该组件某key的值,如果没有这个key则直接返回defaultValue

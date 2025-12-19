@@ -5,6 +5,7 @@ import com.artemis.managers.TagManager;
 import com.artemis.utils.Bag;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.maps.*;
+import com.badlogic.gdx.utils.Array;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.SerializeComponent;
 import org.ltae.manager.JsonManager;
@@ -47,7 +48,7 @@ public class EntitySerializer {
                     continue;
                 }
                 CompDatum compDatum = new CompDatum();
-                compDatum.props = new Bag<>();
+                compDatum.props = new Array<>();
                 compDatum.name = simpleName;
 
                 Field[] fields = compClass.getFields();
@@ -72,7 +73,7 @@ public class EntitySerializer {
                     continue;
                 }
                 CompDatum compDatum = new CompDatum();
-                compDatum.props = new Bag<>();
+                compDatum.props = new Array<>();
                 compDatum.name = simpleName;
                 entityDatum.components.add(compDatum);
             }
@@ -131,7 +132,7 @@ public class EntitySerializer {
 
             CompDatum compDatum = new CompDatum();
             compDatum.name = compName;
-            compDatum.props = new Bag<>();
+            compDatum.props = new Array<>();
             for (Field field : fields) {
                 if (!field.isAnnotationPresent(SerializeParam.class)) {
                     continue;
@@ -195,7 +196,7 @@ public class EntitySerializer {
                 //通过组件Mapper创建组件
                 Component component = mapper.create(entityId);
                 //写入默认值
-                Bag<CompProp> props = compDatum.props;
+                Array<CompProp> props = compDatum.props;
                 for (CompProp prop : props) {
                     String key = prop.key;
                     Object value = prop.value;
