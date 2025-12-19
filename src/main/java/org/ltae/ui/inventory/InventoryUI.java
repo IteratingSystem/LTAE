@@ -41,6 +41,7 @@ public class InventoryUI extends BaseEcsUI {
             for (int c = 0; c < cols; c++) {
                 InventorySlot inventorySlot = new InventorySlot(world,inventorySlotStyle);
                 add(inventorySlot).size(64);
+                inventorySlot.setPosForInventory(r,c);
                 slots[r][c] = inventorySlot;
                 enableDrag(inventorySlot);
 

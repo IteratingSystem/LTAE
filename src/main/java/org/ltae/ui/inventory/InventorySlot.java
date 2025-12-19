@@ -2,6 +2,7 @@ package org.ltae.ui.inventory;
 
 import com.artemis.World;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -12,6 +13,9 @@ import com.badlogic.gdx.utils.Align;
  * 库存单元格,默认拥有图片和堆叠数量,需要增加其它的数据或者样式直接继承就可以了
  */
 public class InventorySlot extends WidgetGroup {
+    //相对于库存的格子位置,在一个库存页面中,左上角为原点0,0
+    private Vector2 posForInventory;
+
     private World world;
     private SlotData slotData;
 
@@ -25,10 +29,13 @@ public class InventorySlot extends WidgetGroup {
         this(world,skin.get(styleName, InventorySlotStyle.class));
     }
 
-    public InventorySlot(World world,InventorySlotStyle style) {
+
+
+    public InventorySlot(World world, InventorySlotStyle style) {
         this.world = world;
         this.style = style;
 
+        posForInventory = new Vector2(-1,-1);
         bg = new Image();
         icon = new Image();
         amount = new Label("", new Label.LabelStyle(style.font, style.fontColor));
@@ -72,6 +79,16 @@ public class InventorySlot extends WidgetGroup {
     }
 
     /* =============== 外部调用 =============== */
+    public Vector2 getPosForInventory() {
+        return posForInventory;
+    }
+
+    public void setPosForInventory(int x,int y) {
+        this.posForInventory = posForInventory;
+    }
+
+
+
 
     /** 换背景图（普通/装备/任务…） */
     public void setBackground(Drawable drawable) {
