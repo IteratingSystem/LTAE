@@ -61,8 +61,8 @@ public class EntityFactory extends BaseSystem {
     private void buildEntities(EntityData entityData){
         EntityBuilder.buildEntities(world, entityData);
     }
-    private void buildEntity(EntityDatum entityDatum){
-        EntityBuilder.buildEntity(world, entityDatum);
+    private int buildEntity(EntityDatum entityDatum){
+        return EntityBuilder.buildEntity(world, entityDatum);
     }
     private EntityData createEntityData(){
         return EntitySerializer.createEntityData(world);
@@ -118,7 +118,8 @@ public class EntityFactory extends BaseSystem {
             return;
         }
         if (event.type == EntityEvent.BUILD_ENTITY){
-            buildEntity(event.entityDatum);
+            event.entityId = buildEntity(event.entityDatum);
+            event.entity = world.getEntity(event.entityId);
             return;
         }
         if (event.type == EntityEvent.CREATE_ENTITY_DATUM){

@@ -169,7 +169,7 @@ public class EntitySerializer {
         }
         entityData.add(entityDatum);
     }
-    public static void buildEntity(World world,EntityDatum entityDatum){
+    public static int buildEntity(World world,EntityDatum entityDatum){
         TagManager tagManager = world.getSystem(TagManager.class);
         //创建
         int entityId = world.create();
@@ -216,6 +216,7 @@ public class EntitySerializer {
                 }
             }
         }
+        return entityId;
     }
     public static void buildEntities(World world, EntityData entityData){
         if (entityData == null) {

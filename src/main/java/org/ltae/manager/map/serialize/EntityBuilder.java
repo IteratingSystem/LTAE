@@ -19,7 +19,7 @@ public class EntityBuilder {
     public static void buildEntities(World world, EntityData entityData) {
         EntitySerializer.buildEntities(world, entityData);
     }
-    public static void buildEntity(World world, EntityDatum entityDatum) {
-        EntitySerializer.buildEntity(world, entityDatum);
+    public static int buildEntity(World world, EntityDatum entityDatum) {
+        return EntitySerializer.buildEntity(world, entityDatum);
     }
 }
