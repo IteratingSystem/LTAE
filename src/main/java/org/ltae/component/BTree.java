@@ -7,7 +7,7 @@ import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.system.AssetSystem;
 import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.json.EntityDatum;
+import org.ltae.manager.map.serialize.data.EntityDatum;
 
 /**
  * @Auther WenLong

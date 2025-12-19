@@ -1,4 +1,4 @@
-package org.ltae.manager.map.serialize.json;
+package org.ltae.manager.map.serialize.data;
 
 import com.badlogic.gdx.Gdx;
 

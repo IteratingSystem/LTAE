@@ -5,7 +5,7 @@ import org.ltae.enums.HorizontalDir;
 import org.ltae.enums.OrthogonalDir;
 import org.ltae.enums.VerticalDir;
 import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.json.EntityDatum;
+import org.ltae.manager.map.serialize.data.EntityDatum;
 
 /**
  * @Auther WenLong

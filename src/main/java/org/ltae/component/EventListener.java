@@ -6,7 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Disposable;
 import org.ltae.LtaePluginRule;
 import org.ltae.event.listener.InteractiveListener;
-import org.ltae.manager.map.serialize.json.EntityDatum;
+import org.ltae.manager.map.serialize.data.EntityDatum;
 import org.ltae.utils.ReflectionUtils;
 
 /**

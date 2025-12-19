@@ -4,7 +4,7 @@ import com.artemis.World;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
-import org.ltae.manager.map.serialize.json.EntityDatum;
+import org.ltae.manager.map.serialize.data.EntityDatum;
 
 /**
  * @Auther WenLong

@@ -15,8 +15,8 @@ import org.ltae.manager.map.serialize.EntityDeleter;
 import org.ltae.manager.map.serialize.ComponentConfig;
 import org.ltae.manager.map.serialize.EntityBuilder;
 import org.ltae.manager.map.serialize.EntitySerializer;
-import org.ltae.manager.map.serialize.json.EntityData;
-import org.ltae.manager.map.serialize.json.EntityDatum;
+import org.ltae.manager.map.serialize.data.EntityData;
+import org.ltae.manager.map.serialize.data.EntityDatum;
 
 
 /**

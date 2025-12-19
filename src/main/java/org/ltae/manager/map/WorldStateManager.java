@@ -3,7 +3,7 @@ package org.ltae.manager.map;
 import com.artemis.World;
 import org.ltae.manager.JsonManager;
 import org.ltae.manager.map.serialize.EntitySerializer;
-import org.ltae.manager.map.serialize.json.EntityData;
+import org.ltae.manager.map.serialize.data.EntityData;
 import org.ltae.system.TiledMapSystem;
 
 public class WorldStateManager {

@@ -19,12 +19,12 @@ import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
 import org.ltae.box2d.setup.FixtureSetup;
 import org.ltae.manager.map.MapManager;
-import org.ltae.manager.map.serialize.json.CompDatum;
+import org.ltae.manager.map.serialize.data.CompDatum;
 import org.ltae.system.B2dSystem;
 import org.ltae.manager.map.serialize.SerializeParam;
 import org.ltae.utils.ReflectionUtils;
 import org.ltae.utils.ShapeUtils;
-import org.ltae.manager.map.serialize.json.EntityDatum;
+import org.ltae.manager.map.serialize.data.EntityDatum;
 
 
 /**

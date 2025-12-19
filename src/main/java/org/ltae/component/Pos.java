@@ -3,7 +3,7 @@ package org.ltae.component;
 import com.artemis.World;
 import com.badlogic.gdx.math.Vector2;
 import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.json.EntityDatum;
+import org.ltae.manager.map.serialize.data.EntityDatum;
 
 
 /**

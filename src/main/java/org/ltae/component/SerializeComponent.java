@@ -8,7 +8,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject;
 import net.mostlyoriginal.api.event.common.EventSystem;
 import org.ltae.manager.map.MapManager;
-import org.ltae.manager.map.serialize.json.EntityDatum;
+import org.ltae.manager.map.serialize.data.EntityDatum;
 
 //组件继承于它可以自定义加载逻辑
 public abstract class SerializeComponent extends Component {

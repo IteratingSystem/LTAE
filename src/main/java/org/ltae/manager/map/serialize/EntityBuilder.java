@@ -2,8 +2,8 @@ package org.ltae.manager.map.serialize;
 
 import com.artemis.World;
 import org.ltae.manager.map.WorldStateManager;
-import org.ltae.manager.map.serialize.json.EntityData;
-import org.ltae.manager.map.serialize.json.EntityDatum;
+import org.ltae.manager.map.serialize.data.EntityData;
+import org.ltae.manager.map.serialize.data.EntityDatum;
 
 /**
  * @Auther WenLong

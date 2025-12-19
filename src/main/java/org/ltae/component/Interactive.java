@@ -2,7 +2,7 @@ package org.ltae.component;
 
 import com.artemis.World;
 import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.json.EntityDatum;
+import org.ltae.manager.map.serialize.data.EntityDatum;
 
 /**
  * @Auther WenLong

@@ -1,15 +1,13 @@
 package org.ltae.ui.inventory;
 
-import com.artemis.ComponentManager;
 import com.artemis.ComponentMapper;
-import com.artemis.Entity;
 import com.artemis.World;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import net.mostlyoriginal.api.event.common.EventSystem;
 import org.ltae.component.Inert;
 import org.ltae.component.Render;
 import org.ltae.event.EntityEvent;
-import org.ltae.manager.map.serialize.json.EntityDatum;
+import org.ltae.manager.map.serialize.data.EntityDatum;
 
 public class SlotData {
     public int itemId;

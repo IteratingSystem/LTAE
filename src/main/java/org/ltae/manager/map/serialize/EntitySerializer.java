@@ -8,10 +8,10 @@ import com.badlogic.gdx.maps.*;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.SerializeComponent;
 import org.ltae.manager.JsonManager;
-import org.ltae.manager.map.serialize.json.CompDatum;
-import org.ltae.manager.map.serialize.json.EntityData;
-import org.ltae.manager.map.serialize.json.EntityDatum;
-import org.ltae.manager.map.serialize.json.CompProp;
+import org.ltae.manager.map.serialize.data.CompDatum;
+import org.ltae.manager.map.serialize.data.EntityData;
+import org.ltae.manager.map.serialize.data.EntityDatum;
+import org.ltae.manager.map.serialize.data.CompProp;
 import org.ltae.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
