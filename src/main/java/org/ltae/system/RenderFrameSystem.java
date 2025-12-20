@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import net.mostlyoriginal.api.system.delegate.DeferredEntityProcessingSystem;
@@ -44,6 +45,9 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
     @Override
     protected void initialize() {
         batch = renderTiledSystem.mapRenderer.getBatch();
+    }
+    public void updateBatch(OrthogonalTiledMapRenderer mapRenderer){
+        batch = mapRenderer.getBatch();
     }
 
     //着色器更新

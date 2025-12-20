@@ -23,6 +23,7 @@ public class RenderTiledSystem extends BaseSystem {
     private TiledMapSystem tiledMapSystem;
     private B2dSystem b2dSystem;
     private CameraSystem cameraSystem;
+    private RenderFrameSystem renderFrameSystem;
     private TiledMap tiledMap;
     public OrthogonalTiledMapRenderer mapRenderer;
     private float worldScale;
@@ -34,6 +35,7 @@ public class RenderTiledSystem extends BaseSystem {
     public void changeMap(){
         tiledMap = tiledMapSystem.getTiledMap();
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap,worldScale);
+        renderFrameSystem.updateBatch(mapRenderer);
     }
 
     @Override
