@@ -35,7 +35,6 @@ public class RenderTiledSystem extends BaseSystem {
     public void changeMap(){
         tiledMap = tiledMapSystem.getTiledMap();
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap,worldScale);
-        renderFrameSystem.updateBatch(mapRenderer);
     }
 
     @Override

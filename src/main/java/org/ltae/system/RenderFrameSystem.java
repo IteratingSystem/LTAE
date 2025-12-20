@@ -44,10 +44,10 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
 
     @Override
     protected void initialize() {
-        batch = renderTiledSystem.mapRenderer.getBatch();
+        updateBatch();
     }
-    public void updateBatch(OrthogonalTiledMapRenderer mapRenderer){
-        batch = mapRenderer.getBatch();
+    private void updateBatch(){
+        batch = renderTiledSystem.mapRenderer.getBatch();
     }
 
     //着色器更新
@@ -80,7 +80,7 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         float scaleWidth = render.scaleWidth;
         float scaleHeight = render.scaleHeight;
 
-
+        updateBatch();
         //渲染前获取shader以及传参
         setShaderUniforms(entityId);
         batch.setShader(shaderProgram);
