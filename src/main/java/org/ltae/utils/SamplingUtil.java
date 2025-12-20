@@ -43,7 +43,7 @@ public class SamplingUtil {
             mapLayer = (TiledMapTileLayer)tiledMap.getLayers().get(layerName);
         } catch (Exception e) {
             Gdx.app.error(TAG,"Failed to samplingLayer,layerName is '"+layerName+"'");
-            throw new RuntimeException(e);
+            return null;
         }
 
 

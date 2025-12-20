@@ -1,7 +1,5 @@
 package org.ltae.manager.map.serialize.data;
 
-
-import com.artemis.utils.Bag;
 import com.badlogic.gdx.utils.Array;
 
 
