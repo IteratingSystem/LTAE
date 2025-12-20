@@ -5,6 +5,7 @@ import com.artemis.managers.TagManager;
 import com.artemis.utils.Bag;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import org.ltae.event.EntityEvent;
 import org.ltae.manager.map.MapManager;
@@ -50,7 +51,7 @@ public class EntityDeleter {
      */
     public static void deleteAll(World world,String[] filterTags){
         TagManager tagManager = world.getSystem(TagManager.class);
-        IntBag filterIds = new IntBag();
+        Array<Integer> filterIds = new Array<>();
         for (String filterTag : filterTags) {
             Entity entity = tagManager.getEntity(filterTag);
             if (entity == null) {
@@ -64,10 +65,34 @@ public class EntityDeleter {
         IntBag entityIds = subscription.getEntities();
         for(int i = 0; i < entityIds.size(); i++) {
             int entityId = entityIds.get(i);
-            if (filterIds.contains(entityId)){
+            if (filterIds.contains(entityId,true)){
                 continue;
             }
             deleteEntity(world,entityId);
         }
+    }
+    /**
+     * 删除所有实体同时过滤掉不删除的某些实体
+     * @param world
+     * @param filterTags
+     */
+    public static void deleteAll(World world,int[] filterTags){
+        EntitySubscription subscription = world.getAspectSubscriptionManager().get(Aspect.all());
+        IntBag entityIds = subscription.getEntities();
+        for(int i = 0; i < entityIds.size(); i++) {
+            int entityId = entityIds.get(i);
+            if (containsInt(filterTags,entityId)){
+                continue;
+            }
+            deleteEntity(world,entityId);
+        }
+    }
+    private static boolean containsInt(int[] array, int i){
+        for (int i1 : array) {
+            if (i1 == i) {
+                return true;
+            }
+        }
+        return false;
     }
 }

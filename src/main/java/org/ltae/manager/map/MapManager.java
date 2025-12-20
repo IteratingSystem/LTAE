@@ -46,6 +46,7 @@ public class MapManager {
 
 
             if (!entityLayerNames.containsKey(mapName)) {
+                Gdx.app.debug(TAG,"Failed to get map entity,Not set 'entityLayerNames' with tiled map,map name: "+mapName);
                 continue;
             }
             String entityLayerName = entityLayerNames.get(mapName);
