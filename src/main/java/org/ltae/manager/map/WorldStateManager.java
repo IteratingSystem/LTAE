@@ -34,7 +34,11 @@ public class WorldStateManager {
         worldState.entityData.put(curtMap, entityData);
     }
     public EntityData getEntityData(String mapName){
-        return worldState.entityData.get(mapName);
+        EntityData entityData = worldState.entityData.get(mapName);
+        if (entityData == null) {
+            entityData = new EntityData();
+        }
+        return entityData;
     }
     public String serializeState(){
         return JsonManager.toJson(worldState);
