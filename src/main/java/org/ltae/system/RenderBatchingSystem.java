@@ -36,26 +36,21 @@ public class RenderBatchingSystem extends BaseSystem implements EntityProcessPri
     @Override
     protected void initialize() {
         super.initialize();
+        updateBatch();
+    }
+    private void updateBatch(){
         batch = renderTiledSystem.mapRenderer.getBatch();
     }
 
     @Override
     protected void processSystem() {
         BagUtils.sort(sortedJobs);
-//        EntityProcessAgent activeAgent = null;
         final Object[] data = sortedJobs.getData();
+        updateBatch();
         batch.begin();
         for (int i = 0,s = sortedJobs.size();i < s;i++){
             final Job job = (Job)data[i];
             final EntityProcessAgent agent = job.agent;
-
-//            if (agent != activeAgent){
-//                if (activeAgent != null){
-////                    activeAgent.end();
-//                }
-//                activeAgent = agent;
-////                activeAgent.begin();
-//            }
             agent.process(job.entityId);
         }
         batch.end();
