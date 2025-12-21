@@ -2,17 +2,9 @@ package org.ltae.system;
 
 import com.artemis.BaseSystem;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
-import net.mostlyoriginal.api.event.common.Subscribe;
-
-import org.ltae.event.MapEvent;
-import org.ltae.utils.TiledMapUtils;
 
 /**
  * @Author: WenLong
@@ -38,7 +30,6 @@ public class RenderTiledSystem extends BaseSystem {
 
     public void changeMap(){
         tiledMap = tiledMapSystem.getTiledMap();
-        TiledMapUtils.fillSplit(tiledMap);
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap,worldScale);
     }
 

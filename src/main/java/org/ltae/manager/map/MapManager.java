@@ -2,11 +2,13 @@ package org.ltae.manager.map;
 
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -43,7 +45,7 @@ public class MapManager {
         Array<String> mapKeys = allMaps.keys().toArray();
         for (String mapName : mapKeys) {
             TiledMap tiledMap = getTiledMap(mapName);
-
+            fillSplit(tiledMap);
 
             if (!entityLayerNames.containsKey(mapName)) {
                 Gdx.app.debug(TAG,"Failed to get map entity,Not set 'entityLayerNames' with tiled map,map name: "+mapName);
@@ -129,5 +131,41 @@ public class MapManager {
             }
         }
         return null;
+    }
+
+    //填充图像边缘区域,修复地图分裂问题
+    private void fillSplit(TiledMap tiledMap){
+        //解决地图开裂的bug
+        for (MapLayer layer : tiledMap.getLayers()) {
+            if (layer instanceof TiledMapTileLayer tileLayer) {
+                for (int x = 0; x < tileLayer.getWidth(); x++) {
+                    for (int y = 0; y < tileLayer.getHeight(); y++) {
+                        TiledMapTileLayer.Cell cell = tileLayer.getCell(x, y);
+                        if (cell != null) {
+                            TextureRegion region = cell.getTile().getTextureRegion();
+                            fillSplit(region);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    private void fillSplit(TextureRegion[][] region) {
+        for (TextureRegion[] array : region) {
+            for (TextureRegion texture : array) {
+                fillSplit(texture);
+            }
+        }
+    }
+    private void fillSplit(TextureRegion region) {
+        // 填充值
+        float fix = 0.01f;
+        float x = region.getRegionX();
+        float y = region.getRegionY();
+        float width = region.getRegionWidth();
+        float height = region.getRegionHeight();
+        float invTexWidth = 1f / region.getTexture().getWidth();
+        float invTexHeight = 1f / region.getTexture().getHeight();
+        region.setRegion((x + fix) * invTexWidth, (y + fix) * invTexHeight, (x + width - fix) * invTexWidth, (y + height - fix) * invTexHeight); // Trims                                                                                                                                      // region
     }
 }
