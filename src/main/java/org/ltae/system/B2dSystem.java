@@ -64,11 +64,17 @@ public class B2dSystem extends BaseSystem {
                     .triangulateInsteadOfThrow(true)
                     .build());
         }
-        MapLayer phyLayer = tiledMapSystem.getPhyLayer();
-        if (phyLayer instanceof TiledMapTileLayer tileLayer) {
-            tiledTileCollisionToBox2d.parseLayer(tileLayer,box2DWorld);
-        }
+
+        MapLayer[] phyLayers = tiledMapSystem.getPhyLayer();
+
         //构造tileCollider
+
+        for (MapLayer phyLayer : phyLayers) {
+            if (phyLayer instanceof TiledMapTileLayer tileLayer) {
+                tiledTileCollisionToBox2d.parseLayer(tileLayer,box2DWorld);
+            }
+        }
+        //记录新增的碰撞物
         tileCollider.clear();
         Array<Body> afterBodies = new Array<>();
         box2DWorld.getBodies(afterBodies);

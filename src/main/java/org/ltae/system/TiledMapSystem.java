@@ -19,7 +19,7 @@ public class TiledMapSystem extends BaseSystem {
     private RenderTiledSystem renderTiledSystem;
     private B2dSystem b2dSystem;
     private String current;
-    public TiledMapSystem(String mapName, ObjectMap<String, String> entityLayers,ObjectMap<String, String> phyLayers){
+    public TiledMapSystem(String mapName, ObjectMap<String, String> entityLayers,ObjectMap<String, String[]> phyLayers){
         current = mapName;
         MapManager.init(entityLayers,phyLayers);
     }
@@ -27,7 +27,7 @@ public class TiledMapSystem extends BaseSystem {
         MapManager mapManager = MapManager.getInstance();
         return mapManager.getTiledMap(current);
     }
-    public MapLayer getPhyLayer(){
+    public MapLayer[] getPhyLayer(){
         MapManager mapManager = MapManager.getInstance();
         return mapManager.getPhyLayer(current);
     }

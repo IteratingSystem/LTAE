@@ -15,7 +15,7 @@ public class LtaePluginRule {
 
 
     public static ObjectMap<String, String> ENTITY_LAYERS = new ObjectMap<>();
-    public static ObjectMap<String, String> PHY_LAYERS = new ObjectMap<>();
+    public static ObjectMap<String, String[]> PHY_LAYERS = new ObjectMap<>();
     //ui视图宽高
     public static int UI_WIDTH = 640;
     public static int UI_HEIGHT = 480;

@@ -27,7 +27,7 @@ public class MapManager {
     private static MapManager instance;
     private ObjectMap<String, TiledMap> allMaps;
     private ObjectMap<String, String> entityLayerNames;
-    private ObjectMap<String, String> phyLayerNames;
+    private ObjectMap<String, String[]> phyLayerNames;
     private ObjectMap<String, MapLayer> entityLayers;
     private ObjectMap<String, MapObjects> allMapObjects;
     //每张地图对应的实体数据，作为原型，地图加载时默认存在的所有实体，也就是新游戏时创建实体的依据
@@ -35,7 +35,7 @@ public class MapManager {
     private Bag<TiledMapTileSet> tileSets;
 
 
-    private MapManager(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String> phyLayerNames){
+    private MapManager(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String[]> phyLayerNames){
         this.entityLayerNames = entityLayerNames;
         this.phyLayerNames = phyLayerNames;
         allMaps = AssetManager.getInstance().getObjects(EXT,TiledMap.class);
@@ -64,7 +64,7 @@ public class MapManager {
             }
         }
     }
-    public static synchronized void init(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String> phyLayerNames){
+    public static synchronized void init(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String[]> phyLayerNames){
         if (instance != null){
             return;
         }
@@ -107,21 +107,25 @@ public class MapManager {
         Gdx.app.error(TAG,"Failed to getMapObject,No objects with the same id,objectId:"+objectId);
         return null;
     }
-    public String getPhyLayerName(String mapName){
+    public String[] getPhyLayerName(String mapName){
         if (!phyLayerNames.containsKey(mapName)){
             Gdx.app.error(TAG,"Failed to getPhyLayerName,phyLayerNames is not contains mapName:"+mapName);
             return null;
         }
         return phyLayerNames.get(mapName);
     }
-    public MapLayer getPhyLayer(String mapName){
-        String phyLayerName = getPhyLayerName(mapName);
-        if (phyLayerName == null) {
+    public MapLayer[] getPhyLayer(String mapName){
+        String[] phyLayerNames = getPhyLayerName(mapName);
+        if (phyLayerNames == null) {
             Gdx.app.error(TAG, "Failed to getPhyLayer,phyLayerNames is not contains mapName:" + mapName);
             return null;
         }
         TiledMap tiledMap = getTiledMap(mapName);
-        return tiledMap.getLayers().get(phyLayerName);
+        MapLayer[] mapLayers = new MapLayer[phyLayerNames.length];
+        for (int i = 0; i < phyLayerNames.length; i++) {
+            mapLayers[i] = tiledMap.getLayers().get(phyLayerNames[i]);
+        }
+        return mapLayers;
     }
 
     public TiledMapTileSet getTileSet(TiledMapTile tiledMapTile) {
