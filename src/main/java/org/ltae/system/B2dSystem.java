@@ -66,9 +66,10 @@ public class B2dSystem extends BaseSystem {
         }
 
         MapLayer[] phyLayers = tiledMapSystem.getPhyLayer();
-
+        if (phyLayers == null) {
+            return;
+        }
         //构造tileCollider
-
         for (MapLayer phyLayer : phyLayers) {
             if (phyLayer instanceof TiledMapTileLayer tileLayer) {
                 tiledTileCollisionToBox2d.parseLayer(tileLayer,box2DWorld);
