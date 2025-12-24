@@ -27,6 +27,7 @@ public class AssetManager {
     public static final String TREE_EXT = ".tree";
     public static final String STORY_EXT = ".ink.json";
     public static final String NOISE_EXT = ".noise.png";
+    public static final String TEXTURE_EXT = ".png";
     private static AssetManager instance;
     private static FileHandleResolver resolver;
     private FileHandle assetsHandle;
@@ -104,6 +105,10 @@ public class AssetManager {
                 continue;
             }
             if (path.endsWith(NOISE_EXT)) {
+                loadAsset(path, Texture.class);
+                continue;
+            }
+            if (path.endsWith(TEXTURE_EXT)) {
                 loadAsset(path, Texture.class);
                 continue;
             }
