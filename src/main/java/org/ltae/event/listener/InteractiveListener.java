@@ -2,6 +2,7 @@ package org.ltae.event.listener;
 
 import com.artemis.Entity;
 import com.artemis.World;
+import com.artemis.managers.TagManager;
 import net.mostlyoriginal.api.event.common.EventSystem;
 import org.ltae.event.InteractiveEvent;
 
@@ -13,6 +14,7 @@ import org.ltae.event.InteractiveEvent;
 public abstract class InteractiveListener {
     public World world;
     public EventSystem eventSystem;
+    public TagManager tagManager;
     public Entity entity;
     public int entityId;
 
@@ -22,6 +24,7 @@ public abstract class InteractiveListener {
         world = entity.getWorld();
         entityId = entity.getId();
         eventSystem = world.getSystem(EventSystem.class);
+        tagManager = world.getSystem(TagManager.class);
     }
 
     public String getTag(){
