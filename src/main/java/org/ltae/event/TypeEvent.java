@@ -1,6 +1,5 @@
 package org.ltae.event;
 
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import net.mostlyoriginal.api.event.common.Event;
 
 /**

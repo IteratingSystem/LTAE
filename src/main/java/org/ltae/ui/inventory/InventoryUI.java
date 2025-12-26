@@ -17,6 +17,7 @@ public class InventoryUI extends BaseEcsUI {
     private InventorySlot.InventorySlotStyle inventorySlotStyle;
     private InventorySlot[][] slots;
     private Array<Array<SlotData>> slotData;
+    private int slotSize = 32;
 
     public InventoryUI(World world, String inventorySlotStyleName) {
         super(world);
@@ -30,6 +31,10 @@ public class InventoryUI extends BaseEcsUI {
         inventorySlotStyle = skin.get(inventorySlotStyleName, InventorySlot.InventorySlotStyle.class);
     }
 
+    public void setSlotSize(int slotSize) {
+        this.slotSize = slotSize;
+    }
+
     /* ===== 一次性画好所有格子并打开拖拽 ===== */
     public void rebuild(Array<Array<SlotData>> slotData) {
         this.slotData = slotData;
@@ -41,7 +46,7 @@ public class InventoryUI extends BaseEcsUI {
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 InventorySlot inventorySlot = new InventorySlot(world,inventorySlotStyle);
-                add(inventorySlot).size(64);
+                add(inventorySlot).size(slotSize);
                 inventorySlot.setPosForInventory(r,c);
                 slots[r][c] = inventorySlot;
                 enableDrag(inventorySlot);
