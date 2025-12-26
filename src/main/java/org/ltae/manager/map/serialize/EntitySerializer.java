@@ -9,15 +9,14 @@ import com.badlogic.gdx.utils.Array;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.SerializeComponent;
 import org.ltae.manager.JsonManager;
-import org.ltae.manager.map.serialize.data.CompDatum;
+import org.ltae.serialize.CompMirror;
 import org.ltae.manager.map.serialize.data.EntityData;
 import org.ltae.manager.map.serialize.data.EntityDatum;
-import org.ltae.manager.map.serialize.data.CompProp;
+import org.ltae.serialize.Properties;
+import org.ltae.serialize.Property;
 import org.ltae.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,9 +46,9 @@ public class EntitySerializer {
                 if (property == null) {
                     continue;
                 }
-                CompDatum compDatum = new CompDatum();
-                compDatum.props = new Array<>();
-                compDatum.name = simpleName;
+                CompMirror compMirror = new CompMirror();
+                compMirror.properties = new Properties();
+                compMirror.simpleName = simpleName;
 
                 Field[] fields = compClass.getFields();
                 for (int i = 0; i < fields.length; i++) {
@@ -58,13 +57,13 @@ public class EntitySerializer {
                         continue;
                     }
                     Class<?> type = field.getType();
-                    CompProp compProp = new CompProp();
+                    Property compProp = new Property();
                     compProp.key = field.getName();
                     compProp.type = type.getName();
                     compProp.value = property.get(field.getName(), null, type);
-                    compDatum.props.add(compProp);
+                    compMirror.properties.add(compProp);
                 }
-                entityDatum.components.add(compDatum);
+                entityDatum.components.add(compMirror);
             }
             //添加默认组件
             for (Class autoCompClass : LtaePluginRule.AUTO_COMP_CLASSES) {
@@ -72,10 +71,10 @@ public class EntitySerializer {
                 if (entityDatum.hasComp(simpleName)) {
                     continue;
                 }
-                CompDatum compDatum = new CompDatum();
-                compDatum.props = new Array<>();
-                compDatum.name = simpleName;
-                entityDatum.components.add(compDatum);
+                CompMirror compMirror = new CompMirror();
+                compMirror.properties = new Properties();
+                compMirror.simpleName = simpleName;
+                entityDatum.components.add(compMirror);
             }
             entityDateList.add(entityDatum);
         }
@@ -130,9 +129,9 @@ public class EntitySerializer {
             String compName = compClass.getSimpleName();
             Field[] fields = compClass.getFields();
 
-            CompDatum compDatum = new CompDatum();
-            compDatum.name = compName;
-            compDatum.props = new Array<>();
+            CompMirror compMirror = new CompMirror();
+            compMirror.simpleName = compName;
+            compMirror.properties = new Properties();
             for (Field field : fields) {
                 if (!field.isAnnotationPresent(SerializeParam.class)) {
                     continue;
@@ -145,14 +144,14 @@ public class EntitySerializer {
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
-                CompProp prop = new CompProp();
+                Property prop = new Property();
                 prop.key = key;
                 prop.value = value;
                 prop.type = type.getName();
 
-                compDatum.props.add(prop);
+                compMirror.properties.add(prop);
             }
-            entity.components.add(compDatum);
+            entity.components.add(compMirror);
         }
         return entity;
     }
@@ -180,12 +179,12 @@ public class EntitySerializer {
             tagManager.register(entityDatum.name,entityId);
         }
         //注册组件
-        Array<CompDatum> components = entityDatum.components;
+        Array<CompMirror> components = entityDatum.components;
         Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
         for (Class<? extends Component> aClass : classes) {
             String simpleName = aClass.getSimpleName();
-            for (CompDatum compDatum : components) {
-                if (!simpleName.equals(compDatum.name)) {
+            for (CompMirror compMirror : components) {
+                if (!simpleName.equals(compMirror.simpleName)) {
                     continue;
                 }
                 //通过类对象创建组件Mapper
@@ -196,8 +195,8 @@ public class EntitySerializer {
                 //通过组件Mapper创建组件
                 Component component = mapper.create(entityId);
                 //写入默认值
-                Array<CompProp> props = compDatum.props;
-                for (CompProp prop : props) {
+                Array<Property> props = compMirror.properties;
+                for (Property prop : props) {
                     String key = prop.key;
                     Object value = prop.value;
                     try {

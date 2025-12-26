@@ -2,9 +2,7 @@ package org.ltae.manager.map.serialize.data;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.ltae.serialize.CompMirror;
 
 /**
  * @Auther WenLong
@@ -18,27 +16,27 @@ public class EntityDatum {
     public String fromMap;
     public String name;
     public String type;
-    public Array<CompDatum> components;
+    public Array<CompMirror> components;
     public EntityDatum(){}
 
     public boolean hasComp(String compName){
         if (components == null){
             components = new Array<>();
         }
-        for (CompDatum component : components) {
-            if (component.name.equals(compName)) {
+        for (CompMirror component : components) {
+            if (component.simpleName.equals(compName)) {
                 return true;
             }
         }
         return false;
     }
-    public CompDatum getCompJson(String compName){
+    public CompMirror getCompJson(String compName){
         if (!hasComp(compName)) {
             Gdx.app.error(getTag(),"Failed to getCompJson,is not has component in components,compName:"+compName);
             return null;
         }
-        for (CompDatum component : components) {
-            if (component.name.equals(compName)) {
+        for (CompMirror component : components) {
+            if (component.simpleName.equals(compName)) {
                 return component;
             }
         }
