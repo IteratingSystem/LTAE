@@ -5,6 +5,7 @@ import com.artemis.managers.TagManager;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import net.mostlyoriginal.api.event.common.EventSystem;
 import org.ltae.system.AssetSystem;
 
 
@@ -17,11 +18,13 @@ public class BaseEcsUI extends Table {
     public World world;
     public AssetSystem assetSystem;
     public TagManager tagManager;
+    public EventSystem eventSystem;
     public Skin skin;
     public BaseEcsUI(World world){
         this.world = world;
         tagManager = world.getSystem(TagManager.class);
         assetSystem = world.getSystem(AssetSystem.class);
+        eventSystem = world.getSystem(EventSystem.class);
         skin = assetSystem.skin;
     }
     public String getTag(){
