@@ -48,6 +48,10 @@ public class InventoryUI extends BaseEcsUI {
         this.owner = owner;
     }
 
+    public int getOwner() {
+        return owner;
+    }
+
     public void setSlotSize(int slotSize) {
         this.slotSize = slotSize;
     }
