@@ -112,7 +112,7 @@ public class InventoryUI extends BaseEcsUI {
             public void drop(DragAndDrop.Source source,
                              DragAndDrop.Payload payload,
                              float x, float y, int pointer) {
-                if (dragBlacklist.contains(source.getActor(),true)) {
+                if (dragBlacklist.contains(source.getActor().getParent(),true)) {
                     return;
                 }
                 onDrop(source,payload,getActor());
