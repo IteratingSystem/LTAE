@@ -19,6 +19,9 @@ public class InventoryUI extends BaseEcsUI {
     private Array<Array<SlotData>> slotData;
     private int slotSize = 32;
 
+    //是否能拖到地上
+    public boolean canDragStop = true;
+
     public InventoryUI(World world, String inventorySlotStyleName) {
         super(world);
         inventorySlotStyle = skin.get(inventorySlotStyleName, InventorySlot.InventorySlotStyle.class);
@@ -74,9 +77,12 @@ public class InventoryUI extends BaseEcsUI {
             public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
                 return onDragStart(slot);   // 交给子类
             }
-            //拖到空地，回滚
+            //拖到空地
             @Override
             public void dragStop(InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload, DragAndDrop.Target target) {
+                if (!canDragStop) {
+                    return;
+                }
                 onDragStop(event, x, y, pointer, payload, target);
             }
         });
