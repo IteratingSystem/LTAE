@@ -9,7 +9,7 @@ import org.ltae.component.Render;
 import org.ltae.event.EntityEvent;
 import org.ltae.manager.map.serialize.data.EntityDatum;
 
-public class SlotData {
+public class SlotDatum {
     public int itemId;
     public String itemName;
 

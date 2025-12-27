@@ -17,7 +17,7 @@ public class InventoryUI extends BaseEcsUI {
     private DragAndDrop dragAndDrop;
     private SlotUI.InventorySlotStyle inventorySlotStyle;
     private SlotUI[][] slots;
-    private Array<Array<SlotData>> slotData;
+    private Array<Array<SlotDatum>> slotData;
     //拖拽放下后,不处理拖拽逻辑的来源Actor,也就是拖拽来源黑名单
     private Array<Actor> dragBlacklist;
     private int slotSize = 32;
@@ -51,7 +51,7 @@ public class InventoryUI extends BaseEcsUI {
     }
 
     /* ===== 一次性画好所有格子并打开拖拽 ===== */
-    public void rebuild(Array<Array<SlotData>> slotData) {
+    public void rebuild(Array<Array<SlotDatum>> slotData) {
         this.slotData = slotData;
         clear();
         int rows = slotData.size;
@@ -66,18 +66,18 @@ public class InventoryUI extends BaseEcsUI {
                 slots[r][c] = slotUI;
                 enableDrag(slotUI);
 
-                SlotData slotDatum = slotData.get(r).get(c);
+                SlotDatum slotDatum = slotData.get(r).get(c);
                 slotUI.setSlotData(slotDatum);
             }
             row();
         }
     }
 
-    public Array<Array<SlotData>> getSlotData() {
+    public Array<Array<SlotDatum>> getSlotData() {
         return slotData;
     }
 
-    public void setSlotData(Array<Array<SlotData>> slotData) {
+    public void setSlotData(Array<Array<SlotDatum>> slotData) {
         this.slotData = slotData;
     }
 
@@ -170,7 +170,7 @@ public class InventoryUI extends BaseEcsUI {
     }
 
     public void swapData(SlotUI fromSlot,SlotUI targetSlot){
-        SlotData swapData = fromSlot.getSlotData();
+        SlotDatum swapData = fromSlot.getSlotData();
         fromSlot.setSlotData(targetSlot.getSlotData());
         targetSlot.setSlotData(swapData);
     }

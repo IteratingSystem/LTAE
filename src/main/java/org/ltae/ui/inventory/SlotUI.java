@@ -17,7 +17,7 @@ public class SlotUI extends WidgetGroup {
     private Vector2 posForInventory;
 
     private World world;
-    private SlotData slotData;
+    private SlotDatum slotDatum;
 
     private InventorySlotStyle style;
     private Image bg;      // 背景
@@ -127,17 +127,17 @@ public class SlotUI extends WidgetGroup {
         amount.setText(count <= 1 ? "" : String.valueOf(count));
     }
 
-    public SlotData getSlotData() {
-        return slotData;
+    public SlotDatum getSlotData() {
+        return slotDatum;
     }
 
-    public void setSlotData(SlotData slotData) {
-        this.slotData = slotData;
-        if (slotData == null){
-            slotData = new SlotData();
+    public void setSlotData(SlotDatum slotDatum) {
+        this.slotDatum = slotDatum;
+        if (slotDatum == null){
+            slotDatum = new SlotDatum();
         }
-        setIcon(slotData.getDrawable(world));
-        setAmount(slotData.stackAmount);
+        setIcon(slotDatum.getDrawable(world));
+        setAmount(slotDatum.stackAmount);
     }
 
     /** 选中状态 */
