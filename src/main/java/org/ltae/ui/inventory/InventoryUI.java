@@ -17,6 +17,8 @@ public class InventoryUI extends BaseEcsUI {
     private InventorySlot.InventorySlotStyle inventorySlotStyle;
     private InventorySlot[][] slots;
     private Array<Array<SlotData>> slotData;
+    //拖拽放下后,不处理拖拽逻辑的来源Actor,也就是拖拽来源黑名单
+    private Array<Actor> dragBlacklist;
     private int slotSize = 32;
 
     //是否能拖到地上
@@ -36,6 +38,19 @@ public class InventoryUI extends BaseEcsUI {
 
     public void setSlotSize(int slotSize) {
         this.slotSize = slotSize;
+    }
+
+    public void addDragBlack(Actor actor){
+        if (dragBlacklist == null) {
+            dragBlacklist = new Array<>();
+        }
+        dragBlacklist.add(actor);
+    }
+    public void rmDragBlack(Actor actor){
+        if (dragBlacklist == null) {
+            dragBlacklist = new Array<>();
+        }
+        dragBlacklist.removeValue(actor,true);
     }
 
     /* ===== 一次性画好所有格子并打开拖拽 ===== */
@@ -101,6 +116,9 @@ public class InventoryUI extends BaseEcsUI {
             public void drop(DragAndDrop.Source source,
                              DragAndDrop.Payload payload,
                              float x, float y, int pointer) {
+                if (dragBlacklist.contains(source.getActor(),true)) {
+                    return;
+                }
                 onDrop(source,payload,getActor());
 
             }
