@@ -27,6 +27,7 @@ public class InventoryUI extends BaseEcsUI {
     public InventoryUI(World world, String inventorySlotStyleName) {
         super(world);
         inventorySlotStyle = skin.get(inventorySlotStyleName, InventorySlot.InventorySlotStyle.class);
+        dragBlacklist = new Array<>();
         dragAndDrop = new DragAndDrop();
         dragAndDrop.setDragTime(100);
     }
@@ -34,6 +35,7 @@ public class InventoryUI extends BaseEcsUI {
         super(world);
         this.dragAndDrop = dragAndDrop;
         inventorySlotStyle = skin.get(inventorySlotStyleName, InventorySlot.InventorySlotStyle.class);
+        dragBlacklist = new Array<>();
     }
 
     public void setSlotSize(int slotSize) {
@@ -41,15 +43,9 @@ public class InventoryUI extends BaseEcsUI {
     }
 
     public void addDragBlack(Actor actor){
-        if (dragBlacklist == null) {
-            dragBlacklist = new Array<>();
-        }
         dragBlacklist.add(actor);
     }
     public void rmDragBlack(Actor actor){
-        if (dragBlacklist == null) {
-            dragBlacklist = new Array<>();
-        }
         dragBlacklist.removeValue(actor,true);
     }
 
