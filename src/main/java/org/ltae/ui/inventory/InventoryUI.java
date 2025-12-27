@@ -3,6 +3,7 @@ package org.ltae.ui.inventory;
 import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
@@ -14,8 +15,8 @@ import org.ltae.ui.BaseEcsUI;
  */
 public class InventoryUI extends BaseEcsUI {
     private DragAndDrop dragAndDrop;
-    private InventorySlot.InventorySlotStyle inventorySlotStyle;
-    private InventorySlot[][] slots;
+    private SlotUI.InventorySlotStyle inventorySlotStyle;
+    private SlotUI[][] slots;
     private Array<Array<SlotData>> slotData;
     //拖拽放下后,不处理拖拽逻辑的来源Actor,也就是拖拽来源黑名单
     private Array<Actor> dragBlacklist;
@@ -26,7 +27,7 @@ public class InventoryUI extends BaseEcsUI {
 
     public InventoryUI(World world, String inventorySlotStyleName) {
         super(world);
-        inventorySlotStyle = skin.get(inventorySlotStyleName, InventorySlot.InventorySlotStyle.class);
+        inventorySlotStyle = skin.get(inventorySlotStyleName, SlotUI.InventorySlotStyle.class);
         dragBlacklist = new Array<>();
         dragAndDrop = new DragAndDrop();
         dragAndDrop.setDragTime(100);
@@ -34,7 +35,7 @@ public class InventoryUI extends BaseEcsUI {
     public InventoryUI(World world,DragAndDrop dragAndDrop,String inventorySlotStyleName) {
         super(world);
         this.dragAndDrop = dragAndDrop;
-        inventorySlotStyle = skin.get(inventorySlotStyleName, InventorySlot.InventorySlotStyle.class);
+        inventorySlotStyle = skin.get(inventorySlotStyleName, SlotUI.InventorySlotStyle.class);
         dragBlacklist = new Array<>();
     }
 
@@ -55,18 +56,18 @@ public class InventoryUI extends BaseEcsUI {
         clear();
         int rows = slotData.size;
         int cols = slotData.get(0).size;
-        slots = new InventorySlot[rows][cols];
+        slots = new SlotUI[rows][cols];
 
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                InventorySlot inventorySlot = new InventorySlot(world,inventorySlotStyle);
-                add(inventorySlot).size(slotSize);
-                inventorySlot.setPosForInventory(r,c);
-                slots[r][c] = inventorySlot;
-                enableDrag(inventorySlot);
+                SlotUI slotUI = new SlotUI(world,inventorySlotStyle);
+                add(slotUI).size(slotSize);
+                slotUI.setPosForInventory(r,c);
+                slots[r][c] = slotUI;
+                enableDrag(slotUI);
 
                 SlotData slotDatum = slotData.get(r).get(c);
-                inventorySlot.setSlotData(slotDatum);
+                slotUI.setSlotData(slotDatum);
             }
             row();
         }
@@ -80,8 +81,15 @@ public class InventoryUI extends BaseEcsUI {
         this.slotData = slotData;
     }
 
+    public SlotUI getSlot(int x,int y){
+        if (slots == null) {
+            return null;
+        }
+        return slots[x][y];
+    }
+
     /* ===== 拖拽能力 ===== */
-    private void enableDrag(InventorySlot slot) {
+    private void enableDrag(SlotUI slot) {
         dragAndDrop.addSource(new DragAndDrop.Source(slot) {
             //按住开始拖拽
             @Override
@@ -124,7 +132,7 @@ public class InventoryUI extends BaseEcsUI {
 
     /* ===== 子类唯一要关心的两个钩子 ===== */
     //按住开始拖拽
-    public DragAndDrop.Payload onDragStart(InventorySlot slot) {
+    public DragAndDrop.Payload onDragStart(SlotUI slot) {
         DragAndDrop.Payload payload = new DragAndDrop.Payload();
         Image dragActor = new Image(slot.getIcon().getDrawable());
         dragActor.setScale(4f);
@@ -142,9 +150,26 @@ public class InventoryUI extends BaseEcsUI {
             Gdx.app.debug(getTag(),"Failed to swap item,'slots' is null!");
             return;
         }
-        InventorySlot fromSlot = (InventorySlot)source.getActor();
-        InventorySlot targetSlot = (InventorySlot)targetActor;
 
+
+        //交换后记录上一个库存容器
+        Group fromParent = source.getActor().getParent();
+        SlotUI fromSlot = (SlotUI)source.getActor();
+
+        Group targetParent = targetActor.getParent();
+        SlotUI targetSlot = (SlotUI)targetActor;
+
+        if (fromParent != targetParent
+            && fromParent instanceof InventoryUI fromInventory
+            && targetParent instanceof InventoryUI targetInventory){
+            fromSlot.setFromInventory(fromInventory);
+            targetSlot.setFromInventory(targetInventory);
+        }
+
+        swapData(fromSlot,targetSlot);
+    }
+
+    public void swapData(SlotUI fromSlot,SlotUI targetSlot){
         SlotData swapData = fromSlot.getSlotData();
         fromSlot.setSlotData(targetSlot.getSlotData());
         targetSlot.setSlotData(swapData);

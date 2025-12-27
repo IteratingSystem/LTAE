@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Align;
 /**
  * 库存单元格,默认拥有图片和堆叠数量,需要增加其它的数据或者样式直接继承就可以了
  */
-public class InventorySlot extends WidgetGroup {
+public class SlotUI extends WidgetGroup {
     //相对于库存的格子位置,在一个库存页面中,左上角为原点0,0
     private Vector2 posForInventory;
 
@@ -25,13 +25,16 @@ public class InventorySlot extends WidgetGroup {
     private Label amount;  // 右下角数量
     private boolean hovered, pressed, checked, disabled;
 
-    public InventorySlot(World world, Skin skin, String styleName) {
+    //交换后记录fromInventory,也就是上一个父容器
+    private InventoryUI oldInventory;
+
+    public SlotUI(World world, Skin skin, String styleName) {
         this(world,skin.get(styleName, InventorySlotStyle.class));
     }
 
 
 
-    public InventorySlot(World world, InventorySlotStyle style) {
+    public SlotUI(World world, InventorySlotStyle style) {
         this.world = world;
         this.style = style;
 
@@ -87,7 +90,13 @@ public class InventorySlot extends WidgetGroup {
         this.posForInventory.set(x,y);
     }
 
+    public void setFromInventory(InventoryUI fromInventory) {
+        this.oldInventory = fromInventory;
+    }
 
+    public InventoryUI getFromInventory() {
+        return oldInventory;
+    }
 
 
     /** 换背景图（普通/装备/任务…） */
