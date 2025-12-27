@@ -17,6 +17,15 @@ public class SlotDatum {
     public int maxStack;
     public EntityDatum entityDatum;
 
+    public void copy(SlotDatum fromSlotDatum){
+        this.itemId = fromSlotDatum.itemId;
+        this.itemName = fromSlotDatum.itemName;
+        this.stackAmount = fromSlotDatum.stackAmount;
+        this.maxStack = fromSlotDatum.maxStack;
+        this.entityDatum = fromSlotDatum.entityDatum;
+        fromSlotDatum = new SlotDatum();
+    }
+
     public TextureRegionDrawable getDrawable(World world) {
         if (entityDatum == null){
             return null;

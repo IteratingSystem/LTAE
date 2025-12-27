@@ -1,5 +1,6 @@
 package org.ltae.ui.inventory;
 
+import com.artemis.Entity;
 import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -21,10 +22,10 @@ public class InventoryUI extends BaseEcsUI {
     //拖拽放下后,不处理拖拽逻辑的来源Actor,也就是拖拽来源黑名单
     private Array<Actor> dragBlacklist;
     private int slotSize = 32;
-
     //是否能拖到地上
-    public boolean canDragStop = true;
-
+    private boolean canDragStop = true;
+    //归属者(实体id)
+    private int owner;
     public InventoryUI(World world, String inventorySlotStyleName) {
         super(world);
         inventorySlotStyle = skin.get(inventorySlotStyleName, SlotUI.InventorySlotStyle.class);
@@ -39,6 +40,14 @@ public class InventoryUI extends BaseEcsUI {
         dragBlacklist = new Array<>();
     }
 
+    public void setCanDragStop(boolean canDragStop) {
+        this.canDragStop = canDragStop;
+    }
+
+    public void setOwner(int owner) {
+        this.owner = owner;
+    }
+
     public void setSlotSize(int slotSize) {
         this.slotSize = slotSize;
     }
@@ -49,8 +58,6 @@ public class InventoryUI extends BaseEcsUI {
     public void rmDragBlack(Actor actor){
         dragBlacklist.removeValue(actor,true);
     }
-
-    /* ===== 一次性画好所有格子并打开拖拽 ===== */
     public void rebuild(Array<Array<SlotDatum>> slotData) {
         this.slotData = slotData;
         clear();
