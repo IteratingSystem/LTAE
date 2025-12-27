@@ -16,14 +16,23 @@ public class EntityDatum {
     public String fromMap;
     public String name;
     public String type;
-    public Array<CompMirror> components;
+    public Array<CompMirror> compMirrors;
     public EntityDatum(){}
 
-    public boolean hasComp(String compName){
-        if (components == null){
-            components = new Array<>();
+    public CompMirror getCompMirror(String compName){
+        for (CompMirror compMirror : compMirrors) {
+            if (compMirror.simpleName.equals(compName)) {
+                return compMirror;
+            }
         }
-        for (CompMirror component : components) {
+        Gdx.app.error(getTag(),"Failed to 'getCompMirror',not has 'compName': "+compName);
+        return null;
+    }
+    public boolean hasComp(String compName){
+        if (compMirrors == null){
+            compMirrors = new Array<>();
+        }
+        for (CompMirror component : compMirrors) {
             if (component.simpleName.equals(compName)) {
                 return true;
             }
@@ -35,7 +44,7 @@ public class EntityDatum {
             Gdx.app.error(getTag(),"Failed to getCompJson,is not has component in components,compName:"+compName);
             return null;
         }
-        for (CompMirror component : components) {
+        for (CompMirror component : compMirrors) {
             if (component.simpleName.equals(compName)) {
                 return component;
             }

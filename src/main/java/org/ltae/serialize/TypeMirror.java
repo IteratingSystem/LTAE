@@ -11,7 +11,15 @@ public class TypeMirror {
     public String simpleName;
     public Properties properties;
 
-
+    //获取该组件某key的值
+    public Object getValue (String key) {
+        for (Property prop : properties) {
+            if (prop.key.equals(key)) {
+                return prop.value;
+            }
+        }
+        return null;
+    }
     //获取该组件某key的值,如果没有这个key则直接返回defaultValue
     public Object getValue (String key,Object defaultValue) {
         for (Property prop : properties) {

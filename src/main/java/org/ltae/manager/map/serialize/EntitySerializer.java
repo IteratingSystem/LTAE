@@ -32,7 +32,7 @@ public class EntitySerializer {
             MapProperties properties = mapObject.getProperties();
 
             EntityDatum entityDatum = new EntityDatum();
-            entityDatum.components = new Array<>();
+            entityDatum.compMirrors = new Array<>();
             entityDatum.mapObjectId = mapObject.getProperties().get("id",0,Integer.class);
             entityDatum.fromMap = mapName;
 
@@ -63,7 +63,7 @@ public class EntitySerializer {
                     compProp.value = property.get(field.getName(), null, type);
                     compMirror.properties.add(compProp);
                 }
-                entityDatum.components.add(compMirror);
+                entityDatum.compMirrors.add(compMirror);
             }
             //添加默认组件
             for (Class autoCompClass : LtaePluginRule.AUTO_COMP_CLASSES) {
@@ -74,7 +74,7 @@ public class EntitySerializer {
                 CompMirror compMirror = new CompMirror();
                 compMirror.properties = new Properties();
                 compMirror.simpleName = simpleName;
-                entityDatum.components.add(compMirror);
+                entityDatum.compMirrors.add(compMirror);
             }
             entityDateList.add(entityDatum);
         }
@@ -123,7 +123,7 @@ public class EntitySerializer {
             }
         }
 
-        entity.components = new Array<>();
+        entity.compMirrors = new Array<>();
         for (Component component : allComps) {
             Class<? extends Component> compClass = component.getClass();
             String compName = compClass.getSimpleName();
@@ -151,7 +151,7 @@ public class EntitySerializer {
 
                 compMirror.properties.add(prop);
             }
-            entity.components.add(compMirror);
+            entity.compMirrors.add(compMirror);
         }
         return entity;
     }
@@ -179,7 +179,7 @@ public class EntitySerializer {
             tagManager.register(entityDatum.name,entityId);
         }
         //注册组件
-        Array<CompMirror> components = entityDatum.components;
+        Array<CompMirror> components = entityDatum.compMirrors;
         Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
         for (Class<? extends Component> aClass : classes) {
             String simpleName = aClass.getSimpleName();
