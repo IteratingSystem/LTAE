@@ -90,6 +90,9 @@ public class EcsMapLoader extends TmxMapLoader {
                     for (XmlReader.Element cProperty : child.getChildrenByName("property")){
                         String n = cProperty.getAttribute("name", null);
                         String v = cProperty.getAttribute("value", null);
+                        if (v == null && cProperty.getText()!=null && !cProperty.getText().isBlank()){
+                            v = cProperty.getText();
+                        }
                         String t = cProperty.getAttribute("type", null);
                         Object castValue = castProperty(n, v, t);
                         childProps.put(n, castValue);
