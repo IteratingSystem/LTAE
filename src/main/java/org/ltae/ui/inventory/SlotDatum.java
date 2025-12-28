@@ -15,6 +15,9 @@ public class SlotDatum {
 
     public int stackAmount;
     public int maxStack;
+    public int unitPrice;
+    public int totalPrice;
+
     public EntityDatum entityDatum;
 
     public void copy(SlotDatum fromSlotDatum){
