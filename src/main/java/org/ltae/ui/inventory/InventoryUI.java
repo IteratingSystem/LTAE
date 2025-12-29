@@ -89,7 +89,7 @@ public class InventoryUI extends BaseEcsUI {
 
     public void rebuild() {
         if (slotData == null) {
-            Gdx.app.error(getTag(),"Failed to rebuild,'slotData' is null!Please run function with 'setSlotData'");
+            Gdx.app.error(getTag(),"Failed to rebuild,'slotData' is null!Please run function with 'setSlotData()'");
             return;
         }
         slotTable.clear();
