@@ -140,11 +140,11 @@ public class SlotUI extends WidgetGroup {
         amount.setText(count <= 1 ? "" : String.valueOf(count));
     }
 
-    public SlotDatum getSlotData() {
+    public SlotDatum getSlotDatum() {
         return slotDatum;
     }
 
-    public void setSlotData(SlotDatum slotDatum) {
+    public void setSlotDatum(SlotDatum slotDatum) {
         this.slotDatum = slotDatum;
         if (slotDatum == null){
             slotDatum = new SlotDatum();

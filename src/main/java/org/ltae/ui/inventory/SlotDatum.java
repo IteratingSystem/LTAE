@@ -25,7 +25,12 @@ public class SlotDatum {
         this.stackAmount = fromSlotDatum.stackAmount;
         this.maxStack = fromSlotDatum.maxStack;
         this.entityDatum = fromSlotDatum.entityDatum;
-        fromSlotDatum = new SlotDatum();
+    }
+    public void exchange(SlotDatum slotDatum){
+        SlotDatum newSlotDatum = new SlotDatum();
+        newSlotDatum.copy(this);
+        this.copy(slotDatum);
+        slotDatum.copy(newSlotDatum);
     }
 
     public TextureRegionDrawable getDrawable(World world) {

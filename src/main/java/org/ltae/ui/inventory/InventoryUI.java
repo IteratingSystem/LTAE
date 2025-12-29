@@ -109,7 +109,7 @@ public class InventoryUI extends BaseEcsUI {
                 enableDrag(slotUI);
 
                 SlotDatum slotDatum = slotData.get(r).get(c);
-                slotUI.setSlotData(slotDatum);
+                slotUI.setSlotDatum(slotDatum);
             }
             slotTable.row();
         }
@@ -203,8 +203,8 @@ public class InventoryUI extends BaseEcsUI {
     }
 
     public void swapData(SlotUI fromSlot,SlotUI targetSlot){
-        SlotDatum swapData = fromSlot.getSlotData();
-        fromSlot.setSlotData(targetSlot.getSlotData());
-        targetSlot.setSlotData(swapData);
+        SlotDatum swapData = fromSlot.getSlotDatum();
+        fromSlot.setSlotDatum(targetSlot.getSlotDatum());
+        targetSlot.setSlotDatum(swapData);
     }
 }
