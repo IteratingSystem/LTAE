@@ -19,7 +19,7 @@ public class SlotUI extends WidgetGroup {
     private World world;
     private SlotDatum slotDatum;
 
-    private InventorySlotStyle style;
+    private SlotStyle style;
     private Image bg;      // 背景
     private Image icon;    // 物品图标
     private Label amount;  // 右下角数量
@@ -29,12 +29,12 @@ public class SlotUI extends WidgetGroup {
     private InventoryUI oldInventory;
 
     public SlotUI(World world, Skin skin, String styleName) {
-        this(world,skin.get(styleName, InventorySlotStyle.class));
+        this(world,skin.get(styleName, SlotStyle.class));
     }
 
 
 
-    public SlotUI(World world, InventorySlotStyle style) {
+    public SlotUI(World world, SlotStyle style) {
         this.world = world;
         this.style = style;
 
@@ -187,6 +187,6 @@ public class SlotUI extends WidgetGroup {
     }
 
 
-    public static class InventorySlotStyle extends TextButton.TextButtonStyle {
+    public static class SlotStyle extends TextButton.TextButtonStyle {
     }
 }

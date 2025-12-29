@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Array;
 import org.ltae.ui.BaseEcsUI;
@@ -15,64 +16,91 @@ import org.ltae.ui.BaseEcsUI;
  * 库存UI
  */
 public class InventoryUI extends BaseEcsUI {
+
+    //拖拽功能
     private DragAndDrop dragAndDrop;
-    private SlotUI.InventorySlotStyle inventorySlotStyle;
-    private SlotUI[][] slots;
-    private Array<Array<SlotDatum>> slotData;
-    //拖拽放下后,不处理拖拽逻辑的来源Actor,也就是拖拽来源黑名单
+    //拖拽来源黑名单
     private Array<Actor> dragBlacklist;
-    private int slotSize = 32;
     //是否能拖到地上
-    private boolean canDragStop = true;
+    private boolean canDragStop;
     //归属者(实体id)
-    private int owner;
-    public InventoryUI(World world, String inventorySlotStyleName) {
-        super(world);
-        inventorySlotStyle = skin.get(inventorySlotStyleName, SlotUI.InventorySlotStyle.class);
-        dragBlacklist = new Array<>();
-        dragAndDrop = new DragAndDrop();
-        dragAndDrop.setDragTime(100);
-    }
-    public InventoryUI(World world,DragAndDrop dragAndDrop,String inventorySlotStyleName) {
+    private int ownerId;
+    private Entity owner;
+    //数据
+    private Array<Array<SlotDatum>> slotData;
+    //格子尺寸
+    private int slotSize;
+    //ui
+    public Table slotTable;
+    public SlotUI.SlotStyle slotStyle;
+    public SlotUI[][] slots;
+
+    public InventoryUI(World world,DragAndDrop dragAndDrop,String slotStyleName) {
         super(world);
         this.dragAndDrop = dragAndDrop;
-        inventorySlotStyle = skin.get(inventorySlotStyleName, SlotUI.InventorySlotStyle.class);
+
+        slotStyle = skin.get(slotStyleName, SlotUI.SlotStyle.class);
         dragBlacklist = new Array<>();
+        slotSize = 32;
+        canDragStop = true;
+
+        initUI();
+    }
+    public void initUI(){
+        slotTable = new Table();
+        add(slotTable);
     }
 
+    //是否能拖到地上
     public void setCanDragStop(boolean canDragStop) {
         this.canDragStop = canDragStop;
     }
 
-    public void setOwner(int owner) {
-        this.owner = owner;
+    //归属者
+    public void setOwner(int ownerId) {
+        this.ownerId = ownerId;
+        this.owner = world.getEntity(ownerId);
     }
-
-    public int getOwner() {
+    public Entity getOwner() {
         return owner;
     }
-
+    public int getOwnerId() {
+        return ownerId;
+    }
+    //格子尺寸
     public void setSlotSize(int slotSize) {
         this.slotSize = slotSize;
     }
-
+    //拖拽来源黑名单
     public void addDragBlack(Actor actor){
         dragBlacklist.add(actor);
     }
     public void rmDragBlack(Actor actor){
         dragBlacklist.removeValue(actor,true);
     }
-    public void rebuild(Array<Array<SlotDatum>> slotData) {
+    //数据
+    public void setSlotData(Array<Array<SlotDatum>> slotData){
         this.slotData = slotData;
-        clear();
+    }
+    public Array<Array<SlotDatum>> getSlotData() {
+        return slotData;
+    }
+
+
+    public void rebuild() {
+        if (slotData == null) {
+            Gdx.app.error(getTag(),"Failed to rebuild,'slotData' is null!Please run function with 'setSlotData'");
+            return;
+        }
+        slotTable.clear();
         int rows = slotData.size;
         int cols = slotData.get(0).size;
         slots = new SlotUI[rows][cols];
 
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                SlotUI slotUI = new SlotUI(world,inventorySlotStyle);
-                add(slotUI).size(slotSize);
+                SlotUI slotUI = new SlotUI(world,slotStyle);
+                slotTable.add(slotUI).size(slotSize);
                 slotUI.setPosForInventory(r,c);
                 slots[r][c] = slotUI;
                 enableDrag(slotUI);
@@ -82,14 +110,6 @@ public class InventoryUI extends BaseEcsUI {
             }
             row();
         }
-    }
-
-    public Array<Array<SlotDatum>> getSlotData() {
-        return slotData;
-    }
-
-    public void setSlotData(Array<Array<SlotDatum>> slotData) {
-        this.slotData = slotData;
     }
 
     public SlotUI getSlot(int x,int y){
@@ -161,7 +181,6 @@ public class InventoryUI extends BaseEcsUI {
             Gdx.app.debug(getTag(),"Failed to swap item,'slots' is null!");
             return;
         }
-
 
         //交换后记录上一个库存容器
         Group fromParent = source.getActor().getParent();
