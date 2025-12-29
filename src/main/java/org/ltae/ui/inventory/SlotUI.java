@@ -1,5 +1,6 @@
 package org.ltae.ui.inventory;
 
+import com.artemis.Entity;
 import com.artemis.World;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
@@ -24,15 +25,16 @@ public class SlotUI extends WidgetGroup {
     private Image icon;    // 物品图标
     private Label amount;  // 右下角数量
     private boolean hovered, pressed, checked, disabled;
-
     //交换后记录fromInventory,也就是上一个父容器
     private InventoryUI oldInventory;
+
+    //归属者(实体id)
+    private int ownerId;
+    private Entity owner;
 
     public SlotUI(World world, Skin skin, String styleName) {
         this(world,skin.get(styleName, SlotStyle.class));
     }
-
-
 
     public SlotUI(World world, SlotStyle style) {
         this.world = world;
@@ -81,7 +83,18 @@ public class SlotUI extends WidgetGroup {
         });
     }
 
+
+
     /* =============== 外部调用 =============== */
+    //归属者
+    public void setOwner(int ownerId) {
+        this.ownerId = ownerId;
+        this.owner = world.getEntity(ownerId);
+    }
+    public Entity getOwner() {
+        return owner;
+    }
+
     public Vector2 getPosForInventory() {
         return posForInventory;
     }

@@ -24,8 +24,8 @@ public class InventoryUI extends BaseEcsUI {
     //是否能拖到地上
     private boolean canDragStop;
     //归属者(实体id)
-    private int ownerId;
-    private Entity owner;
+    public int ownerId;
+    public Entity owner;
     //数据
     private Array<Array<SlotDatum>> slotData;
     //格子尺寸
@@ -102,13 +102,16 @@ public class InventoryUI extends BaseEcsUI {
                 SlotUI slotUI = new SlotUI(world,slotStyle);
                 slotTable.add(slotUI).size(slotSize);
                 slotUI.setPosForInventory(r,c);
+                if (owner != null){
+                    slotUI.setOwner(ownerId);
+                }
                 slots[r][c] = slotUI;
                 enableDrag(slotUI);
 
                 SlotDatum slotDatum = slotData.get(r).get(c);
                 slotUI.setSlotData(slotDatum);
             }
-            row();
+            slotTable.row();
         }
     }
 
