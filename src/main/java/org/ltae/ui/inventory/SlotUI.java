@@ -145,10 +145,10 @@ public class SlotUI extends WidgetGroup {
     }
 
     public void setSlotDatum(SlotDatum slotDatum) {
-        this.slotDatum = slotDatum;
         if (slotDatum == null){
             slotDatum = new SlotDatum();
         }
+        this.slotDatum = slotDatum;
         setIcon(slotDatum.getDrawable(world));
         setAmount(slotDatum.stackAmount);
     }
