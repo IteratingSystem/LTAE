@@ -160,7 +160,6 @@ public class InventoryUI extends BaseEcsUI {
                     return;
                 }
                 onDrop(source,payload,getActor());
-
             }
 
         });
@@ -189,6 +188,10 @@ public class InventoryUI extends BaseEcsUI {
 
         SlotUI fromSlot = (SlotUI)source.getActor();
         SlotUI targetSlot = (SlotUI)targetActor;
+        //不允许自己拖拽到自己
+        if (fromSlot == targetSlot){
+            return;
+        }
 
         //交换后记录上一个库存容器
         setOldInvUI(fromSlot,targetSlot);
