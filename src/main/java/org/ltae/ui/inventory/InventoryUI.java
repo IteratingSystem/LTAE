@@ -187,25 +187,70 @@ public class InventoryUI extends BaseEcsUI {
             return;
         }
 
-        //交换后记录上一个库存容器
         SlotUI fromSlot = (SlotUI)source.getActor();
         SlotUI targetSlot = (SlotUI)targetActor;
+
+        //交换后记录上一个库存容器
+        setOldInvUI(fromSlot,targetSlot);
+
+        SlotDatum fromDatum = fromSlot.getSlotDatum();
+        SlotDatum targetDatum = targetSlot.getSlotDatum();
+        //同一种物品需要合并
+        if (fromDatum.itemId == targetDatum.itemId) {
+            merge(fromSlot,targetSlot);
+            return;
+        }
+
+        //不同物品需要交换
+        exchangeData(fromSlot,targetSlot);
+    }
+    private void setOldInvUI(SlotUI fromSlot,SlotUI targetSlot){
         if (fromSlot.getInvUI() != targetSlot.getInvUI()) {
             fromSlot.setOldInvUI(targetSlot.getOldInvUI());
             targetSlot.setOldInvUI(fromSlot.getOldInvUI());
         }
-        swapData(fromSlot,targetSlot);
     }
 
-    public void swapData(SlotUI fromSlot,SlotUI targetSlot){
+    /** 合并数据 **/
+    public void merge(SlotUI fromSlot,SlotUI targetSlot){
+        SlotDatum fromDatum = fromSlot.getSlotDatum();
+        SlotDatum targetDatum = targetSlot.getSlotDatum();
+        if (targetDatum.stackAmount == targetDatum.maxStack) {
+            exchangeData(fromSlot,targetSlot);
+            return;
+        }
+
+        int canSetAmount = targetDatum.maxStack - targetDatum.stackAmount;
+        if (fromDatum.stackAmount <= canSetAmount){
+            targetDatum.stackAmount += fromDatum.stackAmount;
+            fromDatum = new SlotDatum();
+        }else {
+            targetDatum.stackAmount += canSetAmount;
+            fromDatum.stackAmount -= canSetAmount;
+        }
+
         InventoryUI fromInvUI = fromSlot.getInvUI();
         InventoryUI targetInvUI = targetSlot.getInvUI();
+        fromInvUI.slotData.get(fromSlot.getInvX()).set(fromSlot.getInvY(), fromDatum);
+        targetInvUI.slotData.get(targetSlot.getInvX()).set(targetSlot.getInvY(), targetDatum);
+        fromInvUI.rebuild();
+        targetInvUI.rebuild();
 
-        SlotDatum swapDatum = fromSlot.getSlotDatum();
-        fromInvUI.slotData.get(fromSlot.getInvX()).set(fromSlot.getInvY(), targetSlot.getSlotDatum());
+    }
+    /** 交换数据 **/
+    public void exchangeData(SlotUI fromSlot,SlotUI targetSlot){
+
+
+        SlotDatum fromDatum = fromSlot.getSlotDatum();
+        SlotDatum targetDatum = targetSlot.getSlotDatum();
+        SlotDatum swapDatum = fromDatum;
+
+        InventoryUI fromInvUI = fromSlot.getInvUI();
+        InventoryUI targetInvUI = targetSlot.getInvUI();
+        fromInvUI.slotData.get(fromSlot.getInvX()).set(fromSlot.getInvY(), targetDatum);
         targetInvUI.slotData.get(targetSlot.getInvX()).set(targetSlot.getInvY(), swapDatum);
 
-        fromSlot.getInvUI().rebuild();
-        targetSlot.getInvUI().rebuild();
+        fromInvUI.rebuild();
+        targetInvUI.rebuild();
     }
 }
