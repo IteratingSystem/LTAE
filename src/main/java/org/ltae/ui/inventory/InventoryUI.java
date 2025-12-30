@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.ui.BaseEcsUI;
 
 /**
@@ -28,6 +29,8 @@ public class InventoryUI extends BaseEcsUI {
     public int ownerId;
     public Entity owner;
     //数据
+    //用于存储拥有来源的格子,防止被rebuild清空
+    public ObjectMap<SlotDatum,Integer> datumFrom;
     private Array<Array<SlotDatum>> slotData;
     //格子尺寸
     private int slotSize;
@@ -35,8 +38,7 @@ public class InventoryUI extends BaseEcsUI {
     public Table slotTable;
     public SlotUI.SlotStyle slotStyle;
     public SlotUI[][] slots;
-    //用于存储拥有来源的格子,防止被rebuild清空
-    public Array<SlotUI> oldSlots;
+
 
     public InventoryUI(World world,DragAndDrop dragAndDrop,String slotStyleName) {
         super(world);
@@ -44,10 +46,9 @@ public class InventoryUI extends BaseEcsUI {
 
         slotStyle = skin.get(slotStyleName, SlotUI.SlotStyle.class);
         dragBlacklist = new Array<>();
+        datumFrom = new ObjectMap<>();
         slotSize = 32;
         canDragStop = true;
-        oldSlots = new Array<>();
-
         initUI();
     }
     public void initUI(){
@@ -198,8 +199,6 @@ public class InventoryUI extends BaseEcsUI {
             return;
         }
 
-        //交换后记录上一个库存容器
-        setOldInvUI(fromSlot,targetSlot);
 
         SlotDatum fromDatum = fromSlot.getSlotDatum();
         SlotDatum targetDatum = targetSlot.getSlotDatum();
@@ -211,13 +210,6 @@ public class InventoryUI extends BaseEcsUI {
 
         //不同物品需要交换
         exchangeData(fromSlot,targetSlot);
-    }
-    public void setOldInvUI(SlotUI fromSlot,SlotUI targetSlot){
-        if (fromSlot.getInvUI() != targetSlot.getInvUI()) {
-            fromSlot.setOldInvUI(targetSlot.getOldInvUI());
-            targetSlot.setOldInvUI(fromSlot.getOldInvUI());
-            oldSlots.add(fromSlot,targetSlot);
-        }
     }
 
     /** 合并数据 **/
@@ -248,8 +240,6 @@ public class InventoryUI extends BaseEcsUI {
     }
     /** 交换数据 **/
     public void exchangeData(SlotUI fromSlot,SlotUI targetSlot){
-
-
         SlotDatum fromDatum = fromSlot.getSlotDatum();
         SlotDatum targetDatum = targetSlot.getSlotDatum();
         SlotDatum swapDatum = fromDatum;
@@ -258,6 +248,11 @@ public class InventoryUI extends BaseEcsUI {
         InventoryUI targetInvUI = targetSlot.getInvUI();
         fromInvUI.slotData.get(fromSlot.getInvX()).set(fromSlot.getInvY(), targetDatum);
         targetInvUI.slotData.get(targetSlot.getInvX()).set(targetSlot.getInvY(), swapDatum);
+
+        //记录数据来源
+        if (targetInvUI == this && fromInvUI != this){
+            datumFrom.put(swapDatum,fromInvUI.ownerId);
+        }
 
         fromInvUI.rebuild();
         targetInvUI.rebuild();

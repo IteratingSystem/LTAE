@@ -18,7 +18,6 @@ public class SlotUI extends WidgetGroup {
     private int invX;
     private int invY;
     private InventoryUI invUI;
-    private InventoryUI oldInvUI;
 
     private World world;
     private SlotDatum slotDatum;
@@ -112,14 +111,6 @@ public class SlotUI extends WidgetGroup {
     }
     public void setInvUI(InventoryUI invUI) {
         this.invUI = invUI;
-    }
-
-    public InventoryUI getOldInvUI() {
-        return oldInvUI;
-    }
-
-    public void setOldInvUI(InventoryUI oldInvUI) {
-        this.oldInvUI = oldInvUI;
     }
 
     /** 换背景图（普通/装备/任务…） */
