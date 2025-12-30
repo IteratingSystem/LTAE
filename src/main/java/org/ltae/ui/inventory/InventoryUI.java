@@ -3,6 +3,7 @@ package org.ltae.ui.inventory;
 import com.artemis.Entity;
 import com.artemis.World;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -101,7 +102,8 @@ public class InventoryUI extends BaseEcsUI {
             for (int c = 0; c < cols; c++) {
                 SlotUI slotUI = new SlotUI(world,slotStyle);
                 slotTable.add(slotUI).size(slotSize);
-                slotUI.setPosForInventory(r,c);
+                slotUI.setInvPos(r,c);
+                slotUI.setInvUI(this);
                 if (owner != null){
                     slotUI.setOwner(ownerId);
                 }
@@ -186,25 +188,24 @@ public class InventoryUI extends BaseEcsUI {
         }
 
         //交换后记录上一个库存容器
-        Group fromParent = source.getActor().getParent();
         SlotUI fromSlot = (SlotUI)source.getActor();
-
-        Group targetParent = targetActor.getParent();
         SlotUI targetSlot = (SlotUI)targetActor;
-
-        if (fromParent != targetParent
-            && fromParent instanceof InventoryUI fromInventory
-            && targetParent instanceof InventoryUI targetInventory){
-            fromSlot.setFromInventory(fromInventory);
-            targetSlot.setFromInventory(targetInventory);
+        if (fromSlot.getInvUI() != targetSlot.getInvUI()) {
+            fromSlot.setOldInvUI(targetSlot.getOldInvUI());
+            targetSlot.setOldInvUI(fromSlot.getOldInvUI());
         }
-
         swapData(fromSlot,targetSlot);
     }
 
     public void swapData(SlotUI fromSlot,SlotUI targetSlot){
-        SlotDatum swapData = fromSlot.getSlotDatum();
-        fromSlot.setSlotDatum(targetSlot.getSlotDatum());
-        targetSlot.setSlotDatum(swapData);
+        InventoryUI fromInvUI = fromSlot.getInvUI();
+        InventoryUI targetInvUI = targetSlot.getInvUI();
+
+        SlotDatum swapDatum = fromSlot.getSlotDatum();
+        fromInvUI.slotData.get(fromSlot.getInvX()).set(fromSlot.getInvY(), targetSlot.getSlotDatum());
+        targetInvUI.slotData.get(targetSlot.getInvX()).set(targetSlot.getInvY(), swapDatum);
+
+        fromSlot.getInvUI().rebuild();
+        targetSlot.getInvUI().rebuild();
     }
 }

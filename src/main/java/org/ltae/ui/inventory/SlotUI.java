@@ -15,7 +15,10 @@ import com.badlogic.gdx.utils.Align;
  */
 public class SlotUI extends WidgetGroup {
     //相对于库存的格子位置,在一个库存页面中,左上角为原点0,0
-    private Vector2 posForInventory;
+    private int invX;
+    private int invY;
+    private InventoryUI invUI;
+    private InventoryUI oldInvUI;
 
     private World world;
     private SlotDatum slotDatum;
@@ -25,8 +28,6 @@ public class SlotUI extends WidgetGroup {
     private Image icon;    // 物品图标
     private Label amount;  // 右下角数量
     private boolean hovered, pressed, checked, disabled;
-    //交换后记录fromInventory,也就是上一个父容器
-    private InventoryUI oldInventory;
 
     //归属者(实体id)
     private int ownerId;
@@ -40,7 +41,6 @@ public class SlotUI extends WidgetGroup {
         this.world = world;
         this.style = style;
 
-        posForInventory = new Vector2(-1,-1);
         bg = new Image();
         icon = new Image();
         amount = new Label("", new Label.LabelStyle(style.font, style.fontColor));
@@ -95,22 +95,32 @@ public class SlotUI extends WidgetGroup {
         return owner;
     }
 
-    public Vector2 getPosForInventory() {
-        return posForInventory;
+    public int getInvX() {
+        return invX;
+    }
+    public int getInvY() {
+        return invY;
     }
 
-    public void setPosForInventory(int x,int y) {
-        this.posForInventory.set(x,y);
+    /*在库存中的坐标*/
+    public void setInvPos(int x,int y) {
+        invX = x;
+        invY = y;
+    }
+    public InventoryUI getInvUI() {
+        return invUI;
+    }
+    public void setInvUI(InventoryUI invUI) {
+        this.invUI = invUI;
     }
 
-    public void setFromInventory(InventoryUI fromInventory) {
-        this.oldInventory = fromInventory;
+    public InventoryUI getOldInvUI() {
+        return oldInvUI;
     }
 
-    public InventoryUI getFromInventory() {
-        return oldInventory;
+    public void setOldInvUI(InventoryUI oldInvUI) {
+        this.oldInvUI = oldInvUI;
     }
-
 
     /** 换背景图（普通/装备/任务…） */
     public void setBackground(Drawable drawable) {
