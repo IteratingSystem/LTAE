@@ -156,7 +156,9 @@ public class InventoryUI extends BaseEcsUI {
             public void drop(DragAndDrop.Source source,
                              DragAndDrop.Payload payload,
                              float x, float y, int pointer) {
-                if (dragBlacklist.contains(source.getActor().getParent(),true)) {
+                //黑名单中的库存无法触发拖放
+                SlotUI fromSlot = (SlotUI)source.getActor();
+                if (dragBlacklist.contains(fromSlot.getInvUI(),true)) {
                     return;
                 }
                 onDrop(source,payload,getActor());
