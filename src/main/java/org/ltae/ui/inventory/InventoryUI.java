@@ -35,6 +35,8 @@ public class InventoryUI extends BaseEcsUI {
     public Table slotTable;
     public SlotUI.SlotStyle slotStyle;
     public SlotUI[][] slots;
+    //用于存储拥有来源的格子,防止被rebuild清空
+    public Array<SlotUI> oldSlots;
 
     public InventoryUI(World world,DragAndDrop dragAndDrop,String slotStyleName) {
         super(world);
@@ -44,6 +46,7 @@ public class InventoryUI extends BaseEcsUI {
         dragBlacklist = new Array<>();
         slotSize = 32;
         canDragStop = true;
+        oldSlots = new Array<>();
 
         initUI();
     }
@@ -209,10 +212,11 @@ public class InventoryUI extends BaseEcsUI {
         //不同物品需要交换
         exchangeData(fromSlot,targetSlot);
     }
-    private void setOldInvUI(SlotUI fromSlot,SlotUI targetSlot){
+    public void setOldInvUI(SlotUI fromSlot,SlotUI targetSlot){
         if (fromSlot.getInvUI() != targetSlot.getInvUI()) {
             fromSlot.setOldInvUI(targetSlot.getOldInvUI());
             targetSlot.setOldInvUI(fromSlot.getOldInvUI());
+            oldSlots.add(fromSlot,targetSlot);
         }
     }
 
