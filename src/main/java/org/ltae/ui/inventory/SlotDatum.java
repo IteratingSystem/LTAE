@@ -12,6 +12,7 @@ import org.ltae.manager.map.serialize.data.EntityDatum;
 public class SlotDatum {
     public int itemId;
     public String itemName;
+    public String itemType;
 
     public int stackAmount;
     public int maxStack;
@@ -26,6 +27,7 @@ public class SlotDatum {
         this.maxStack = fromSlotDatum.maxStack;
         this.entityDatum = fromSlotDatum.entityDatum;
         this.unitPrice = fromSlotDatum.unitPrice;
+        this.itemType = fromSlotDatum.itemType;
     }
     public void exchange(SlotDatum slotDatum){
         SlotDatum newSlotDatum = new SlotDatum();
