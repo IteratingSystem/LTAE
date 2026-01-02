@@ -127,7 +127,7 @@ public class InventoryUI extends BaseEcsUI {
     }
 
     /* ===== 拖拽能力 ===== */
-    private void enableDrag(SlotUI slot) {
+    public void enableDrag(SlotUI slot) {
         dragAndDrop.addSource(new DragAndDrop.Source(slot) {
             //按住开始拖拽
             @Override
