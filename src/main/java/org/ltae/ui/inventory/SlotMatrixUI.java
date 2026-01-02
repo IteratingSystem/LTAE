@@ -15,7 +15,7 @@ import org.ltae.ui.BaseEcsUI;
 /**
  * 库存UI
  */
-public class InventoryUI extends BaseEcsUI {
+public class SlotMatrixUI extends BaseEcsUI {
 
     //拖拽功能
     private DragAndDrop dragAndDrop;
@@ -38,7 +38,7 @@ public class InventoryUI extends BaseEcsUI {
     public SlotUI[][] slots;
 
 
-    public InventoryUI(World world,DragAndDrop dragAndDrop,String slotStyleName) {
+    public SlotMatrixUI(World world, DragAndDrop dragAndDrop, String slotStyleName) {
         super(world);
         this.dragAndDrop = dragAndDrop;
 
@@ -228,8 +228,8 @@ public class InventoryUI extends BaseEcsUI {
             fromDatum.stackAmount -= canSetAmount;
         }
 
-        InventoryUI fromInvUI = fromSlot.getInvUI();
-        InventoryUI targetInvUI = targetSlot.getInvUI();
+        SlotMatrixUI fromInvUI = fromSlot.getInvUI();
+        SlotMatrixUI targetInvUI = targetSlot.getInvUI();
         fromInvUI.slotData.get(fromSlot.getInvX()).set(fromSlot.getInvY(), fromDatum);
         targetInvUI.slotData.get(targetSlot.getInvX()).set(targetSlot.getInvY(), targetDatum);
         fromInvUI.rebuild();
@@ -242,8 +242,8 @@ public class InventoryUI extends BaseEcsUI {
         SlotDatum targetDatum = targetSlot.getSlotDatum();
         SlotDatum swapDatum = fromDatum;
 
-        InventoryUI fromInvUI = fromSlot.getInvUI();
-        InventoryUI targetInvUI = targetSlot.getInvUI();
+        SlotMatrixUI fromInvUI = fromSlot.getInvUI();
+        SlotMatrixUI targetInvUI = targetSlot.getInvUI();
         fromInvUI.slotData.get(fromSlot.getInvX()).set(fromSlot.getInvY(), targetDatum);
         targetInvUI.slotData.get(targetSlot.getInvX()).set(targetSlot.getInvY(), swapDatum);
 

@@ -3,7 +3,6 @@ package org.ltae.ui.inventory;
 import com.artemis.Entity;
 import com.artemis.World;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -17,7 +16,7 @@ public class SlotUI extends WidgetGroup {
     //相对于库存的格子位置,在一个库存页面中,左上角为原点0,0
     private int invX;
     private int invY;
-    private InventoryUI invUI;
+    private SlotMatrixUI invUI;
 
     private World world;
     private SlotDatum slotDatum;
@@ -106,10 +105,10 @@ public class SlotUI extends WidgetGroup {
         invX = x;
         invY = y;
     }
-    public InventoryUI getInvUI() {
+    public SlotMatrixUI getInvUI() {
         return invUI;
     }
-    public void setInvUI(InventoryUI invUI) {
+    public void setInvUI(SlotMatrixUI invUI) {
         this.invUI = invUI;
     }
 
