@@ -96,7 +96,6 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
                 render.flipX, // x轴翻转
                 render.flipY // y轴翻转
         );
-        batch.flush();
         batch.setShader(null);
     }
 

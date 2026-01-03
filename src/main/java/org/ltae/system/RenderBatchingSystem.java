@@ -53,6 +53,7 @@ public class RenderBatchingSystem extends BaseSystem implements EntityProcessPri
             final EntityProcessAgent agent = job.agent;
             agent.process(job.entityId);
         }
+        batch.flush();
         batch.end();
     }
 
