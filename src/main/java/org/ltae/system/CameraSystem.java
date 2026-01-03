@@ -70,22 +70,41 @@ public class CameraSystem extends BaseSystem {
             super.end();
             return;
         }
-        // 一次性把摄像机挪到位，本帧内再也不动
+        // 1. 先按活动区得到“小数目标”
         float centerX = targetPos.x + cameraTarget.eCenterX;
         float centerY = targetPos.y + cameraTarget.eCenterY;
 
         float aw = cameraTarget.activeWidth;
         float ah = cameraTarget.activeHeight;
 
+        float targetCamX = camera.position.x;   // 默认保持原位
+        float targetCamY = camera.position.y;
+
+        // 水平方向超出活动区 → 需要修正
         if (camera.position.x < centerX - aw/2 + cameraTarget.offsetX ||
                 camera.position.x > centerX + aw/2 + cameraTarget.offsetX) {
-            camera.position.x = MathUtils.lerp(camera.position.x, centerX, cameraTarget.progress);
+            targetCamX = centerX;
         }
+        // 垂直方向超出活动区 → 需要修正
         if (camera.position.y < centerY - ah/2 + cameraTarget.offsetY ||
                 camera.position.y > centerY + ah/2 + cameraTarget.offsetY) {
-            camera.position.y = MathUtils.lerp(camera.position.y, centerY, cameraTarget.progress);
+            targetCamY = centerY;
         }
-        camera.update();   // 只在这里 update 一次！
+
+        // 2. 把目标摄像机位置对齐到世界像素网格
+        float pixel = 1f / worldScale;
+        targetCamX = Math.round(targetCamX / pixel) * pixel;
+        targetCamY = Math.round(targetCamY / pixel) * pixel;
+
+        // 3. 用 lerp 朝“整格目标”插值（角色仍在活动区内时 targetCam*==camera.position*，lerp 不变）
+        camera.position.x = MathUtils.lerp(camera.position.x, targetCamX, cameraTarget.progress);
+        camera.position.y = MathUtils.lerp(camera.position.y, targetCamY, cameraTarget.progress);
+
+        // 4. 最后统一 round 一次，防止 lerp 残差
+        camera.position.x = Math.round(camera.position.x / pixel) * pixel;
+        camera.position.y = Math.round(camera.position.y / pixel) * pixel;
+
+        camera.update();
         dirty = false;
     }
 
