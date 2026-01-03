@@ -21,8 +21,6 @@ import org.ltae.event.CameraEvent;
  */
 public class CameraSystem extends BaseSystem {
     private final static String TAG = CameraSystem.class.getSimpleName();
-    private TagManager tagManager;
-
     private final static float MOVE_SPEED = 5;
     public M<Pos> mPos;
 
@@ -32,10 +30,6 @@ public class CameraSystem extends BaseSystem {
     private float gameWidth;
     private float gameHeight;
     private float zoom;
-
-    private int targetId = -1;   // 缓存帧尾最终 entityId
-    private Pos targetPos;       // 缓存帧尾最终 Pos
-    private boolean dirty = false;
     public CameraSystem(float gameWidth,float gameHeight,float zoom,float worldScale){
         this.zoom = zoom;
         this.gameWidth = gameWidth;
@@ -52,60 +46,11 @@ public class CameraSystem extends BaseSystem {
 
     @Override
     protected void processSystem() {
-        if (Gdx.app.getLogLevel() == Application.LOG_DEBUG) {
-            cameraCtrl();        // 调试手操
+        if (Gdx.app.getLogLevel() == Application.LOG_DEBUG){
+            cameraCtrl();
         }
-        // 采样：只记录“本帧最终位置”，不立即写 camera.position
-        if (verifyTarget()) {
-            targetId = tagManager.getEntityId(cameraTarget.entityTag);
-            targetPos  = mPos.get(targetId);
-            dirty = true;
-        } else {
-            dirty = false;
-        }
-    }
-    @Override
-    protected void end() {
-        if (!dirty) {            // 本帧没有目标，直接返回
-            super.end();
-            return;
-        }
-        // 1. 先按活动区得到“小数目标”
-        float centerX = targetPos.x + cameraTarget.eCenterX;
-        float centerY = targetPos.y + cameraTarget.eCenterY;
-
-        float aw = cameraTarget.activeWidth;
-        float ah = cameraTarget.activeHeight;
-
-        float targetCamX = camera.position.x;   // 默认保持原位
-        float targetCamY = camera.position.y;
-
-        // 水平方向超出活动区 → 需要修正
-        if (camera.position.x < centerX - aw/2 + cameraTarget.offsetX ||
-                camera.position.x > centerX + aw/2 + cameraTarget.offsetX) {
-            targetCamX = centerX;
-        }
-        // 垂直方向超出活动区 → 需要修正
-        if (camera.position.y < centerY - ah/2 + cameraTarget.offsetY ||
-                camera.position.y > centerY + ah/2 + cameraTarget.offsetY) {
-            targetCamY = centerY;
-        }
-
-        // 2. 把目标摄像机位置对齐到世界像素网格
-        float pixel = 1f / worldScale;
-        targetCamX = Math.round(targetCamX / pixel) * pixel;
-        targetCamY = Math.round(targetCamY / pixel) * pixel;
-
-        // 3. 用 lerp 朝“整格目标”插值（角色仍在活动区内时 targetCam*==camera.position*，lerp 不变）
-        camera.position.x = MathUtils.lerp(camera.position.x, targetCamX, cameraTarget.progress);
-        camera.position.y = MathUtils.lerp(camera.position.y, targetCamY, cameraTarget.progress);
-
-        // 4. 最后统一 round 一次，防止 lerp 残差
-        camera.position.x = Math.round(camera.position.x / pixel) * pixel;
-        camera.position.y = Math.round(camera.position.y / pixel) * pixel;
-
+        followTarget();
         camera.update();
-        dirty = false;
     }
 
     private boolean verifyTarget(){
