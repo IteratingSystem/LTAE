@@ -58,7 +58,7 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(new PosFollowBodySystem(LtaePluginRule.WORLD_SCALE)); //坐标跟随物理身体
         worldConfigurationBuilder.with(new BTreeSystem());//行为树系统
         worldConfigurationBuilder.with(new StateSystem());//状态机系统
-        worldConfigurationBuilder.with(cameraSystem);//摄像机系统
+
         worldConfigurationBuilder.with(new KeyframeShapeSystem());//动画帧形状系统
         worldConfigurationBuilder.with(new TileAnimSystem());//动画系统
         worldConfigurationBuilder.with(new LayerSamplingSystem());//图层采样
@@ -76,9 +76,14 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(new RenderUISystem(
                 LtaePluginRule.UI_WIDTH,
                 LtaePluginRule.UI_HEIGHT));
+
+        worldConfigurationBuilder.with(WorldConfigurationBuilder.Priority.LOWEST,cameraSystem);//摄像机系统
+
         //创建实体
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
                 new EntityFactory());
+
+
     }
 }

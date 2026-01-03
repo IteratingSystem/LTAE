@@ -21,6 +21,8 @@ import org.ltae.event.CameraEvent;
  */
 public class CameraSystem extends BaseSystem {
     private final static String TAG = CameraSystem.class.getSimpleName();
+    private TagManager tagManager;
+
     private final static float MOVE_SPEED = 5;
     public M<Pos> mPos;
 
@@ -30,6 +32,10 @@ public class CameraSystem extends BaseSystem {
     private float gameWidth;
     private float gameHeight;
     private float zoom;
+
+    private int targetId = -1;   // 缓存帧尾最终 entityId
+    private Pos targetPos;       // 缓存帧尾最终 Pos
+    private boolean dirty = false;
     public CameraSystem(float gameWidth,float gameHeight,float zoom,float worldScale){
         this.zoom = zoom;
         this.gameWidth = gameWidth;
@@ -46,11 +52,41 @@ public class CameraSystem extends BaseSystem {
 
     @Override
     protected void processSystem() {
-        if (Gdx.app.getLogLevel() == Application.LOG_DEBUG){
-            cameraCtrl();
+        if (Gdx.app.getLogLevel() == Application.LOG_DEBUG) {
+            cameraCtrl();        // 调试手操
         }
-        followTarget();
-        camera.update();
+        // 采样：只记录“本帧最终位置”，不立即写 camera.position
+        if (verifyTarget()) {
+            targetId = tagManager.getEntityId(cameraTarget.entityTag);
+            targetPos  = mPos.get(targetId);
+            dirty = true;
+        } else {
+            dirty = false;
+        }
+    }
+    @Override
+    protected void end() {
+        if (!dirty) {            // 本帧没有目标，直接返回
+            super.end();
+            return;
+        }
+        // 一次性把摄像机挪到位，本帧内再也不动
+        float centerX = targetPos.x + cameraTarget.eCenterX;
+        float centerY = targetPos.y + cameraTarget.eCenterY;
+
+        float aw = cameraTarget.activeWidth;
+        float ah = cameraTarget.activeHeight;
+
+        if (camera.position.x < centerX - aw/2 + cameraTarget.offsetX ||
+                camera.position.x > centerX + aw/2 + cameraTarget.offsetX) {
+            camera.position.x = MathUtils.lerp(camera.position.x, centerX, cameraTarget.progress);
+        }
+        if (camera.position.y < centerY - ah/2 + cameraTarget.offsetY ||
+                camera.position.y > centerY + ah/2 + cameraTarget.offsetY) {
+            camera.position.y = MathUtils.lerp(camera.position.y, centerY, cameraTarget.progress);
+        }
+        camera.update();   // 只在这里 update 一次！
+        dirty = false;
     }
 
     private boolean verifyTarget(){
