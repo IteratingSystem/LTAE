@@ -35,7 +35,9 @@ public class SlotDatum {
         this.copy(slotDatum);
         slotDatum.copy(newSlotDatum);
     }
-
+    public boolean isBlank(){
+        return stackAmount == 0 || entityDatum == null;
+    }
     public TextureRegionDrawable getDrawable(World world) {
         if (entityDatum == null){
             return null;
