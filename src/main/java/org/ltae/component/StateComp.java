@@ -52,4 +52,10 @@ public class StateComp extends SerializeComponent{
             break;
         }
     }
+    public void changeState(State<Entity> state){
+        machine.changeState(state);
+    }
+    public State<Entity> getCurrentState(){
+        return machine.getCurrentState();
+    }
 }
