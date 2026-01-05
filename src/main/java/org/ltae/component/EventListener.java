@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Disposable;
 import org.ltae.LtaePluginRule;
 import org.ltae.event.listener.InteractiveListener;
+import org.ltae.event.listener.OnlyInteractive;
 import org.ltae.manager.map.serialize.data.EntityDatum;
 import org.ltae.utils.ReflectionUtils;
 
@@ -15,7 +16,7 @@ import org.ltae.utils.ReflectionUtils;
  * @Description 交互组件
  **/
 public class EventListener extends SerializeComponent implements Disposable {
-
+    public boolean isOnlyInter;
     public Object onEvent;
     @Override
     public void reload(World world, EntityDatum entityDatum) {
@@ -31,6 +32,10 @@ public class EventListener extends SerializeComponent implements Disposable {
 
         onEvent = ReflectionUtils.createObject(className, new Class[]{Entity.class}, new Entity[]{world.getEntity(entityId)},Object.class);
         eventSystem.registerEvents(onEvent);
+
+        if (onEvent instanceof OnlyInteractive) {
+            isOnlyInter = true;
+        }
     }
 
     @Override
