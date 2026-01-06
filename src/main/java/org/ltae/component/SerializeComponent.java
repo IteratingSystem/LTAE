@@ -35,4 +35,6 @@ public abstract class SerializeComponent extends Component {
     public String getTag(){
         return getClass().getSimpleName();
     }
+
+    public void beforeSerialization(){}
 }

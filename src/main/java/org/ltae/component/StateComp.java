@@ -58,4 +58,10 @@ public class StateComp extends SerializeComponent{
     public State<Entity> getCurrentState(){
         return machine.getCurrentState();
     }
+
+    @Override
+    public void beforeSerialization() {
+        super.beforeSerialization();
+        current = machine.getCurrentState().toString();
+    }
 }

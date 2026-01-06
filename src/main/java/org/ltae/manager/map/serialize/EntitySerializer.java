@@ -125,6 +125,11 @@ public class EntitySerializer {
 
         entity.compMirrors = new Array<>();
         for (Component component : allComps) {
+            if (component instanceof SerializeComponent serializeComponent) {
+                serializeComponent.beforeSerialization();
+            }
+
+
             Class<? extends Component> compClass = component.getClass();
             String compName = compClass.getSimpleName();
             Field[] fields = compClass.getFields();
