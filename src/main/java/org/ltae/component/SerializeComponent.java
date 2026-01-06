@@ -14,10 +14,12 @@ import org.ltae.serialize.data.EntityDatum;
 public abstract class SerializeComponent extends Component {
     public World world;
     public EventSystem eventSystem;
+
     public int entityId;
     public MapObject mapObject;
     public TiledMapTile tiledMapTile;
     public String fromMap;
+
     public void reload(World world, EntityDatum entityDatum){
         this.world = world;
         eventSystem = world.getSystem(EventSystem.class);
@@ -32,9 +34,11 @@ public abstract class SerializeComponent extends Component {
             tiledMapTile = tileMapObject.getTile();
         }
     }
+
     public String getTag(){
         return getClass().getSimpleName();
     }
 
-    public void beforeSerialization(){}
+    public void beforeSerialization() {
+    }
 }

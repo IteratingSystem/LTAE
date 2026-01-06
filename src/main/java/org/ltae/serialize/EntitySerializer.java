@@ -156,6 +156,8 @@ public class EntitySerializer {
             }
             entity.compMirrors.add(compMirror);
         }
+        entity.dataFrom = EntityData.FROM_WORLD;
+        entity.lastId = entityId;
         return entity;
     }
     //覆盖entityDatum,更新了新的数据覆盖上去,相对于复制过去替换掉
