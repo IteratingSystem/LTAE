@@ -11,8 +11,6 @@ import com.badlogic.gdx.utils.Array;
 public class EntityDatum {
     //在构造实体数据的过程中,可以通过地图对象和游戏世界两种方式构造,此属性记录构造数据的来源
     public int dataFrom;
-    //在实体存档过后,用于记录此id,由于所有实体重建过程中,id会重新生成,故而需要此属性
-    public int lastId;
 
     public int entityId;
     public int mapObjectId;
@@ -22,7 +20,6 @@ public class EntityDatum {
     public String type;
     public Array<CompMirror> compMirrors;
     public EntityDatum(){
-        lastId = -1;
     }
 
     public CompMirror getCompMirror(String compName){
