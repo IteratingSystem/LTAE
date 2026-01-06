@@ -29,6 +29,7 @@ public class TileAnimation extends SerializeComponent{
 
     protected TextureRegion[] keyframes;
     //状态运行时间
+    @SerializeParam
     public float stateTime;
     //每一帧的间隔
     private float[] frameDurations;
