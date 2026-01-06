@@ -1,4 +1,4 @@
-package org.ltae.manager.map.serialize;
+package org.ltae.serialize;
 
 import com.artemis.Component;
 import com.artemis.utils.Bag;

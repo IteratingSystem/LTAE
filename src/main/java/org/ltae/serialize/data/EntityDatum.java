@@ -1,8 +1,7 @@
-package org.ltae.manager.map.serialize.data;
+package org.ltae.serialize.data;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
-import org.ltae.serialize.CompMirror;
 
 /**
  * @Auther WenLong
@@ -10,6 +9,9 @@ import org.ltae.serialize.CompMirror;
  * @Description 实体数据
  **/
 public class EntityDatum {
+    //在构造实体数据的过程中,可以通过地图对象和游戏世界两种方式构造,此属性记录构造数据的来源
+    public int dataFrom;
+
     public int entityId;
     public int mapObjectId;
     //地图名称

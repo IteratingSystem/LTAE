@@ -1,4 +1,4 @@
-package org.ltae.serialize;
+package org.ltae.serialize.data;
 
 /**
  * @author: ClassMirror

@@ -11,12 +11,12 @@ import org.ltae.component.Pos;
 import org.ltae.component.Render;
 import org.ltae.component.ZIndex;
 import org.ltae.event.EntityEvent;
-import org.ltae.manager.map.serialize.EntityDeleter;
-import org.ltae.manager.map.serialize.ComponentConfig;
-import org.ltae.manager.map.serialize.EntityBuilder;
-import org.ltae.manager.map.serialize.EntitySerializer;
-import org.ltae.manager.map.serialize.data.EntityData;
-import org.ltae.manager.map.serialize.data.EntityDatum;
+import org.ltae.serialize.EntityDeleter;
+import org.ltae.serialize.ComponentConfig;
+import org.ltae.serialize.EntityBuilder;
+import org.ltae.serialize.EntitySerializer;
+import org.ltae.serialize.data.EntityData;
+import org.ltae.serialize.data.EntityDatum;
 
 
 /**

@@ -1,7 +1,7 @@
 package org.ltae.manager.map;
 
 import com.badlogic.gdx.utils.ObjectMap;
-import org.ltae.manager.map.serialize.data.EntityData;
+import org.ltae.serialize.data.EntityData;
 
 public class WorldState {
     public String curtMap;

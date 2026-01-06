@@ -3,8 +3,8 @@ package org.ltae.event;
 import com.artemis.Component;
 import com.artemis.Entity;
 import com.badlogic.gdx.maps.MapObject;
-import org.ltae.manager.map.serialize.data.EntityData;
-import org.ltae.manager.map.serialize.data.EntityDatum;
+import org.ltae.serialize.data.EntityData;
+import org.ltae.serialize.data.EntityDatum;
 
 /**
  * @Auther WenLong

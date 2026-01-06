@@ -7,7 +7,7 @@ import net.mostlyoriginal.api.event.common.EventSystem;
 import org.ltae.component.Inert;
 import org.ltae.component.Render;
 import org.ltae.event.EntityEvent;
-import org.ltae.manager.map.serialize.data.EntityDatum;
+import org.ltae.serialize.data.EntityDatum;
 
 public class SlotDatum {
     public int itemId;

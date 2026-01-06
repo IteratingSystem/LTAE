@@ -4,8 +4,8 @@ import com.artemis.World;
 import org.ltae.enums.HorizontalDir;
 import org.ltae.enums.OrthogonalDir;
 import org.ltae.enums.VerticalDir;
-import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.data.EntityDatum;
+import org.ltae.serialize.SerializeParam;
+import org.ltae.serialize.data.EntityDatum;
 
 /**
  * @Auther WenLong

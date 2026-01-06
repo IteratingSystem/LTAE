@@ -4,7 +4,9 @@ import com.artemis.World;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
-import org.ltae.manager.map.serialize.data.EntityDatum;
+import org.ltae.serialize.SerializeParam;
+import org.ltae.serialize.data.EntityData;
+import org.ltae.serialize.data.EntityDatum;
 
 /**
  * @Auther WenLong
@@ -12,7 +14,8 @@ import org.ltae.manager.map.serialize.data.EntityDatum;
  * @Description 渲染组件
  **/
 public class Render extends SerializeComponent{
-    public  boolean visible = true;
+    @SerializeParam
+    public  boolean visible;
     public  float offsetX = 0;
     public  float offsetY = 0;
     public  float scaleWidth = 1;
@@ -28,7 +31,9 @@ public class Render extends SerializeComponent{
             keyframe = textureMapObject.getTextureRegion();
             flipX = textureMapObject.getTextureRegion().isFlipX();
             flipY = textureMapObject.getTextureRegion().isFlipY();
-            visible = textureMapObject.isVisible();
+            if (entityDatum.dataFrom == EntityData.FROM_MAP){
+                visible = textureMapObject.isVisible();
+            }
             int regionWidth = keyframe.getRegionWidth();
             int regionHeight = keyframe.getRegionHeight();
             MapProperties properties = mapObject.getProperties();
@@ -37,6 +42,5 @@ public class Render extends SerializeComponent{
             scaleWidth = tileWidth/regionWidth;
             scaleHeight = tileHeight/regionHeight;
         }
-
     }
 }

@@ -1,4 +1,4 @@
-package org.ltae.manager.map.serialize;
+package org.ltae.serialize;
 
 import com.artemis.*;
 import com.artemis.managers.TagManager;
@@ -9,11 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.SerializeComponent;
 import org.ltae.manager.JsonManager;
-import org.ltae.serialize.CompMirror;
-import org.ltae.manager.map.serialize.data.EntityData;
-import org.ltae.manager.map.serialize.data.EntityDatum;
-import org.ltae.serialize.Properties;
-import org.ltae.serialize.Property;
+import org.ltae.serialize.data.*;
 import org.ltae.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -78,6 +74,7 @@ public class EntitySerializer {
             }
             entityDateList.add(entityDatum);
         }
+        entityDateList.setDataFrom(EntityData.FROM_MAP);
         return entityDateList;
     }
 
@@ -95,6 +92,7 @@ public class EntitySerializer {
             }
             entityDateList.add(entityDatum);
         }
+        entityDateList.setDataFrom(EntityData.FROM_WORLD);
         return entityDateList;
     }
     public static EntityDatum createEntityDatum(World world, int entityId){

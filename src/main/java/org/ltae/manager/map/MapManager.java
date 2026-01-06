@@ -13,8 +13,8 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.manager.AssetManager;
-import org.ltae.manager.map.serialize.EntitySerializer;
-import org.ltae.manager.map.serialize.data.EntityData;
+import org.ltae.serialize.EntitySerializer;
+import org.ltae.serialize.data.EntityData;
 
 /**
  * @Auther WenLong

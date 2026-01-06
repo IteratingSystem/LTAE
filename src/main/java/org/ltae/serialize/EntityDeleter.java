@@ -1,4 +1,4 @@
-package org.ltae.manager.map.serialize;
+package org.ltae.serialize;
 
 import com.artemis.*;
 import com.artemis.managers.TagManager;
@@ -7,10 +7,6 @@ import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import org.ltae.event.EntityEvent;
-import org.ltae.manager.map.MapManager;
-
-import javax.swing.text.html.HTML;
 
 /**
  * @Auther WenLong

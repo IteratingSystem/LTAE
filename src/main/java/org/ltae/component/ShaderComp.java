@@ -6,8 +6,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import org.ltae.LtaePluginRule;
 import org.ltae.manager.ShaderManage;
-import org.ltae.manager.map.serialize.SerializeParam;
-import org.ltae.manager.map.serialize.data.EntityDatum;
+import org.ltae.serialize.SerializeParam;
+import org.ltae.serialize.data.EntityDatum;
 import org.ltae.shader.ShaderUniforms;
 import org.ltae.utils.ReflectionUtils;
 
