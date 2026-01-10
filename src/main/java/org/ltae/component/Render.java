@@ -4,6 +4,7 @@ import com.artemis.World;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
+import org.ltae.component.parent.SerializeComponent;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityData;
 import org.ltae.serialize.data.EntityDatum;
@@ -13,7 +14,7 @@ import org.ltae.serialize.data.EntityDatum;
  * @Date 2025/2/12 17:11
  * @Description 渲染组件
  **/
-public class Render extends SerializeComponent{
+public class Render extends SerializeComponent {
     @SerializeParam
     public  boolean visible;
     public  float offsetX = 0;

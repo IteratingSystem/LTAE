@@ -18,6 +18,7 @@ import org.ltae.LtaePluginRule;
 import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
 import org.ltae.box2d.setup.FixtureSetup;
+import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.map.MapManager;
 import org.ltae.serialize.data.CompMirror;
 import org.ltae.system.B2dSystem;

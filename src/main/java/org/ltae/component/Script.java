@@ -1,4 +1,6 @@
 package org.ltae.component;
 
-public class Script extends SerializeComponent{
+import org.ltae.component.parent.SerializeComponent;
+
+public class Script extends SerializeComponent {
 }

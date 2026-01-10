@@ -7,7 +7,7 @@ import com.artemis.utils.IntBag;
 import com.badlogic.gdx.maps.*;
 import com.badlogic.gdx.utils.Array;
 import org.ltae.LtaePluginRule;
-import org.ltae.component.SerializeComponent;
+import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.JsonManager;
 import org.ltae.serialize.data.*;
 import org.ltae.utils.ReflectionUtils;

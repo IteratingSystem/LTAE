@@ -7,6 +7,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
+import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.map.MapManager;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;

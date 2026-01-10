@@ -5,6 +5,7 @@ import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import org.ltae.LtaePluginRule;
+import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.ShaderManage;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;

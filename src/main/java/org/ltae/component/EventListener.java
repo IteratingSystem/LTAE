@@ -5,6 +5,7 @@ import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Disposable;
 import org.ltae.LtaePluginRule;
+import org.ltae.component.parent.SerializeComponent;
 import org.ltae.event.listener.InteractiveListener;
 import org.ltae.event.listener.OnlyInteractive;
 import org.ltae.serialize.data.EntityDatum;

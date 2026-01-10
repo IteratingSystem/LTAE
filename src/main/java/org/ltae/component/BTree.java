@@ -5,6 +5,7 @@ import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.utils.ObjectMap;
+import org.ltae.component.parent.SerializeComponent;
 import org.ltae.system.AssetSystem;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
@@ -14,7 +15,7 @@ import org.ltae.serialize.data.EntityDatum;
  * @Date 2025/4/9 16:14
  * @Description 行为树组件
  **/
-public class BTree extends SerializeComponent{
+public class BTree extends SerializeComponent {
     private final static String TAG = BTree.class.getSimpleName();
     public BehaviorTree<Entity> tree;
 

@@ -9,6 +9,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.utils.ObjectMap;
+import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.map.MapManager;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
@@ -20,7 +21,7 @@ import java.util.Iterator;
  * @Date 2025/3/11 15:44
  * @Description 多动画组件(瓦片动画)
  **/
-public class TileAnimations extends SerializeComponent{
+public class TileAnimations extends SerializeComponent {
     private final static String TAG = TileAnimations.class.getSimpleName();
     public ObjectMap<String,TileAnimation> table;
 

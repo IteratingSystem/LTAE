@@ -1,5 +1,6 @@
 package org.ltae.component;
 
+import org.ltae.component.parent.SerializeComponent;
 import org.ltae.serialize.SerializeParam;
 
 /**

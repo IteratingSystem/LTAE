@@ -7,6 +7,7 @@ import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import org.ltae.LtaePluginRule;
+import org.ltae.component.parent.SerializeComponent;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 import org.reflections.Reflections;
@@ -19,7 +20,7 @@ import java.util.Set;
  * @Date 2025/2/14 16:48
  * @Description 状态组件
  **/
-public class StateComp extends SerializeComponent{
+public class StateComp extends SerializeComponent {
     private final static String TAG = StateComp.class.getSimpleName();
     @SerializeParam
     public String simpleName;

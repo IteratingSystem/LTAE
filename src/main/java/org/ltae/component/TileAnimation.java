@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
+import org.ltae.component.parent.SerializeComponent;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 
@@ -17,7 +18,7 @@ import java.util.Arrays;
  * @Date 2025/3/7 10:44
  * @Description 瓦片动画组件,大部分方法来自于libgdx的Animation是一样的,可以使用共同的文档
  **/
-public class TileAnimation extends SerializeComponent{
+public class TileAnimation extends SerializeComponent {
     @SerializeParam
     public String name;
     @SerializeParam

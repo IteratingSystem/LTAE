@@ -2,6 +2,7 @@ package org.ltae.component;
 
 import com.artemis.World;
 import com.badlogic.gdx.math.Vector2;
+import org.ltae.component.parent.SerializeComponent;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 
@@ -11,7 +12,7 @@ import org.ltae.serialize.data.EntityDatum;
  * @Date 2025/2/12 17:11
  * @Description 位置组件
  **/
-public class Pos extends SerializeComponent{
+public class Pos extends SerializeComponent {
     @SerializeParam
     public float x = -1;
     @SerializeParam

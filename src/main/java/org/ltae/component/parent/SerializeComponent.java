@@ -1,4 +1,4 @@
-package org.ltae.component;
+package org.ltae.component.parent;
 
 
 import com.artemis.Component;
