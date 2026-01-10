@@ -208,7 +208,9 @@ public class EntitySerializer {
                         if (!declaredField.isAnnotationPresent(SerializeParam.class)) {
                             continue;
                         }
-                        declaredField.set(component,value);
+                        if(value != null){
+                            declaredField.set(component,value);
+                        }
                     } catch (NoSuchFieldException | IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
