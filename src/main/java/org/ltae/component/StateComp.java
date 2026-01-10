@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
+import com.badlogic.gdx.ai.msg.Telegram;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.serialize.SerializeParam;
@@ -53,16 +54,20 @@ public class StateComp extends SerializeComponent {
             break;
         }
     }
+
+
+    @Override
+    public void beforeSerialization() {
+        super.beforeSerialization();
+        current = machine.getCurrentState().toString();
+    }
     public void changeState(State<Entity> state){
         machine.changeState(state);
     }
     public State<Entity> getCurrentState(){
         return machine.getCurrentState();
     }
-
-    @Override
-    public void beforeSerialization() {
-        super.beforeSerialization();
-        current = machine.getCurrentState().toString();
+    public boolean handleMessage(Telegram telegram){
+        return machine.handleMessage(telegram);
     }
 }
