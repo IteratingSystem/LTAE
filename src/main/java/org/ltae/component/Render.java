@@ -24,7 +24,10 @@ public class Render extends SerializeComponent {
     public  TextureRegion keyframe;
     public  boolean flipX = false;
     public  boolean flipY = false;
-
+    //旋转中心与旋转角度
+    public float originX;
+    public float originY;
+    public float rotation;
     @Override
     public void reload(World world, EntityDatum entityDatum) {
         super.reload(world, entityDatum);
@@ -42,6 +45,9 @@ public class Render extends SerializeComponent {
             float tileHeight = properties.get("height",(float)regionHeight, float.class);
             scaleWidth = tileWidth/regionWidth;
             scaleHeight = tileHeight/regionHeight;
+            originX = regionWidth/2f;
+            originY = regionHeight/2f;
+            rotation = 0;
         }
     }
 }
