@@ -95,15 +95,41 @@ public class B2dSystem extends BaseSystem {
             box2DWorld.destroyBody(body);
         }
     }
-    public void delAllCollider(){
+public void delAllCollider(){
         box2DWorld.step(world.delta, 6, 2);
         Array<Body> bodies = new Array<>();
         box2DWorld.getBodies(bodies);
         // 转换为不可变数组
         Body[] bodyArray = bodies.toArray(Body.class);
         for (Body body : bodyArray) {
-            box2DWorld.destroyBody(body);
+            //安全地销毁body，检查是否已经被销毁
+            if (body != null && body.getWorld() != null) {
+                try {
+                    box2DWorld.destroyBody(body);
+                } catch (Exception e) {
+                    //忽略销毁时的异常，可能body已经被销毁
+                }
+            }
         }
+    }
+    
+    /**
+     * 只销毁tile碰撞体，保留实体body
+     * 这个方法用于地图切换时，只清理地图相关的碰撞体
+     */
+    public void delTileColliderOnly() {
+        box2DWorld.step(world.delta, 6, 2);
+        //只销毁tile碰撞体
+        for (Body body : tileCollider) {
+            if (body != null && body.getWorld() != null) {
+                try {
+                    box2DWorld.destroyBody(body);
+                } catch (Exception e) {
+                    //忽略销毁时的异常，可能body已经被销毁
+                }
+            }
+        }
+        tileCollider.clear();
     }
     @Override
     protected void processSystem() {
