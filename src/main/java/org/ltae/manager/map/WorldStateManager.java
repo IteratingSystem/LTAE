@@ -41,11 +41,12 @@ public class WorldStateManager {
         worldState.entityData.put(curtMap, entityData);
 
         /* 保存系统参数 */
-        for (BaseSystem system : world.getSystems()) {
-            if (!(system instanceof SerializeSystem)) {
+for (BaseSystem system : world.getSystems()) {
+            Class<? extends BaseSystem> clazz = system.getClass();
+            // 检查类是否有 @SerializeSystem 注解，而不是 instanceof
+            if (!clazz.isAnnotationPresent(SerializeSystem.class)) {
                 continue;          // 只关心我们自己标记的系统
             }
-            Class<? extends BaseSystem> clazz = system.getClass();
 
             Properties props = new Properties();          // 本系统所有可序列化字段
 

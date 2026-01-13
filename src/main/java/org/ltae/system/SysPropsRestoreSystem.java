@@ -71,8 +71,10 @@ public class SysPropsRestoreSystem extends BaseSystem {
                 Gdx.app.debug(TAG, "System " + key.getSimpleName() + " not found in world, skip.");
                 continue;
             }
-            /* 只处理我们自己标记的 SerializeSystem */
-            if (!(target instanceof SerializeSystem)) {
+/* 检查系统类是否有 @SerializeSystem 注解 */
+            Class<? extends BaseSystem> targetClass = target.getClass();
+            if (!targetClass.isAnnotationPresent(SerializeSystem.class)) {
+                Gdx.app.debug(TAG, "System " + targetClass.getSimpleName() + " has no @SerializeSystem annotation, skip.");
                 continue;
             }
 
