@@ -74,7 +74,7 @@ for (BaseSystem system : world.getSystems()) {
             // 注意：worldState.systemProps 的 key 是 Class<BaseSystem>
             // 而 ss 的实际类型是 Class<? extends SerializeSystem>，可以安全强转
 
-            worldState.systemProps.put(clazz, props);
+            worldState.systemProps.put(clazz.getName(), props);  // 保存类名而不是Class对象
         }
     }
     public EntityData getEntityData(String mapName){

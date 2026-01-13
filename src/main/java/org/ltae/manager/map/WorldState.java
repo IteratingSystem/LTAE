@@ -8,7 +8,7 @@ import org.ltae.serialize.data.Properties;
 public class WorldState {
     public String curtMap;
     public ObjectMap<String, EntityData> entityData;
-    public ObjectMap<Class<? extends BaseSystem>, Properties> systemProps;
+    public ObjectMap<String, Properties> systemProps;  // 改为使用类名作为key
     public WorldState(){
         entityData = new ObjectMap<>();
         systemProps = new ObjectMap<>();

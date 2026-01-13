@@ -55,20 +55,29 @@ public class SysPropsRestoreSystem extends BaseSystem {
 
     private void restoreProps() {
         WorldState worldState = WorldStateManager.getInstance().getWorldState();
-        ObjectMap<Class<? extends BaseSystem>, Properties> systemProps = worldState.systemProps;
+        ObjectMap<String, Properties> systemProps = worldState.systemProps;
         if (systemProps == null) {
             Gdx.app.debug(TAG, "Failed to restoreProps, 'systemProps' is null!");
             return;
         }
 
-        for (ObjectMap.Entry<Class<? extends BaseSystem>, Properties> entry : systemProps) {
-            Class<? extends BaseSystem> key = entry.key;
+for (ObjectMap.Entry<String, Properties> entry : systemProps) {
+            String className = entry.key;
             Properties props = entry.value;
 
-            /* 找到对应的系统实例 */
-            BaseSystem target = world.getSystem(key);
+            Gdx.app.debug(TAG, "Processing saved system: " + className + " with " + props.size + " properties");
+
+            /* 通过类名查找系统实例 */
+            BaseSystem target = null;
+            for (BaseSystem system : world.getSystems()) {
+                if (system.getClass().getName().equals(className)) {
+                    target = system;
+                    break;
+                }
+            }
+            
             if (target == null) {
-                Gdx.app.debug(TAG, "System " + key.getSimpleName() + " not found in world, skip.");
+                Gdx.app.error(TAG, "System " + className + " not found in world, skip.");
                 continue;
             }
 /* 检查系统类是否有 @SerializeSystem 注解 */
@@ -87,8 +96,8 @@ public class SysPropsRestoreSystem extends BaseSystem {
                     }
                     f.setAccessible(true);
                     f.set(target, p.value);
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    Gdx.app.error(TAG, "Failed to restore field: " + p.key + " in " + key.getSimpleName(), e);
+} catch (NoSuchFieldException | IllegalAccessException e) {
+                    Gdx.app.error(TAG, "Failed to restore field: " + p.key + " in " + className, e);
                 }
             }
         }
