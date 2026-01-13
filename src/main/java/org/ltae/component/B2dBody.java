@@ -55,9 +55,20 @@ public class B2dBody extends SerializeComponent implements Disposable {
     public transient  boolean needFlipX = false;
 
 
-    @Override
+@Override
     public void reload(com.artemis.World world, EntityDatum entityDatum) {
         super.reload(world, entityDatum);
+        
+        //先清理旧的物理body，防止内存泄漏和冲突
+        if (body != null && b2dWorld != null) {
+            try {
+                b2dWorld.destroyBody(body);
+            } catch (Exception e) {
+                //忽略销毁时的异常，可能body已经被销毁
+            }
+            body = null;
+        }
+        
         //获取传入参数的属性
         if (!(mapObject instanceof TiledMapTileMapObject tileMapObject)) {
             return;
@@ -355,8 +366,15 @@ public class B2dBody extends SerializeComponent implements Disposable {
         return null;
     }
 
-    @Override
+@Override
     public void dispose() {
-        b2dWorld.destroyBody(body);
+        if (body != null && b2dWorld != null) {
+            try {
+                b2dWorld.destroyBody(body);
+            } catch (Exception e) {
+                //忽略销毁时的异常，可能body已经被销毁
+            }
+            body = null;
+        }
     }
 }
