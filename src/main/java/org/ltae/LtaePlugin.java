@@ -76,6 +76,11 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(new RenderUISystem(
                 LtaePluginRule.UI_WIDTH,
                 LtaePluginRule.UI_HEIGHT));
+        //自动还原系统属性
+        worldConfigurationBuilder.with(
+                WorldConfigurationBuilder.Priority.LOWEST,
+                new SysPropsRestoreSystem(true)
+        );
         //创建实体
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,

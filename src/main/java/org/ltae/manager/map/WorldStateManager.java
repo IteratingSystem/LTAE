@@ -1,10 +1,17 @@
 package org.ltae.manager.map;
 
+import com.artemis.BaseSystem;
 import com.artemis.World;
 import org.ltae.manager.JsonManager;
 import org.ltae.serialize.EntitySerializer;
+import org.ltae.serialize.SerializeParam;
+import org.ltae.serialize.SerializeSystem;
 import org.ltae.serialize.data.EntityData;
+import org.ltae.serialize.data.Properties;
+import org.ltae.serialize.data.Property;
 import org.ltae.system.TiledMapSystem;
+
+import java.lang.reflect.Field;
 
 public class WorldStateManager {
     private static WorldStateManager instance;
@@ -32,6 +39,44 @@ public class WorldStateManager {
 
         EntityData entityData = EntitySerializer.createEntityData(world);
         worldState.entityData.put(curtMap, entityData);
+
+        /* 保存系统参数 */
+        for (BaseSystem system : world.getSystems()) {
+            if (!(system instanceof SerializeSystem)) {
+                continue;          // 只关心我们自己标记的系统
+            }
+            SerializeSystem ss = (SerializeSystem) system;
+            Class<? extends SerializeSystem> clazz = ss.getClass();
+
+            Properties props = new Properties();          // 本系统所有可序列化字段
+
+            /* 遍历 public 字段，只有带 @SerializeParam 的才处理 */
+            for (Field f : clazz.getFields()) {
+                if (!f.isAnnotationPresent(SerializeParam.class)) {
+                    continue;
+                }
+                f.setAccessible(true);   // 保险，防止包权限问题
+                Property p = new Property();
+                p.key   = f.getName();
+                p.type  = f.getType().getName();
+
+                try {
+                    // 真正的反射取值
+                    p.value = f.get(ss);
+                } catch (IllegalAccessException e) {
+                    // 理论上不会发生，因为我们提前 setAccessible(true)
+                    throw new RuntimeException("Unable to access field: " + f, e);
+                }
+                props.add(p);
+            }
+
+            /* 写进 worldState */
+            // 注意：worldState.systemProps 的 key 是 Class<BaseSystem>
+            // 而 ss 的实际类型是 Class<? extends SerializeSystem>，可以安全强转
+            @SuppressWarnings("unchecked")
+            Class<BaseSystem> key = (Class<BaseSystem>) clazz;
+            worldState.systemProps.put(key, props);
+        }
     }
     public EntityData getEntityData(String mapName){
         EntityData entityData = worldState.entityData.get(mapName);
