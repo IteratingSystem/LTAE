@@ -45,8 +45,7 @@ public class WorldStateManager {
             if (!(system instanceof SerializeSystem)) {
                 continue;          // 只关心我们自己标记的系统
             }
-            SerializeSystem ss = (SerializeSystem) system;
-            Class<? extends SerializeSystem> clazz = ss.getClass();
+            Class<? extends BaseSystem> clazz = system.getClass();
 
             Properties props = new Properties();          // 本系统所有可序列化字段
 
@@ -62,7 +61,7 @@ public class WorldStateManager {
 
                 try {
                     // 真正的反射取值
-                    p.value = f.get(ss);
+                    p.value = f.get(system);
                 } catch (IllegalAccessException e) {
                     // 理论上不会发生，因为我们提前 setAccessible(true)
                     throw new RuntimeException("Unable to access field: " + f, e);
@@ -73,9 +72,8 @@ public class WorldStateManager {
             /* 写进 worldState */
             // 注意：worldState.systemProps 的 key 是 Class<BaseSystem>
             // 而 ss 的实际类型是 Class<? extends SerializeSystem>，可以安全强转
-            @SuppressWarnings("unchecked")
-            Class<BaseSystem> key = (Class<BaseSystem>) clazz;
-            worldState.systemProps.put(key, props);
+
+            worldState.systemProps.put(clazz, props);
         }
     }
     public EntityData getEntityData(String mapName){

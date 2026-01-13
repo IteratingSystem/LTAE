@@ -55,14 +55,14 @@ public class SysPropsRestoreSystem extends BaseSystem {
 
     private void restoreProps() {
         WorldState worldState = WorldStateManager.getInstance().getWorldState();
-        ObjectMap<Class<BaseSystem>, Properties> systemProps = worldState.systemProps;
+        ObjectMap<Class<? extends BaseSystem>, Properties> systemProps = worldState.systemProps;
         if (systemProps == null) {
             Gdx.app.debug(TAG, "Failed to restoreProps, 'systemProps' is null!");
             return;
         }
 
-        for (ObjectMap.Entry<Class<BaseSystem>, Properties> entry : systemProps) {
-            Class<BaseSystem> key = entry.key;
+        for (ObjectMap.Entry<Class<? extends BaseSystem>, Properties> entry : systemProps) {
+            Class<? extends BaseSystem> key = entry.key;
             Properties props = entry.value;
 
             /* 找到对应的系统实例 */
