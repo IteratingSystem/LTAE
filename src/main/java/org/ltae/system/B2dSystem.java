@@ -38,13 +38,13 @@ public class B2dSystem extends BaseSystem {
         this.doSleep = doSleep;
         this.combineTileCollisions = combineTileCollisions;
 
-    }
-    @Override
-    protected void initialize() {
         box2DWorld = new World(new Vector2(gx,gy),doSleep);
         box2DWorld.setContinuousPhysics(true);
         box2DWorld.setContactListener(new DefContactListener());
         tileCollider = new Bag<>();
+    }
+    @Override
+    protected void initialize() {
         createTileCollider();
     }
 
