@@ -3,20 +3,14 @@ package org.ltae.system;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Exclude;
 import com.artemis.annotations.Wire;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import net.mostlyoriginal.api.system.delegate.DeferredEntityProcessingSystem;
 import net.mostlyoriginal.api.system.delegate.EntityProcessPrincipal;
-import org.ltae.component.Inert;
-import org.ltae.component.Pos;
-import org.ltae.component.Render;
-import org.ltae.component.ShaderComp;
+import org.ltae.component.*;
 
 /**
  * @Auther WenLong
@@ -33,6 +27,7 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
     private M<Render> mRender;
     private M<Pos> mPos;
     private M<ShaderComp> mShaderComp;
+    private M<SoarHeight> mSoarHeight;
 
     private Batch batch;
     private ShaderProgram shaderProgram;
@@ -83,13 +78,20 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         float offsetY = render.offsetY;
         float rotation = render.rotation;
 
+        float height = 0;
+        if (mSoarHeight.has(entityId)) {
+            SoarHeight soarHeight = mSoarHeight.get(entityId);
+            height = soarHeight.height;
+        }
+
+
         updateBatch();
         //渲染前获取shader以及传参
         setShaderUniforms(entityId);
         batch.setShader(shaderProgram);
         //渲染
         batch.draw(keyFrame.getTexture(), // 指定要绘制的纹理对象
-                worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY), // 指定绘制的起始位置（左下角）
+                worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY + height), // 指定绘制的起始位置（左下角）
                 originX, offsetY, // 指定旋转的中心点（相对于绘制位置的偏移量）
                 regionWidth, regionHeight, // 指定目标绘制区域的大小
                 worldScale * scaleWidth, worldScale * scaleHeight, // 指定 X 轴和 Y 轴的缩放比例
