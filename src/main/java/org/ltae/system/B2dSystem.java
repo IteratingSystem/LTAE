@@ -86,16 +86,8 @@ public class B2dSystem extends BaseSystem {
             tileCollider.add(afterBody);
         }
     }
-    /**
-     * 删除以瓦片为基本的固定碰撞体
-     */
-    public void delTileCollider(){
-        box2DWorld.step(world.delta, 6, 2);
-        for (Body body : tileCollider) {
-            box2DWorld.destroyBody(body);
-        }
-    }
-public void delAllCollider(){
+
+    public void delAllCollider(){
         box2DWorld.step(world.delta, 6, 2);
         Array<Body> bodies = new Array<>();
         box2DWorld.getBodies(bodies);
@@ -117,7 +109,7 @@ public void delAllCollider(){
      * 只销毁tile碰撞体，保留实体body
      * 这个方法用于地图切换时，只清理地图相关的碰撞体
      */
-    public void delTileColliderOnly() {
+    public void delTileCollider() {
         box2DWorld.step(world.delta, 6, 2);
         //只销毁tile碰撞体
         for (Body body : tileCollider) {

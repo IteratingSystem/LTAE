@@ -43,5 +43,8 @@ public class LtaePluginRule {
     public static String SKIN_PATH = "skin/main.json"; //skin皮肤路劲
     //就算没有维护也自动创建的组件
     public static Class[] AUTO_COMP_CLASSES = {Pos.class, Render.class, ZIndex.class};
+
+    //功能开关
+    public static boolean EnableLight = false;
     private LtaePluginRule(){}
 }

@@ -37,11 +37,12 @@ public class TiledMapSystem extends BaseSystem {
     public void changeCurrent(String current){
         this.current = current;
     }
-private void changeMap(String mapName){
+
+    private void changeMap(String mapName){
         changeCurrent(mapName);
         renderTiledSystem.changeMap();
         //只删除tile碰撞体，保留其他实体的body
-        b2dSystem.delTileColliderOnly();
+        b2dSystem.delTileCollider();
         b2dSystem.createTileCollider();
     }
     @Override
