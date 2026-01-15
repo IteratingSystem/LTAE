@@ -180,11 +180,11 @@ public class SlotUI extends WidgetGroup {
         else if (checked && style.checked != null) front = style.checked;
         bg.setDrawable(front);
 
-        // 图标染色（可选）
-        Color tint = disabled ? Color.GRAY : Color.WHITE;
-        icon.setColor(tint);
-
-        icon.setDrawable(icon.getDrawable());
+//        // 图标染色（可选）
+//        Color tint = disabled ? Color.GRAY : Color.WHITE;
+//        icon.setColor(tint);
+//
+//        icon.setDrawable(icon.getDrawable());
     }
 
 
