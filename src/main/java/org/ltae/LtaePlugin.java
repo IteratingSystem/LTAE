@@ -88,6 +88,6 @@ public class LtaePlugin implements ArtemisPlugin {
         //创建实体
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
-                new LightSystem(LtaePluginRule.EnableLight));
+                new LightSystem(LtaePluginRule.ENABLE_LIGHT));
     }
 }

@@ -45,6 +45,6 @@ public class LtaePluginRule {
     public static Class[] AUTO_COMP_CLASSES = {Pos.class, Render.class, ZIndex.class};
 
     //功能开关
-    public static boolean EnableLight = false;
+    public static boolean ENABLE_LIGHT = false;
     private LtaePluginRule(){}
 }
