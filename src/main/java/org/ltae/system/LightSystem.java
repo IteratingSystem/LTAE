@@ -24,6 +24,9 @@ public class LightSystem extends BaseSystem {
     protected void initialize() {
         super.initialize();
 
+        if(!enable){
+            return;
+        }
         //光线相关
         RayHandler.useDiffuseLight(true);
         rayHandler = new RayHandler(b2dSystem.box2DWorld);
@@ -37,6 +40,10 @@ public class LightSystem extends BaseSystem {
 
     @Override
     protected void processSystem() {
+        if(!enable){
+            return;
+        }
+
         if (rayHandler == null) {
             return;
         }
@@ -44,6 +51,10 @@ public class LightSystem extends BaseSystem {
         rayHandler.updateAndRender();
     }
     public void setAmbientLight(Color color){
+        if(!enable){
+            return;
+        }
+
         rayHandler.setAmbientLight(color);
     }
     @Override
