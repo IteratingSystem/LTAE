@@ -72,10 +72,7 @@ public class LtaePlugin implements ArtemisPlugin {
                 LtaePluginRule.WORLD_SCALE));
         //渲染物理效果系统(debug)
         worldConfigurationBuilder.with(new RenderPhysicsSystem());
-        //绘制UI
-        worldConfigurationBuilder.with(new RenderUISystem(
-                LtaePluginRule.UI_WIDTH,
-                LtaePluginRule.UI_HEIGHT));
+
         //自动还原系统属性
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
@@ -89,5 +86,11 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
                 new LightSystem(LtaePluginRule.ENABLE_LIGHT));
+        //绘制UI,放在最后
+        worldConfigurationBuilder.with(
+                WorldConfigurationBuilder.Priority.LOWEST,
+                new RenderUISystem(
+                LtaePluginRule.UI_WIDTH,
+                LtaePluginRule.UI_HEIGHT));
     }
 }
