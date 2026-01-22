@@ -26,7 +26,7 @@ public class Render extends SerializeComponent {
 
     //纹理集,用于堆叠渲染
     public Array<TextureRegion> textureSheets;
-    public int sheetOffset;
+    public float sheetOffset;
 
     public boolean flipX = false;
     public boolean flipY = false;
