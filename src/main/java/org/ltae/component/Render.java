@@ -4,6 +4,7 @@ import com.artemis.World;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
+import com.badlogic.gdx.utils.Array;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityData;
@@ -16,14 +17,17 @@ import org.ltae.serialize.data.EntityDatum;
  **/
 public class Render extends SerializeComponent {
     @SerializeParam
-    public  boolean visible;
-    public  float offsetX = 0;
-    public  float offsetY = 0;
-    public  float scaleWidth = 1;
-    public  float scaleHeight = 1;
-    public  TextureRegion keyframe;
-    public  boolean flipX = false;
-    public  boolean flipY = false;
+    public boolean visible;
+    public float offsetX = 0;
+    public float offsetY = 0;
+    public float scaleWidth = 1;
+    public float scaleHeight = 1;
+    public TextureRegion keyframe;
+
+    //纹理集,用于堆叠渲染
+    public Array<TextureRegion> textureSheets;
+    public boolean flipX = false;
+    public boolean flipY = false;
     //旋转中心与旋转角度
     public float originX;
     public float originY;

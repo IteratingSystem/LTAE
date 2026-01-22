@@ -89,18 +89,42 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         //渲染前获取shader以及传参
         setShaderUniforms(entityId);
         batch.setShader(shaderProgram);
-        //渲染
-        batch.draw(keyFrame.getTexture(), // 指定要绘制的纹理对象
-                worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY + height), // 指定绘制的起始位置（左下角）
-                originX, offsetY, // 指定旋转的中心点（相对于绘制位置的偏移量）
-                regionWidth, regionHeight, // 指定目标绘制区域的大小
-                worldScale * scaleWidth, worldScale * scaleHeight, // 指定 X 轴和 Y 轴的缩放比例
-                rotation, // 指定旋转角度
-                keyFrame.getRegionX(), keyFrame.getRegionY(), // 指定源纹理区域的起始坐标
-                regionWidth, regionHeight, // 指定源纹理区域的大小
-                render.flipX, // x轴翻转
-                render.flipY // y轴翻转
-        );
+
+        if (render.textureSheets != null
+            && !render.textureSheets.isEmpty()){
+            for (TextureRegion region : render.textureSheets) {
+                if (region == null) {
+                    continue;
+                }
+                //渲染
+                batch.draw(region.getTexture(), // 指定要绘制的纹理对象
+                        worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY + height), // 指定绘制的起始位置（左下角）
+                        originX, offsetY, // 指定旋转的中心点（相对于绘制位置的偏移量）
+                        regionWidth, regionHeight, // 指定目标绘制区域的大小
+                        worldScale * scaleWidth, worldScale * scaleHeight, // 指定 X 轴和 Y 轴的缩放比例
+                        rotation, // 指定旋转角度
+                        region.getRegionX(), region.getRegionY(), // 指定源纹理区域的起始坐标
+                        regionWidth, regionHeight, // 指定源纹理区域的大小
+                        render.flipX, // x轴翻转
+                        render.flipY // y轴翻转
+                );
+            }
+        }else {
+            //渲染
+            batch.draw(keyFrame.getTexture(), // 指定要绘制的纹理对象
+                    worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY + height), // 指定绘制的起始位置（左下角）
+                    originX, offsetY, // 指定旋转的中心点（相对于绘制位置的偏移量）
+                    regionWidth, regionHeight, // 指定目标绘制区域的大小
+                    worldScale * scaleWidth, worldScale * scaleHeight, // 指定 X 轴和 Y 轴的缩放比例
+                    rotation, // 指定旋转角度
+                    keyFrame.getRegionX(), keyFrame.getRegionY(), // 指定源纹理区域的起始坐标
+                    regionWidth, regionHeight, // 指定源纹理区域的大小
+                    render.flipX, // x轴翻转
+                    render.flipY // y轴翻转
+            );
+        }
+
+
         batch.setShader(null);
     }
 
