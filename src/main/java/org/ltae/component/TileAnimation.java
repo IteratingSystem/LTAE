@@ -32,6 +32,11 @@ public class TileAnimation extends SerializeComponent {
     //状态运行时间
     @SerializeParam
     public float stateTime;
+
+
+    public boolean isPause;
+
+
     //每一帧的间隔
     private float[] frameDurations;
     //随机播放模式时,每一帧持续的时间
@@ -48,6 +53,8 @@ public class TileAnimation extends SerializeComponent {
     @Override
     public void reload(World world, EntityDatum entityDatum) {
         super.reload(world, entityDatum);
+        isPause = false;
+
         if (!(tiledMapTile instanceof AnimatedTiledMapTile animatedTile)) {
             return;
         }
