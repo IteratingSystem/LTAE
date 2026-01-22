@@ -26,6 +26,8 @@ public class Render extends SerializeComponent {
 
     //纹理集,用于堆叠渲染
     public Array<TextureRegion> textureSheets;
+    public int sheetOffset;
+
     public boolean flipX = false;
     public boolean flipY = false;
     //旋转中心与旋转角度
@@ -52,6 +54,7 @@ public class Render extends SerializeComponent {
             originX = regionWidth/2f;
             originY = regionHeight/2f;
             rotation = 0;
+            sheetOffset = 0;
         }
     }
 }

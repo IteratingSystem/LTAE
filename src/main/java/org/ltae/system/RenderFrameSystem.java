@@ -92,13 +92,14 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
 
         if (render.textureSheets != null
             && !render.textureSheets.isEmpty()){
-            for (TextureRegion region : render.textureSheets) {
+            for (int i = 0; i < render.textureSheets.size; i++) {
+                TextureRegion region = render.textureSheets.get(i);
                 if (region == null) {
                     continue;
                 }
                 //渲染
                 batch.draw(region.getTexture(), // 指定要绘制的纹理对象
-                        worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY + height), // 指定绘制的起始位置（左下角）
+                        worldScale * (pos.x + render.offsetX), worldScale * (pos.y + render.offsetY + height + i*render.sheetOffset), // 指定绘制的起始位置（左下角）
                         originX, offsetY, // 指定旋转的中心点（相对于绘制位置的偏移量）
                         regionWidth, regionHeight, // 指定目标绘制区域的大小
                         worldScale * scaleWidth, worldScale * scaleHeight, // 指定 X 轴和 Y 轴的缩放比例
