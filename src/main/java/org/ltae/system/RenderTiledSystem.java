@@ -2,7 +2,9 @@ package org.ltae.system;
 
 import com.artemis.BaseSystem;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -48,5 +50,18 @@ public class RenderTiledSystem extends BaseSystem {
         ScreenUtils.clear(0.0f,0.0f,0.0f,1);
         mapRenderer.setView(cameraSystem.camera);
         mapRenderer.render();
+    }
+
+    public void renderLayer(String layerName){
+        MapLayer mapLayer = tiledMap.getLayers().get(layerName);
+        if (mapLayer == null) {
+            Gdx.app.error(TAG,"Failed to renderLayer,Do not find layer:"+layerName);
+            return;
+        }
+
+        if (mapLayer instanceof TiledMapTileLayer tiledMapTileLayer) {
+            mapRenderer.setView(cameraSystem.camera);
+            mapRenderer.renderTileLayer(tiledMapTileLayer);
+        }
     }
 }
