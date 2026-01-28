@@ -18,6 +18,9 @@ public abstract class InteractiveListener {
     public Entity entity;
     public int entityId;
 
+    public Entity fromEntity;
+    public int fromEntityId;
+
 
     public InteractiveListener(Entity entity){
         this.entity = entity;
@@ -27,10 +30,12 @@ public abstract class InteractiveListener {
         tagManager = world.getSystem(TagManager.class);
     }
 
-    public String getTag(){
-        return getClass().getSimpleName();
+    public void onEvent(InteractiveEvent event) {
+        fromEntityId = event.fromId;
+        fromEntity = world.getEntity(fromEntityId);
     }
 
-    public void onEvent(InteractiveEvent event) {
+    public String getTag(){
+        return getClass().getSimpleName();
     }
 }
