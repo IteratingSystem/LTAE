@@ -124,11 +124,16 @@ public class CameraSystem extends BaseSystem {
         }
     }
 
-    private void resize(int width, int height) {
+    private void resize(float width, float height) {
         float zoom = LtaePluginRule.CAMERA_ZOOM * width / LtaePluginRule.GAME_WIDTH;
         camera.viewportWidth = width/zoom;
         camera.viewportHeight = height/zoom;
         camera.update();
+    }
+    private void updateZoom(float zoom){
+        this.zoom = zoom;
+        LtaePluginRule.CAMERA_ZOOM = zoom;
+        resize(gameWidth,gameHeight);
     }
 
     @Subscribe
@@ -143,6 +148,10 @@ public class CameraSystem extends BaseSystem {
         }
         if (event.type == CameraEvent.JUMP_POS) {
             jumpToPos(event.pos);
+            return;
+        }
+        if (event.type == CameraEvent.UPDATE_ZOOM) {
+            updateZoom(event.zoom);
             return;
         }
 
