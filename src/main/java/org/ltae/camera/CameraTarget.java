@@ -20,6 +20,7 @@ public class CameraTarget {
 
     //平滑过渡增量
     public float progress = 0.1f;
+    public CameraTarget(){}
     public CameraTarget(String entityTag){
         this.entityTag = entityTag;
     }
