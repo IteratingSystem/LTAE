@@ -13,19 +13,23 @@ import org.ltae.LtaePluginRule;
 import org.ltae.camera.CameraTarget;
 import org.ltae.component.Pos;
 import org.ltae.event.CameraEvent;
+import org.ltae.serialize.SerializeParam;
+import org.ltae.serialize.SerializeSystem;
 
 /**
  * @Author: WenLong
  * @Date: 2024-09-09-17:48
  * @Description: 摄像机系统
  */
+@SerializeSystem
 public class CameraSystem extends BaseSystem {
     private final static String TAG = CameraSystem.class.getSimpleName();
     private final static float MOVE_SPEED = 5;
     public M<Pos> mPos;
 
     public OrthographicCamera camera;
-    private CameraTarget cameraTarget;
+    @SerializeParam
+    public CameraTarget cameraTarget;
     private float worldScale;
     private float gameWidth;
     private float gameHeight;

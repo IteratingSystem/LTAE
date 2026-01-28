@@ -61,7 +61,7 @@ public class SysPropsRestoreSystem extends BaseSystem {
             return;
         }
 
-for (ObjectMap.Entry<String, Properties> entry : systemProps) {
+        for (ObjectMap.Entry<String, Properties> entry : systemProps) {
             String className = entry.key;
             Properties props = entry.value;
 
@@ -80,7 +80,7 @@ for (ObjectMap.Entry<String, Properties> entry : systemProps) {
                 Gdx.app.error(TAG, "System " + className + " not found in world, skip.");
                 continue;
             }
-/* 检查系统类是否有 @SerializeSystem 注解 */
+            /* 检查系统类是否有 @SerializeSystem 注解 */
             Class<? extends BaseSystem> targetClass = target.getClass();
             if (!targetClass.isAnnotationPresent(SerializeSystem.class)) {
                 Gdx.app.debug(TAG, "System " + targetClass.getSimpleName() + " has no @SerializeSystem annotation, skip.");
@@ -96,7 +96,7 @@ for (ObjectMap.Entry<String, Properties> entry : systemProps) {
                     }
                     f.setAccessible(true);
                     f.set(target, p.value);
-} catch (NoSuchFieldException | IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
                     Gdx.app.error(TAG, "Failed to restore field: " + p.key + " in " + className, e);
                 }
             }
