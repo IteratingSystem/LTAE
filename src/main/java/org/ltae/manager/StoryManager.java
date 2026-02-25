@@ -19,7 +19,7 @@ public class StoryManager {
 
     public static Story changeStory(String name){
         if (storyData == null){
-            storyData = AssetManager.getInstance().getObjects(EXT,Story.class);
+            storyData = AssetLoader.getAll(Story.class, EXT);
         }
         story = storyData.get(name);
         resetState();

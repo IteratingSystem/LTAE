@@ -5,13 +5,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.utils.ObjectMap;
-import org.ltae.enums.AudioType;
-import org.ltae.manager.AudioManager;
+import org.ltae.manager.AssetLoader;
 
+/**
+ * 音频系统
+ * 
+ * 直接使用LoadingManager加载的Music和Sound资源
+ * 享受libGDX AssetManager的引用计数机制
+ */
 public class AudioSystem extends BaseSystem {
     private static final String TAG = AudioSystem.class.getSimpleName();
     
-    private AudioManager audioManager;
     private Music currentBgm;
     private String currentBgmName;
     private Music currentAmbient;
@@ -27,13 +31,19 @@ public class AudioSystem extends BaseSystem {
     private float maxDistance = 500f;
     private boolean enableSpatialAudio = true;
     
-    public AudioSystem() {
-        audioManager = AudioManager.getInstance();
-    }
+    // 音量控制
+    private float masterVolume = 1.0f;
+    private float bgmVolume = 1.0f;
+    private float seVolume = 1.0f;
+    private float uiVolume = 1.0f;
+    private float ambientVolume = 1.0f;
+    private boolean muted = false;
+    
+    public AudioSystem() {}
     
     @Override
     protected void initialize() {
-        audioManager.loadAllAudio();
+        // 音频资源由AssetLoader管理
     }
     
     @Override
@@ -52,7 +62,7 @@ public class AudioSystem extends BaseSystem {
             fading = false;
             
             if (currentBgm != null) {
-                currentBgm.setVolume(audioManager.getMasterVolume() * audioManager.getBgmVolume() * fadeToVolume);
+                currentBgm.setVolume(getBgmVolume() * fadeToVolume);
             }
             
             if (fadeToVolume == 0 && currentBgm != null) {
@@ -67,16 +77,18 @@ public class AudioSystem extends BaseSystem {
         
         float volume = fadeFromVolume + (fadeToVolume - fadeFromVolume) * progress;
         if (currentBgm != null) {
-            currentBgm.setVolume(audioManager.getMasterVolume() * audioManager.getBgmVolume() * volume);
+            currentBgm.setVolume(getBgmVolume() * volume);
         }
     }
+    
+    // ==================== BGM ====================
     
     public void playBgm(String name) {
         playBgm(name, true);
     }
     
     public void playBgm(String name, boolean fade) {
-        Music music = audioManager.getMusic(name);
+        Music music = findMusic(name);
         if (music == null) {
             Gdx.app.error(TAG, "BGM not found: " + name);
             return;
@@ -94,13 +106,13 @@ public class AudioSystem extends BaseSystem {
         currentBgm = music;
         currentBgmName = name;
         currentBgm.setLooping(true);
-        currentBgm.setVolume(audioManager.getMasterVolume() * audioManager.getBgmVolume());
+        currentBgm.setVolume(getBgmVolume());
         currentBgm.play();
     }
     
     public void fadeOutAndPlay(String name, float duration) {
         targetBgmName = name;
-        fadeFromVolume = audioManager.getBgmVolume();
+        fadeFromVolume = bgmVolume;
         fadeToVolume = 0;
         fadeDuration = duration;
         fadeTimer = 0;
@@ -108,7 +120,7 @@ public class AudioSystem extends BaseSystem {
     }
     
     public void fadeIn(String name, float duration) {
-        Music music = audioManager.getMusic(name);
+        Music music = findMusic(name);
         if (music == null) {
             Gdx.app.error(TAG, "Music not found: " + name);
             return;
@@ -149,12 +161,6 @@ public class AudioSystem extends BaseSystem {
         }
     }
     
-    public void playBgmVol(float volume) {
-        if (currentBgm != null) {
-            currentBgm.setVolume(volume);
-        }
-    }
-    
     public boolean isBgmPlaying() {
         return currentBgm != null && currentBgm.isPlaying();
     }
@@ -163,8 +169,10 @@ public class AudioSystem extends BaseSystem {
         return currentBgmName;
     }
     
+    // ==================== Ambient ====================
+    
     public void playAmbient(String name) {
-        Music ambient = audioManager.getMusic(name);
+        Music ambient = findMusic(name);
         if (ambient == null) {
             Gdx.app.error(TAG, "Ambient not found: " + name);
             return;
@@ -176,7 +184,7 @@ public class AudioSystem extends BaseSystem {
         
         currentAmbient = ambient;
         currentAmbient.setLooping(true);
-        currentAmbient.setVolume(audioManager.getMasterVolume() * audioManager.getAmbientVolume());
+        currentAmbient.setVolume(getAmbientVolume());
         currentAmbient.play();
     }
     
@@ -185,6 +193,8 @@ public class AudioSystem extends BaseSystem {
             currentAmbient.stop();
         }
     }
+    
+    // ==================== Sound Effects ====================
     
     public void playSe(String name) {
         playSe(name, 1.0f, 1.0f, 0);
@@ -199,13 +209,13 @@ public class AudioSystem extends BaseSystem {
     }
     
     public long playSe(String name, float volume, float pitch, float pan) {
-        Sound sound = audioManager.getSound(name);
+        Sound sound = findSound(name);
         if (sound == null) {
             Gdx.app.error(TAG, "Sound effect not found: " + name);
             return -1;
         }
         
-        float finalVolume = volume * audioManager.getMasterVolume() * audioManager.getSeVolume();
+        float finalVolume = volume * masterVolume * seVolume;
         return sound.play(finalVolume, pitch, pan);
     }
     
@@ -214,67 +224,33 @@ public class AudioSystem extends BaseSystem {
     }
     
     public void playUiSound(String name, float volume) {
-        Sound sound = audioManager.getSound(name);
+        Sound sound = findSound(name);
         if (sound == null) {
             Gdx.app.error(TAG, "UI sound not found: " + name);
             return;
         }
         
-        float finalVolume = volume * audioManager.getMasterVolume() * audioManager.getUiVolume();
+        float finalVolume = volume * masterVolume * uiVolume;
         sound.play(finalVolume);
     }
     
     public void stopSound(long soundId) {
-        for (Sound sound : audioManager.getAllSounds().values()) {
+        if (AssetLoader.getManager() == null) return;
+        
+        for (Sound sound : AssetLoader.getAllSounds().values()) {
             sound.stop(soundId);
         }
     }
     
     public void stopAllSounds() {
-        for (Sound sound : audioManager.getAllSounds().values()) {
+        if (AssetLoader.getManager() == null) return;
+        
+        for (Sound sound : AssetLoader.getAllSounds().values()) {
             sound.stop();
         }
     }
     
-    public void setMasterVolume(float volume) {
-        audioManager.setMasterVolume(volume);
-    }
-    
-    public void setBgmVolume(float volume) {
-        audioManager.setBgmVolume(volume);
-    }
-    
-    public void setSeVolume(float volume) {
-        audioManager.setSeVolume(volume);
-    }
-    
-    public void setUiVolume(float volume) {
-        audioManager.setUiVolume(volume);
-    }
-    
-    public void setAmbientVolume(float volume) {
-        audioManager.setAmbientVolume(volume);
-    }
-    
-    public void setMuted(boolean muted) {
-        audioManager.setMuted(muted);
-    }
-    
-    public boolean isMuted() {
-        return audioManager.isMuted();
-    }
-    
-    public void toggleMute() {
-        audioManager.toggleMute();
-    }
-    
-    public ObjectMap<String, Music> getAllBgm() {
-        return audioManager.getAllMusics();
-    }
-    
-    public ObjectMap<String, Sound> getAllSe() {
-        return audioManager.getAllSounds();
-    }
+    // ==================== 3D Spatial Audio ====================
     
     public void setListenerPosition(float x, float y) {
         this.listenerX = x;
@@ -336,26 +312,26 @@ public class AudioSystem extends BaseSystem {
     }
     
     public long playSeAt(String name, float x, float y, float volume, float pitch) {
-        Sound sound = audioManager.getSound(name);
+        Sound sound = findSound(name);
         if (sound == null) {
             Gdx.app.error(TAG, "Sound effect not found: " + name);
             return -1;
         }
         
-        float finalVolume = calculateVolumeAttenuation(x, y, volume) * audioManager.getMasterVolume() * audioManager.getSeVolume();
+        float finalVolume = calculateVolumeAttenuation(x, y, volume) * masterVolume * seVolume;
         float pan = enableSpatialAudio ? calculatePan(x) : 0f;
         
         return sound.play(finalVolume, pitch, pan);
     }
     
     public long playSeAt(String name, float x, float y, float volume, float pitch, float pan) {
-        Sound sound = audioManager.getSound(name);
+        Sound sound = findSound(name);
         if (sound == null) {
             Gdx.app.error(TAG, "Sound effect not found: " + name);
             return -1;
         }
         
-        float finalVolume = calculateVolumeAttenuation(x, y, volume) * audioManager.getMasterVolume() * audioManager.getSeVolume();
+        float finalVolume = calculateVolumeAttenuation(x, y, volume) * masterVolume * seVolume;
         
         return sound.play(finalVolume, pitch, pan);
     }
@@ -365,13 +341,120 @@ public class AudioSystem extends BaseSystem {
     }
     
     public void updateSoundPosition(long soundId, float x, float y, float volume) {
-        for (Sound sound : audioManager.getAllSounds().values()) {
-            float finalVolume = calculateVolumeAttenuation(x, y, volume) * audioManager.getMasterVolume() * audioManager.getSeVolume();
+        if (AssetLoader.getManager() == null) return;
+        
+        for (Sound sound : AssetLoader.getAllSounds().values()) {
+            float finalVolume = calculateVolumeAttenuation(x, y, volume) * masterVolume * seVolume;
             float pan = enableSpatialAudio ? calculatePan(x) : 0f;
             sound.setVolume(soundId, finalVolume);
             sound.setPan(soundId, pan, 1.0f);
         }
     }
+    
+    // ==================== Volume Control ====================
+    
+    private float getBgmVolume() {
+        return muted ? 0 : masterVolume * bgmVolume;
+    }
+    
+    private float getAmbientVolume() {
+        return muted ? 0 : masterVolume * ambientVolume;
+    }
+    
+    public void setMasterVolume(float volume) {
+        this.masterVolume = Math.max(0, Math.min(1, volume));
+        updateVolumes();
+    }
+    
+    public void setBgmVolume(float volume) {
+        this.bgmVolume = Math.max(0, Math.min(1, volume));
+        if (currentBgm != null) {
+            currentBgm.setVolume(getBgmVolume());
+        }
+    }
+    
+    public void setSeVolume(float volume) {
+        this.seVolume = Math.max(0, Math.min(1, volume));
+    }
+    
+    public void setUiVolume(float volume) {
+        this.uiVolume = Math.max(0, Math.min(1, volume));
+    }
+    
+    public void setAmbientVolume(float volume) {
+        this.ambientVolume = Math.max(0, Math.min(1, volume));
+        if (currentAmbient != null) {
+            currentAmbient.setVolume(getAmbientVolume());
+        }
+    }
+    
+    public float getMasterVolume() {
+        return masterVolume;
+    }
+    
+    public float getBgmVolumeValue() {
+        return bgmVolume;
+    }
+    
+    public float getSeVolumeValue() {
+        return seVolume;
+    }
+    
+    public float getUiVolumeValue() {
+        return uiVolume;
+    }
+    
+    public float getAmbientVolumeValue() {
+        return ambientVolume;
+    }
+    
+    private void updateVolumes() {
+        if (currentBgm != null) {
+            currentBgm.setVolume(getBgmVolume());
+        }
+        if (currentAmbient != null) {
+            currentAmbient.setVolume(getAmbientVolume());
+        }
+    }
+    
+    public void setMuted(boolean muted) {
+        this.muted = muted;
+        updateVolumes();
+    }
+    
+    public boolean isMuted() {
+        return muted;
+    }
+    
+    public void toggleMute() {
+        setMuted(!muted);
+    }
+    
+    // ==================== Helpers ====================
+    
+    private Music findMusic(String name) {
+        if (AssetLoader.getManager() == null) return null;
+        
+        // 先尝试完整路径
+        String path = "audio/bgm/" + name + ".bgm.mp3";
+        if (AssetLoader.isLoaded(path)) {
+            return AssetLoader.get(path, Music.class);
+        }
+        
+        // 尝试从已加载的Music中查找
+        ObjectMap<String, Music> allMusic = AssetLoader.getAllMusic();
+        return allMusic.get(name);
+    }
+    
+    private Sound findSound(String name) {
+        if (AssetLoader.getManager() == null) return null;
+        
+        // 尝试从已加载的Sound中查找
+        ObjectMap<String, Sound> allSounds = AssetLoader.getAllSounds();
+        return allSounds.get(name);
+    }
+    
+    // ==================== Lifecycle ====================
     
     @Override
     protected void dispose() {

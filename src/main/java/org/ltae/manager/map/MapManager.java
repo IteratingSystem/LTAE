@@ -12,7 +12,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
-import org.ltae.manager.AssetManager;
+import org.ltae.manager.AssetLoader;
 import org.ltae.serialize.EntitySerializer;
 import org.ltae.serialize.data.EntityData;
 
@@ -38,7 +38,7 @@ public class MapManager {
     private MapManager(ObjectMap<String, String> entityLayerNames,ObjectMap<String, String[]> phyLayerNames){
         this.entityLayerNames = entityLayerNames;
         this.phyLayerNames = phyLayerNames;
-        allMaps = AssetManager.getInstance().getObjects(EXT,TiledMap.class);
+        allMaps = AssetLoader.getAll(TiledMap.class, EXT);
         allMapObjects = new ObjectMap<>();
         protoEntityData =new ObjectMap<>();
         tileSets = new Bag<>();

@@ -154,19 +154,215 @@ src/main/java/org/ltae/
 
 ## 快速开始
 
-### 1. 资源加载
+### 1. 资源加载（AssetLoader）
+
+使用 `AssetLoader` 统一管理所有资源的加载，基于libGDX AssetManager。
+
+#### 基本使用流程
 
 ```java
-// 初始化皮肤
-Skin skin = SkinManage.initialize(GameRule.SKIN_PATH);
+// 1. 优先同步加载Skin（用于绘制加载进度条UI）
+Skin skin = AssetLoader.loadSkinSync("skin/uiskin.json");
 
-// 使用自定义AssetManager加载资源
-AssetManager assetManager = AssetManager.getInstance();
-assetManager.setLoaders(propertytypesPath);
-assetManager.loadAssets();
+// 2. 队列所有资源（自动根据后缀加载）
+AssetLoader.queueAssets();
+
+// 3. 在渲染循环中更新进度
+while (!AssetLoader.update()) {
+    float progress = AssetLoader.getProgress();
+    // 绘制进度条...
+}
+
+// 4. 资源加载完成，可以获取资源
+TiledMap map = AssetLoader.get("maps/level1.tmx", TiledMap.class);
+Music music = AssetLoader.get("audio/bgm/battle.bgm.mp3", Music.class);
 ```
 
-### 2. 创建引擎插件
+#### 资源文件后缀约定
+
+| 后缀 | 类型 | 说明 |
+|------|------|------|
+| `.tmx` | TiledMap | 瓦片地图 |
+| `.tree` | BehaviorTree | 行为树 |
+| `.ink.json` | Story | Ink剧本 |
+| `.png/.jpg/.jpeg` | Texture | 纹理 |
+| `.noise.png` | Texture | 噪声纹理 |
+| `.skin.json` | Skin | 皮肤（需同步加载） |
+| `.bgm.mp3/.bgm.ogg` | Music | 背景音乐 |
+| `.se.mp3/.se.ogg/.se.wav` | Sound | 音效 |
+| `.ui.mp3` | Sound | UI音效 |
+| `.ambient.mp3` | Music | 环境音 |
+
+#### 常用API
+
+```java
+// 初始化（可选，会自动调用）
+AssetLoader.initialize();
+
+// 同步加载Skin
+Skin skin = AssetLoader.loadSkinSync();
+Skin skin = AssetLoader.loadSkinSync("skin/uiskin.json");
+
+// 队列资源
+AssetLoader.queueAssets();                    // 默认从assets.txt加载
+AssetLoader.queueAssets("custom_assets.txt"); // 自定义资源列表文件
+
+// 进度管理
+boolean complete = AssetLoader.update();              // 更新进度，返回是否完成
+float progress = AssetLoader.getProgress();          // 获取进度0-1
+int loaded = AssetLoader.getLoadedCount();           // 已加载数量
+int total = AssetLoader.getTotalCount();              // 总数量
+AssetLoader.finishLoading();                          // 阻塞直到加载完成
+
+// 获取资源
+TiledMap map = AssetLoader.get("maps/level1.tmx", TiledMap.class);
+boolean loaded = AssetLoader.isLoaded("path/to/file.png");
+
+// 按类型获取所有资源
+ObjectMap<String, TiledMap> allMaps = AssetLoader.getAll(TiledMap.class, ".tmx");
+ObjectMap<String, Music> allMusic = AssetLoader.getAllMusic();
+ObjectMap<String, Sound> allSounds = AssetLoader.getAllSounds();
+
+// 卸载资源（引用计数）
+AssetLoader.unload("path/to/resource.png");
+
+// 释放所有资源
+AssetLoader.dispose();
+```
+
+#### 完整加载示例
+
+```java
+public class LoadingScreen implements Screen {
+    private Skin skin;
+    
+    @Override
+    public void show() {
+        // 1. 同步加载Skin（立即可用）
+        skin = AssetLoader.loadSkinSync("skin/uiskin.json");
+        
+        // 2. 队列其他资源
+        AssetLoader.queueAssets();
+    }
+    
+    @Override
+    public void render(float delta) {
+        // 3. 更新加载进度
+        if (!AssetLoader.update()) {
+            // 绘制加载界面
+            drawLoadingBar(AssetLoader.getProgress());
+        } else {
+            // 4. 加载完成，切换到游戏屏幕
+            game.setScreen(new GameScreen());
+        }
+    }
+    
+    private void drawLoadingBar(float progress) {
+        // 使用skin绘制进度条...
+    }
+    
+    @Override
+    public void dispose() {
+        AssetLoader.dispose();
+    }
+}
+```
+
+#### assets.txt 配置
+
+在项目根目录创建 `assets.txt`，每行一个资源路径：
+
+```
+# 地图
+maps/level1.tmx
+maps/level2.tmx
+
+# 纹理
+textures/player.png
+textures/enemy.png
+
+# 皮肤（可选，会自动跳过）
+skin/uiskin.json
+
+# 音频
+audio/bgm/battle.bgm.mp3
+audio/bgm/village.bgm.ogg
+audio/se/attack.se.mp3
+audio/se/jump.se.wav
+
+# 行为树
+ai/enemy.tree
+
+# 剧本
+stories/dialog.ink.json
+```
+
+#### 后缀常量参考
+
+```java
+// 地图
+AssetLoader.TMX_EXT           // ".tmx"
+
+// 纹理
+AssetLoader.PNG_EXT           // ".png"
+AssetLoader.JPG_EXT           // ".jpg"
+AssetLoader.JPEG_EXT          // ".jpeg"
+AssetLoader.NOISE_EXT         // ".noise.png"
+
+// 行为树
+AssetLoader.TREE_EXT          // ".tree"
+
+// 剧本
+AssetLoader.STORY_EXT         // ".ink.json"
+
+// 皮肤
+AssetLoader.SKIN_EXT          // ".skin.json"
+
+// 音频
+AssetLoader.BGM_EXT           // ".bgm.mp3"
+AssetLoader.BGM_OGG_EXT       // ".bgm.ogg"
+AssetLoader.SE_EXT            // ".se.mp3"
+AssetLoader.SE_OGG_EXT        // ".se.ogg"
+AssetLoader.SE_WAV_EXT        // ".se.wav"
+AssetLoader.UI_EXT            // ".ui.mp3"
+AssetLoader.AMBIENT_EXT       // ".ambient.mp3"
+```
+
+### 2. 音频系统
+
+引擎内置 `AudioSystem`，支持BGM、音效、3D空间音频：
+
+```java
+AudioSystem audioSystem = world.getSystem(AudioSystem.class);
+
+// 背景音乐
+audioSystem.playBgm("bgm/battle");
+audioSystem.fadeIn("bgm/victory", 2.0f);  // 淡入
+audioSystem.pauseBgm();
+audioSystem.resumeBgm();
+
+// 音效
+audioSystem.playSe("se/attack");
+audioSystem.playSe("se/click", 0.8f, 1.2f);  // 音量0.8, 音调1.2
+
+// UI音效
+audioSystem.playUiSound("ui/click");
+
+// 3D空间音效（根据声源位置自动计算pan和音量衰减）
+audioSystem.setListenerPosition(playerX, playerY);  // 设置听者位置
+audioSystem.setMaxDistance(500f);  // 最远可听距离
+audioSystem.playSeAt("se/slime", slimeX, slimeY);  // 左边的声音会从左边发出
+
+// 音量控制
+audioSystem.setMasterVolume(0.5f);
+audioSystem.setBgmVolume(0.8f);
+audioSystem.setSeVolume(1.0f);
+
+// 静音
+audioSystem.toggleMute();
+```
+
+### 3. 创建引擎插件
 
 ```java
 LtaeBuilder ltaeBuilder = new LtaeBuilder()
