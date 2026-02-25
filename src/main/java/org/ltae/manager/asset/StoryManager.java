@@ -1,4 +1,4 @@
-package org.ltae.manager;
+package org.ltae.manager.asset;
 
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;

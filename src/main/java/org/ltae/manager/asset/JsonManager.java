@@ -1,8 +1,7 @@
-package org.ltae.manager;
+package org.ltae.manager.asset;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.Null;
 
 /**

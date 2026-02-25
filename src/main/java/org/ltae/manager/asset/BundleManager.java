@@ -1,4 +1,4 @@
-package org.ltae.manager;
+package org.ltae.manager.asset;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;

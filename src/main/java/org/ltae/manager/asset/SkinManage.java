@@ -1,4 +1,4 @@
-package org.ltae.manager;
+package org.ltae.manager.asset;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 

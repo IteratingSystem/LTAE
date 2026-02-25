@@ -2,7 +2,7 @@ package org.ltae.manager.map;
 
 import com.artemis.BaseSystem;
 import com.artemis.World;
-import org.ltae.manager.JsonManager;
+import org.ltae.manager.asset.JsonManager;
 import org.ltae.serialize.EntitySerializer;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.SerializeSystem;

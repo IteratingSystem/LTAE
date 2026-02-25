@@ -12,7 +12,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
-import org.ltae.manager.AssetLoader;
+import org.ltae.manager.asset.AssetLoader;
 import org.ltae.serialize.EntitySerializer;
 import org.ltae.serialize.data.EntityData;
 

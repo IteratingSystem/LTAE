@@ -5,8 +5,8 @@ import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ObjectMap;
-import org.ltae.manager.AssetLoader;
-import org.ltae.manager.SkinManage;
+import org.ltae.manager.asset.AssetLoader;
+import org.ltae.manager.asset.SkinManage;
 
 /**
  * 资源系统 - 加载和管理游戏资源
