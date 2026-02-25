@@ -1,160 +1,286 @@
-# LTAE
-libgdx使用tiled地图编辑器编辑实体关联至artemisECS框架的引擎（Engine）插件
+# LTAE Engine
 
-### 开发时各种工具版本
-1. jdk:21
-2. Tiled:1.11.x
-3. gradle:8.8
+基于 [LibGDX](https://libgdx.com/) 和 [Artemis-odb](https://github.com/Artemis-ODB/Artemis-ODB) ECS框架的游戏引擎，通过 [Tiled](https://www.mapeditor.org/) 地图编辑器编辑和创建游戏实体。
 
-### 开发中遇到的大坑
-1. Box2D中传感器只会触发BeginContact/EndContact回调,这是正常现象!
-2. FileHandle.list()在编译完成后(jar包状态),不可用
+## 技术栈
 
-### 使用前提
-1. 确保使用gdx-liftoff创建项目,因为需要它的文件结构,特别是assets模块和其中的assets.txt
-2. 使用Tiled:1.11.x,不确保其它版本是否可行
-3. 在Tiled程序中导入自定义类型propertytypes.json,存在于此源码的src/main/resources中
-4. 在Tiled程序中为实体图层中object指定的名字会自动读取为实体的TAG
-5. 代码重导入此依赖`api "com.github.IteratingSystem:LTAE:$ltaeVersion"`
+- **JDK**: 21
+- **Tiled**: 1.11.x
+- **Gradle**: 8.8
 
-### 最佳方案
-##### 一.资源加载页面
-1. 加载skin绘制进度条或者其它
-```java
-    Skin skin = SkinManage.initialize(GameRule.SKIN_PATH);
+### 核心依赖
+
+| 库 | 用途 |
+|---|---|
+| libgdx | 游戏框架 |
+| artemis-odb | ECS架构 |
+| box2dlights | 2D光照系统 |
+| gdx-ai | 行为树AI |
+| blade-ink | 剧本系统 |
+
+## 项目结构
+
 ```
-2. 加载默认文件,会自动将assets模块内的特殊后缀名文件加载,依赖于assets.txt,比如.tmx的文件会被加载为TiledMap;
-```java
-    //使用工具里的AssetManager,并非libgdx内的AssetManager
-    AssetManager assetManager = AssetManager.getInstance();
-    //设置所有的加载器,TileMapLoader需要一个propertytypes.json,所以要传入一个path
-    //具体作用是给Tiled程序中没有填入值的组件匹配上propertytypes.json中的默认值
-    assetManager.setLoaders(propertytypesPath);
-    //直接加载,会自动将assets模块内的特殊后缀名文件加载,目前支持"tmx(瓦片地图),tree(行为树)"
-    assetManager.loadAssets();
-```
-3. 更新并获取进度
-```java
-   assetManager.update();
-   System.out.println(assetManager.getProgress());
+src/main/java/org/ltae/
+├── ai/                    # AI相关（行为树任务）
+│   ├── Dst.java          # 目标检测任务
+│   ├── EcsLeafTask.java  # ECS叶子任务
+│   ├── RandomSleep.java  # 随机等待
+│   └── TimeSleep.java    # 定时等待
+├── box2d/                 # Box2D物理扩展
+│   ├── CategoryBits.java # 碰撞类别位
+│   ├── DefFixData.java   # 碰撞 Fixture 数据
+│   ├── KeyframeShapeData.java  # 关键帧形状数据
+│   ├── listener/         # 碰撞监听器
+│   └── setup/            # Fixture 配置
+├── camera/               # 相机系统
+│   └── CameraTarget.java # 相机跟随目标
+├── component/            # ECS组件
+│   ├── B2dBody.java      # 物理身体组件
+│   ├── BTree.java        # 行为树组件
+│   ├── Direction.java    # 方向组件
+│   ├── EventListener.java # 事件监听组件
+│   ├── Interactive.java  # 交互组件
+│   ├── LayerSampling.java # 图层采样组件
+│   ├── Player.java       # 玩家组件
+│   ├── Pos.java          # 位置组件
+│   ├── Render.java       # 渲染组件
+│   ├── Script.java       # 脚本组件
+│   ├── ShaderComp.java   # 着色器组件
+│   ├── SoarHeight.java   # 飞行高度组件
+│   ├── StateComp.java    # 状态机组件
+│   ├── TileAnimation.java # 瓦片动画组件
+│   ├── TileAnimations.java # 瓦片动画集
+│   ├── ZIndex.java       # 渲染层级
+│   └── parent/           # 组件基类
+├── enums/                # 枚举定义
+│   ├── HorizontalDir.java
+│   ├── OrthogonalDir.java
+│   └── VerticalDir.java
+├── event/                # 事件系统
+│   ├── B2dEvent.java     # 物理事件
+│   ├── CameraEvent.java   # 相机事件
+│   ├── EntityEvent.java   # 实体事件
+│   ├── InteractiveEvent.java # 交互事件
+│   ├── MapEvent.java      # 地图事件
+│   ├── SystemEvent.java   # 系统事件
+│   ├── TypeEvent.java     # 类型事件
+│   ├── UIEvent.java       # UI事件
+│   └── listener/         # 事件监听器
+├── loader/               # 资源加载器
+│   ├── CustomType.java   # 自定义类型
+│   ├── EcsMapLoader.java # ECS地图加载器
+│   ├── InkStoryLoader.java # Ink剧本加载器
+│   └── Member.java       # 成员信息
+├── manager/              # 管理系统
+│   ├── AssetManager.java # 资源管理
+│   ├── BundleManager.java # 国际化资源
+│   ├── GameManager.java  # 游戏管理
+│   ├── JsonManager.java  # JSON处理
+│   ├── ScreenManager.java # 屏幕管理
+│   ├── ShaderManage.java # 着色器管理
+│   ├── SkinManage.java   # 皮肤管理
+│   ├── StoryManager.java # 剧本管理
+│   └── map/             # 地图相关管理
+├── serialize/           # 序列化系统
+│   ├── ComponentConfig.java
+│   ├── EntityBuilder.java
+│   ├── EntityDeleter.java
+│   ├── EntitySerializer.java
+│   ├── SerializeParam.java
+│   ├── SerializeSystem.java
+│   └── data/            # 序列化数据类
+├── shader/              # 着色器
+│   └── ShaderUniforms.java
+├── state/               # 状态机
+│   └── EceState.java
+├── system/              # ECS系统
+│   ├── AssetSystem.java     # 资源系统
+│   ├── B2dSystem.java       # 物理系统
+│   ├── BTreeSystem.java     # 行为树系统
+│   ├── CameraSystem.java    # 相机系统
+│   ├── EntityFactory.java   # 实体工厂
+│   ├── KeyframeShapeSystem.java # 关键帧形状系统
+│   ├── LayerSamplingSystem.java # 图层采样系统
+│   ├── LightSystem.java     # 光照系统
+│   ├── PosFollowBodySystem.java # 位置跟随物理体
+│   ├── RenderBatchingSystem.java # 渲染批处理
+│   ├── RenderFrameSystem.java # 帧渲染系统
+│   ├── RenderPhysicsSystem.java # 物理渲染(调试)
+│   ├── RenderTiledSystem.java # 瓦片地图渲染
+│   ├── RenderUISystem.java   # UI渲染系统
+│   ├── StateSystem.java     # 状态机系统
+│   ├── TileAnimSystem.java  # 瓦片动画系统
+│   ├── TiledMapSystem.java  # 地图系统
+│   └── ZIndexSystem.java    # 渲染层级系统
+├── ui/                  # UI系统
+│   ├── BaseEcsUI.java   # ECS UI基类
+│   ├── UIStage.java     # UI舞台
+│   └── inventory/       # 背包UI组件
+├── utils/               # 工具类
+│   ├── InputUtils.java
+│   ├── ReflectionUtils.java
+│   ├── SamplingUtil.java
+│   └── ShapeUtils.java
+├── LtaePlugin.java      # 引擎插件入口
+├── LtaePluginRule.java  # 引擎配置规则
+└── LtaePluginRuleChange.java
 ```
 
-##### 二.游戏页面
-1. 配置游戏环境以创建此插件,路径类都是相对路径,相对于assets模块
+## 核心特性
+
+- **ECS架构**: 基于 Artemis-odb 的实体组件系统
+- **Tiled集成**: 直接从 Tiled 地图编辑器加载实体和关卡
+- **Box2D物理**: 完整的2D物理引擎支持（含光线追踪）
+- **行为树AI**: 内置 gdx-ai 行为树系统
+- **状态机**: 灵活的状态机组件
+- **UI系统**: 基于 LibGDX 的 ECS 化 UI 系统
+- **资源管理**: 自动化资源加载和缓存
+- **序列化**: 实体和状态的序列化支持
+- **光照系统**: 2D动态光照
+
+## 已知问题
+
+1. Box2D传感器只触发 `BeginContact/EndContact` 回调 - 这是正常现象
+2. `FileHandle.list()` 在打包成jar后不可用
+
+## 使用前提
+
+1. 使用 [gdx-liftoff](https://github.com/tommyettinger/gdx-liftoff) 创建项目（需要其文件结构和 assets.txt）
+2. 使用 Tiled 1.11.x 编辑器
+3. 在 Tiled 中导入 `propertytypes.json`（位于 src/main/resources）
+4. Tiled 中实体图层的 object 名称会自动作为实体的 TAG
+5. 添加依赖: `api "com.github.IteratingSystem:LTAE:$ltaeVersion"`
+
+## 快速开始
+
+### 1. 资源加载
+
 ```java
-    LtaeBuilder ltaeBuilder = new LtaeBuilder()
-        .setDoSleep(false)  //box2d世界是否开启静止物体休眠计算
-        //UI页面视图的宽高,内容会拉扯至整个窗口大小
-        .setUIWidth(GameRule.UI_WIDTH)  
-        .setUIHeight(GameRule.UI_HEIGHT)
-        //窗口大小及摄像头放大系数(越大则离目标越近则图像越大)
-        .setWindowWidth(GameRule.WINDOW_WIDTH) 
-        .setWindowHeight(GameRule.WINDOW_HEIGHT)
-        .setCameraZoom(GameRule.CAMERA_ZOOM)
-        //世界缩放比例
-        .setWorldScale(GameRule.WORLD_SCALE)
-        //皮肤路径
-        .setSkinPath(GameRule.SKIN_PATH)
-        //需要加载的地图名称:文件名(非路径,无后缀)
-        .setMapName(MAP_NAME)
-        //地图中加载实体的图层,自动读取此图层的Object到实体,Object的默认name会被载入为实体的TAG
-        .setEntityLayerName(GameRule.ENTITY_LAYER_NAME)
-        //地图中默认创建静态墙体的图层,物理过滤位为I类
-        .setPhyLayerNames(GameRule.PHY_LAYER_NAMES)
-        //配置自定义组件包
-        .setCompPackage(GameRule.COMP_PACKAGE)
-        //配置自定义状态机包
-        .setStatePackage(GameRule.STATE_PACKAGE)
-        //配置自定义碰撞监听包
-        .setContactListenerPackage(GameRule.CONTACT_LISTENER_PACKAGE)
-        .build();
-    //创建插件
-    LtaePlugin ltaePlugin = new LtaePlugin(ltaeBuilder);
-```
-2. 创建世界
-```java
-    //此插件中已经包含了如下外部插件:
-    //ExtendedComponentMapperPlugin 拓展组件映射
-    //ProfilerPlugin    监控查询
-    //TagManager    标签管理器
-    //PlayerManager 玩家管理器
-    //TeamManager   团队管理器
-    //EntityLinkManager 实体连接管理器
-    //EventSystem   事件总线
-    WorldConfiguration worldConfiguration = new WorldConfigurationBuilder()
-        .with(ltaePlugin)
-        .build();
-    world = new World(worldConfiguration);
-```
-3. 相机跟随目标,实现流程是获取CameraSystem,给它传入一个CameraTarget对象,CameraTarget对象包含要跟随的实体以及相机活动区域和偏倚量等信息.
-```java
-    //创建CameraTarget是指定实体的TAG
-    CameraTarget cameraTarget = new CameraTarget("PLAYER");
-    //活动区域大小,实体在此区域内不直接跟随
-    cameraTarget.activeHeight = 40;
-    cameraTarget.activeWidth = 40;
-    //偏移量
-    cameraTarget.eCenterX = 140;
-    cameraTarget.eCenterY = 90;
-    //跟随速度
-    cameraTarget.progress = 0.03f;
-    
-    //获取CameraSystem并传入cameraTarget
-    CameraSystem cameraSystem = world.getSystem(CameraSystem.class);
-    cameraSystem.setFollowTarget(cameraTarget);
+// 初始化皮肤
+Skin skin = SkinManage.initialize(GameRule.SKIN_PATH);
+
+// 使用自定义AssetManager加载资源
+AssetManager assetManager = AssetManager.getInstance();
+assetManager.setLoaders(propertytypesPath);
+assetManager.loadAssets();
 ```
 
-##### 三.UI系统
-1. 制作UI页面:创建一个类,继承于`org.ltae.ui.BaseUI`,其本质是一个Table,包含了ECS的world及一些相关信息为属性,其构造如下:
+### 2. 创建引擎插件
+
 ```java
-    public BaseUI(World world){
-        this.world = world;
-        tagManager = world.getSystem(TagManager.class);
-        assetSystem = world.getSystem(AssetSystem.class);
-        skin = assetSystem.skin;
+LtaeBuilder ltaeBuilder = new LtaeBuilder()
+    .setDoSleep(false)                 // Box2D是否允许休眠
+    .setUIWidth(GameRule.UI_WIDTH)     // UI视口宽度
+    .setUIHeight(GameRule.UI_HEIGHT)   // UI视口高度
+    .setWindowWidth(GameRule.WINDOW_WIDTH)
+    .setWindowHeight(GameRule.WINDOW_HEIGHT)
+    .setCameraZoom(GameRule.CAMERA_ZOOM)
+    .setWorldScale(GameRule.WORLD_SCALE)
+    .setSkinPath(GameRule.SKIN_PATH)
+    .setMapName(MAP_NAME)
+    .setEntityLayerName(GameRule.ENTITY_LAYER_NAME)
+    .setPhyLayerNames(GameRule.PHY_LAYER_NAMES)
+    .setCompPackage(GameRule.COMP_PACKAGE)
+    .setStatePackage(GameRule.STATE_PACKAGE)
+    .setContactListenerPackage(GameRule.CONTACT_LISTENER_PACKAGE)
+    .build();
+
+LtaePlugin ltaePlugin = new LtaePlugin(ltaeBuilder);
+```
+
+### 3. 创建世界
+
+```java
+WorldConfiguration worldConfiguration = new WorldConfigurationBuilder()
+    .with(ltaePlugin)
+    .build();
+World world = new World(worldConfiguration);
+```
+
+### 4. 相机跟随
+
+```java
+CameraTarget cameraTarget = new CameraTarget("PLAYER");
+cameraTarget.activeHeight = 40;
+cameraTarget.activeWidth = 40;
+cameraTarget.eCenterX = 140;
+cameraTarget.eCenterY = 90;
+cameraTarget.progress = 0.03f;
+
+CameraSystem cameraSystem = world.getSystem(CameraSystem.class);
+cameraSystem.setFollowTarget(cameraTarget);
+```
+
+### 5. UI系统
+
+```java
+// 继承BaseEcsUI创建UI
+public class MainUI extends BaseEcsUI {
+    public MainUI(World world) {
+        super(world);
+        // 构建UI...
     }
-```
-子类中super(world)则可以直接使用其属性
-2. 将制作的UI传入RenderUISystem,例(假设制作的UI为MainUi):
-```java
-    RenderUISystem uiSystem = world.getSystem(RenderUISystem.class);
-    MainUI mainUI = new MainUI(world);
-    //添加UI时为其指定一个自定义名称,在后面方便其它操作
-    uiSystem.addUI("customUiName",mainUI);
-```
-传入RenderUISystem后则会根据ui本身的visible属性来确定是否显示,也可以使用:
-```java
-    uiSystem.hideUI("customUiName");
-    uiSystem.showUI("customUiName");
-```
-来显示和隐藏相应名称的UI;
+}
 
+// 添加到渲染系统
+RenderUISystem uiSystem = world.getSystem(RenderUISystem.class);
+MainUI mainUI = new MainUI(world);
+uiSystem.addUI("mainUI", mainUI);
 
-##### 四.角色左右翻转
-1. 场景说明:在角色向左和向右移动时,通常用的是同一套素材,需要将素材左右翻转;不仅如此,还需要将其物理Body中的形状进行翻转;还有一点是动画帧中包含的翻转;
-2. 最佳实践如下:
-   1. 对于需要左右翻转的角色,判断是否需要翻转的最佳实践:
-      1. 给它挂载上Direction组件,将其horizontal设置为当前的方向(LEFT或者RIGHT)
-      2. 在状态机中改变方向后,同步修改Direction.horizontal
-      3. 判断是否需要翻转:当素材默认向右时`Direction.horizontal==HorizontalDir.LEFT`则需要翻转,反之亦然;
-   2. 对于纹理的翻转,直接设置`Render.flipX = true;`代表需要翻转,设置后纹理将以翻转X的状态实时渲染;
-   3. 对于物理Body中形状的翻转,使用B2dBody组件的flipX(float regionWidth)方法可翻转,其原理是将形状移动到翻转后的位置模拟的翻转,目前只对其内部的圆形和矩形生效:`B2dBody.flipX(float regionWidth);`
-   4. 动画帧中的形状(比如攻击帧的攻击传感器),其会在创建阶段自动翻转,需要设置`B2dBody.needFlipX=true`则创建时自动翻转;
-   5. 完整示例:
-   ```java
-        //假设素材默认是向右的方向
-        //则在Tiled中挂载Direction组件,配置其horizontal值为RIGHT
-        //在状态机中会改变方向的操作中同步修改Direction.horizontal,比如向左移动与向右移动中修改其方向
-        //使用Direction.horizontal与素材的方向对比判断是否需要翻转
-        boolean needFlipX = direction.horizontal==HorizontalDir.LEFT;
-        //翻转纹理
-        render.flipX = needFlipX;
-        //翻转物理Body
-        b2dBody.flipX(render.keyframe.getRegionWidth());
-        //设置needFlipX,帧形状生成时自动判断是否需要翻转
-        b2dBody.needFlipX = needFlipX;
-   ```
-##### 五.预制对象
-1. 预制对象指的是,在游戏开始不创建的对象,但是在游戏过程中在某些契机下创建,比如:子弹,攻击特效,掉落物品之类的对象;
-2. 这些对象需要在一个tmx中,添加为MapObject并且和正常的实体一样挂载组件,然后在需要创建的时候,直接使用`EntityFactory.createPrefabricatedEntity(String name)`或者`EntityFactory.createPrefabricatedEntity(String name,float x,float y)`创建;
-3. 在此之前,需要配置预制对象的TiledMap的tmx名称,即`LtaePluginRule.PREFABRICATED_MAP_NAME`这个静态属性;
+// 显示/隐藏
+uiSystem.hideUI("mainUI");
+uiSystem.showUI("mainUI");
+```
+
+## 角色翻转指南
+
+为支持角色左右翻转，需要配置以下组件：
+
+```java
+// 1. 挂载Direction组件，在Tiled中设置horizontal为RIGHT
+// 2. 状态机中同步修改方向
+boolean needFlipX = direction.horizontal == HorizontalDir.LEFT;
+
+// 3. 纹理翻转
+render.flipX = needFlipX;
+
+// 4. 物理Body翻转
+b2dBody.flipX(render.keyframe.getRegionWidth());
+
+// 5. 动画帧形状自动翻转
+b2dBody.needFlipX = needFlipX;
+```
+
+## 预制对象
+
+在tmx地图中添加预制对象（子弹、特效等）：
+
+```java
+// 通过名称创建预制实体
+EntityFactory.createPrefabricatedEntity("bullet", x, y);
+```
+
+需要配置 `LtaePluginRule.PREFABRICATED_MAP_NAME`。
+
+## 内置系统
+
+| 系统 | 功能 |
+|---|---|
+| AssetSystem | 资源加载与管理 |
+| B2dSystem | Box2D物理世界 |
+| BTreeSystem | 行为树执行 |
+| CameraSystem | 相机控制 |
+| KeyframeShapeSystem | 动画帧形状 |
+| LightSystem | 2D光照 |
+| RenderBatchingSystem | 渲染批处理 |
+| RenderFrameSystem | 精灵渲染 |
+| RenderTiledSystem | 瓦片地图渲染 |
+| RenderUISystem | UI渲染 |
+| StateSystem | 状态机 |
+| TileAnimSystem | 瓦片动画 |
+| ZIndexSystem | 渲染层级排序 |
+
+## 许可证
+
+[MIT](LICENSE)
