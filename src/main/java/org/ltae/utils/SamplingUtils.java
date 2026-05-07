@@ -58,8 +58,8 @@ public class SamplingUtils {
 
         fbo.begin();
 //        ScreenUtils.clear(0.0f,0.0f,0.0f,0);
-        mapRenderer.getBatch().begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        mapRenderer.getBatch().begin();
         mapRenderer.renderTileLayer(mapLayer);
         mapRenderer.getBatch().end();
         fbo.end();
