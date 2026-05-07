@@ -1,18 +1,12 @@
 package org.ltae.system;
 
 import com.artemis.BaseSystem;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.ObjectSet;
-import com.bladecoder.ink.runtime.Story;
 import org.ltae.manager.AssetManager;
-import org.ltae.manager.SkinManage;
-
-import javax.xml.crypto.dsig.spec.XPathType;
+import org.ltae.manager.SkinManager;
 
 /**
  * @Author: WenLong
@@ -33,7 +27,7 @@ public class AssetSystem extends BaseSystem {
     @Override
     protected void initialize() {
         //加载skin
-        skin = SkinManage.getSkin(skinPath);
+        skin = SkinManager.getSkin(skinPath);
         //行为树
         bTreeData = AssetManager.getInstance().getObjects(AssetManager.TREE_EXT,BehaviorTree.class);
         //噪声图

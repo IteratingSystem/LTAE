@@ -6,7 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.parent.SerializeComponent;
-import org.ltae.manager.ShaderManage;
+import org.ltae.manager.ShaderManager;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 import org.ltae.shader.ShaderUniforms;
@@ -31,9 +31,9 @@ public class ShaderComp extends SerializeComponent {
     @Override
     public void reload(World world, EntityDatum entityDatum) {
         super.reload(world, entityDatum);
-        ShaderManage shaderManage = ShaderManage.getInstance();
-        String vertexContext = shaderManage.getVertexContext(vertexName);
-        String fragmentContext = shaderManage.getFragmentContext(fragmentName);
+        ShaderManager shaderManager = ShaderManager.getInstance();
+        String vertexContext = shaderManager.getVertexContext(vertexName);
+        String fragmentContext = shaderManager.getFragmentContext(fragmentName);
         if (vertexContext == null || fragmentContext == null){
             shaderProgram = null;
             return;

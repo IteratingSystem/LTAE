@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 /**
  * @Auther WenLong
  * @Date 2025/6/17 11:11
- * @Description 页面管理器
+ * @Description 游戏管理器
  **/
 public class GameManager {
     private final static String TAG = GameManager.class.getSimpleName();

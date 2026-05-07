@@ -19,7 +19,7 @@ import org.ltae.loader.InkStoryLoader;
 /**
  * @Auther WenLong
  * @Date 2025/2/11 16:23
- * @Description
+ * @Description 资源管理器
  **/
 public class AssetManager {
     private static final String TAG = AssetManager.class.getSimpleName();

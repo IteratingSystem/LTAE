@@ -9,10 +9,10 @@ import com.badlogic.gdx.utils.ObjectSet;
  * @Date 2025/4/28 11:20
  * @Description skin管理器,用于控制skin的单例,单独拎出来是因为在资源加载页面需要使用到
  **/
-public class SkinManage {
-    private final static String TAG = SkinManage.class.getSimpleName();
+public class SkinManager {
+    private final static String TAG = SkinManager.class.getSimpleName();
     private static Skin skin;
-    private SkinManage(){}
+    private SkinManager(){}
 
     public static Skin getSkin(String skinPath) {
         if (skin == null){

@@ -2,30 +2,27 @@ package org.ltae.manager;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.utils.ObjectSet;
 
 /**
  * @Auther WenLong
  * @Date 2025/4/28 11:20
- * @Description skin管理器,用于控制skin的单例,单独拎出来是因为在资源加载页面需要使用到
+ * @Description shader着色器管理器
  **/
-public class ShaderManage {
-    private final static String TAG = ShaderManage.class.getSimpleName();
-    private static ShaderManage instance;
+public class ShaderManager {
+    private final static String TAG = ShaderManager.class.getSimpleName();
+    private static ShaderManager instance;
     public static final String VERTEX_EXT = ".vert";
     public static final String FRAGMENT_EXT = ".frag";
     public String[] assetPathList;
 
     private FileHandle assetsHandle;
-    private ShaderManage(){
+    private ShaderManager(){
         assetPathList = AssetManager.getInstance().assetPathList;
     }
     private static void initialize(){
-        instance = new ShaderManage();
+        instance = new ShaderManager();
     }
-    public static ShaderManage getInstance(){
+    public static ShaderManager getInstance(){
         if (instance == null){
             initialize();
         }

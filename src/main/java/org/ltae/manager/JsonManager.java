@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Null;
 /**
  * @Auther WenLong
  * @Date 2025/2/11 16:23
- * @Description
+ * @Description Json管理器
  **/
 public class JsonManager {
     private static Json json;
