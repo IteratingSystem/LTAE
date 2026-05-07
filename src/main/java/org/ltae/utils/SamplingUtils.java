@@ -1,6 +1,7 @@
 package org.ltae.utils;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -9,27 +10,26 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.utils.ScreenUtils;
 
 /**
  * 图层采样工具
  */
-public class SamplingUtil {
-    private static final String TAG = SamplingUtil.class.getSimpleName();
-    private static SamplingUtil instance;
+public class SamplingUtils {
+    private static final String TAG = SamplingUtils.class.getSimpleName();
+    private static SamplingUtils instance;
     private FrameBuffer fbo;
     private OrthogonalTiledMapRenderer mapRenderer;
     private OrthographicCamera camera;
 
-    private SamplingUtil(){
+    private SamplingUtils(){
         camera = new OrthographicCamera();
         mapRenderer = new OrthogonalTiledMapRenderer(null,1);
 
     }
 
-    public static SamplingUtil getInstance(){
+    public static SamplingUtils getInstance(){
         if (instance == null){
-            instance = new SamplingUtil();
+            instance = new SamplingUtils();
         }
         return instance;
     }
@@ -59,6 +59,7 @@ public class SamplingUtil {
         fbo.begin();
 //        ScreenUtils.clear(0.0f,0.0f,0.0f,0);
         mapRenderer.getBatch().begin();
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         mapRenderer.renderTileLayer(mapLayer);
         mapRenderer.getBatch().end();
         fbo.end();

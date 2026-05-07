@@ -10,7 +10,7 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.utils.Array;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.component.*;
-import org.ltae.utils.SamplingUtil;
+import org.ltae.utils.SamplingUtils;
 
 @All({LayerSampling.class, Render.class, Pos.class})
 @Exclude(Inert.class)
@@ -52,7 +52,7 @@ public class LayerSamplingSystem extends IteratingSystem {
 
         //静态图层采样
         if (sampling.flagAnimTile == null){
-            TextureRegion textureRegion = SamplingUtil.getInstance().samplingLayer(tiledMapSystem.getTiledMap(),sampling.layerName);
+            TextureRegion textureRegion = SamplingUtils.getInstance().samplingLayer(tiledMapSystem.getTiledMap(),sampling.layerName);
             sampling.regions[0] = textureRegion;
             Render render = mRender.get(entityId);
             render.keyframe = textureRegion;
@@ -64,7 +64,8 @@ public class LayerSamplingSystem extends IteratingSystem {
         if (sampling.regions[currentFrameIndex] != null) {
             return;
         }
-        TextureRegion textureRegion = SamplingUtil.getInstance().samplingLayer(tiledMapSystem.getTiledMap(),sampling.layerName);
+
+        TextureRegion textureRegion = SamplingUtils.getInstance().samplingLayer(tiledMapSystem.getTiledMap(),sampling.layerName);
         sampling.regions[currentFrameIndex] = textureRegion;
         Render render = mRender.get(entityId);
         render.keyframe = textureRegion;

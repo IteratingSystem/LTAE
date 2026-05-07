@@ -4,22 +4,21 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
-import com.badlogic.gdx.math.Vector2;
 import org.ltae.component.Pos;
 
 /**
  * @Auther WenLong
  * @Date 2025/4/10 15:50
- * @Description 距离
+ * @Description 距离,用于判断目标是否在自己的radius范围中
  **/
-public class Dst extends EcsLeafTask {
+public class Range extends EcsLeafTask {
 
     //对方的TAG
     @TaskAttribute
     public String targetEntityTag = "PLAYER";
     //判断距离
     @TaskAttribute
-    public float distance = 0;
+    public float radius = 0;
 
     @Override
     public Status execute() {
@@ -43,7 +42,7 @@ public class Dst extends EcsLeafTask {
         Pos targetPos = mPos.get(target);
         Pos pos = mPos.get(entityId);
         float dst = pos.dst(targetPos);
-        if (distance >= dst){
+        if (radius >= dst){
             return Status.SUCCEEDED;
         }
         return Status.FAILED;
