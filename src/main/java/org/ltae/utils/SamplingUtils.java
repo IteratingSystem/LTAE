@@ -55,10 +55,10 @@ public class SamplingUtils {
         mapRenderer.setMap(tiledMap);
         mapRenderer.setView(camera);
 
-
+        Gdx.gl.glFinish();
         fbo.begin();
 //        ScreenUtils.clear(0.0f,0.0f,0.0f,0);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+//        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         mapRenderer.getBatch().begin();
         mapRenderer.renderTileLayer(mapLayer);
         mapRenderer.getBatch().end();
