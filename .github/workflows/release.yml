@@ -23,4 +23,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
-          generate_release_notes: true
+          body: $(git log -1 --format=%B)

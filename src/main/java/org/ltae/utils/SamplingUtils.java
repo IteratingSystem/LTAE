@@ -57,22 +57,6 @@ public class SamplingUtils {
 
         fbo.begin();
         mapRenderer.getBatch().begin();
-
-        for (int i = 0; i < mapLayer.getWidth(); i++) {
-            for (int j = 0; j < mapLayer.getHeight(); j++) {
-                com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell cell = mapLayer.getCell(i, j);
-                if (cell == null) continue;
-                com.badlogic.gdx.maps.tiled.TiledMapTile tile = cell.getTile();
-                if (tile == null) continue;
-                if (tile instanceof com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile animTile) {
-                    for (com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile frameTile : animTile.getFrameTiles()) {
-                        frameTile.getTextureRegion().getTexture().bind();
-                    }
-                } else {
-                    tile.getTextureRegion().getTexture().bind();
-                }
-            }
-        }
         mapRenderer.renderTileLayer(mapLayer);
         mapRenderer.getBatch().end();
         fbo.end();
