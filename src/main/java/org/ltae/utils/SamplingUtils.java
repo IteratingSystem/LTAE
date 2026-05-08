@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.utils.ScreenUtils;
 
 /**
  * 图层采样工具
@@ -56,12 +57,15 @@ public class SamplingUtils {
         mapRenderer.setView(camera);
 
         fbo.begin();
+
+        //清屏与清空FBO颜色缓冲区
+        Gdx.gl.glClearColor(0, 0, 0, 0);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         mapRenderer.getBatch().begin();
         mapRenderer.renderTileLayer(mapLayer);
         mapRenderer.getBatch().end();
         fbo.end();
-
-//        Gdx.gl.glFinish();
 
         Texture texture = fbo.getColorBufferTexture();
         texture.setFilter(minFilter, magFilter);

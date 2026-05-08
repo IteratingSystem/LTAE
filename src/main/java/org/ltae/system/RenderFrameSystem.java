@@ -67,10 +67,6 @@ public class RenderFrameSystem extends DeferredEntityProcessingSystem {
         if (render.keyframe == null || render.keyframe.getTexture() == null || !render.visible) {
             return;
         }
-        // 如果实体使用 Shader 且有 LayerSampling，强制绑定纹理确保 GPU 上传完成
-        if (mShaderComp.has(entityId)) {
-            render.keyframe.getTexture().bind();  // 添加这行
-        }
 
         //获取关键数据
         Pos pos = mPos.get(entityId);
