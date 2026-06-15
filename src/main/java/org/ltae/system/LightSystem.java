@@ -5,7 +5,7 @@ import com.artemis.BaseSystem;
 import com.badlogic.gdx.graphics.Color;
 
 /**
- * @author: LightSystem
+ * @author: WenLong
  * @date: 2026/1/14
  * @description: 光线系统, 使用box2dLight
  */
