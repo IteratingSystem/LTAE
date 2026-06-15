@@ -32,16 +32,20 @@ public class WorldStateManager {
     public WorldState getWorldState(){
         return worldState;
     }
-    public void updateState(World world){
+
+    // 更新当前的世界状态
+    public void updateWorldState(World world){
+        // 保存当年地图
         TiledMapSystem tiledMapSystem = world.getSystem(TiledMapSystem.class);
         String curtMap = tiledMapSystem.getCurrent();
         worldState.curtMap = curtMap;
 
+        // 保存当前地图实体数据(其它地图在切换过程中已经写入到状态了)
         EntityData entityData = EntitySerializer.createEntityData(world);
         worldState.entityData.put(curtMap, entityData);
 
-        /* 保存系统参数 */
-for (BaseSystem system : world.getSystems()) {
+        // 保存系统参数
+        for (BaseSystem system : world.getSystems()) {
             Class<? extends BaseSystem> clazz = system.getClass();
             // 检查类是否有 @SerializeSystem 注解，而不是 instanceof
             if (!clazz.isAnnotationPresent(SerializeSystem.class)) {
@@ -84,7 +88,7 @@ for (BaseSystem system : world.getSystems()) {
         }
         return entityData;
     }
-    public String serializeState(){
+    public String getSaveJson(){
         return JsonManager.toJson(worldState);
     }
 }
