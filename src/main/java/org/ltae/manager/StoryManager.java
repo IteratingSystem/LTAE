@@ -17,17 +17,27 @@ public class StoryManager {
     private static Story story;
     private static ObjectMap<String, Story> storyData;
 
-    public static Story changeStory(String name){
+    // 获取当前剧本
+    public static Story getCurrent(){
+        return story;
+    }
+    // 通过名字获取剧本
+    public static Story getStory(String name){
         if (storyData == null){
             storyData = AssetManager.getInstance().getObjects(EXT,Story.class);
         }
-        story = storyData.get(name);
-        resetState();
+        if (!storyData.containsKey(name)) {
+            Gdx.app.error(TAG, "Story not found: " + name);
+            return null;
+        }
+        return storyData.get(name);
+    }
+    // 改变当前剧本
+    public static Story changeStory(String name){
+        story = getStory(name);
         return story;
     }
-    public static Story getStory(){
-        return story;
-    }
+
     public static Bag<String> getLines(){
         Bag<String> sentences = new Bag<>();
         while (story.canContinue()) {
@@ -46,13 +56,15 @@ public class StoryManager {
         try {
             story.resetState();
         } catch (Exception e) {
+            Gdx.app.error(TAG,"Failed to reset state");
             throw new RuntimeException(e);
         }
     }
-    public static void _continue(){
+    public static void Continue(){
         try {
             story.Continue();
         } catch (Exception e) {
+            Gdx.app.error(TAG,"Failed to reset state");
             throw new RuntimeException(e);
         }
     }
