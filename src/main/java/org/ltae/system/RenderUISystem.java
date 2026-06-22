@@ -75,6 +75,7 @@ public class RenderUISystem extends BaseSystem {
             return;
         }
         getTable(zClass).setVisible(true);
+        Gdx.input.setInputProcessor(mainStage);
     }
     private void onlyShow(Class<? extends Table> zClass){
         hideAll();
