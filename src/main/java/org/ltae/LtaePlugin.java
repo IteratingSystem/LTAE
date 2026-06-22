@@ -6,6 +6,8 @@ import com.artemis.link.EntityLinkManager;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.TeamManager;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import net.mostlyoriginal.api.event.common.EventSystem;
 import net.mostlyoriginal.api.event.common.SubscribeAnnotationFinder;
 import net.mostlyoriginal.api.event.dispatcher.FastEventDispatcher;
@@ -19,6 +21,7 @@ import org.ltae.system.*;
  * @Description 插件
  **/
 public class LtaePlugin implements ArtemisPlugin {
+    public final static InputMultiplexer INPUT_MULTIPLEXER = new InputMultiplexer();
     private CameraSystem cameraSystem;
 
 
@@ -92,5 +95,7 @@ public class LtaePlugin implements ArtemisPlugin {
                 new RenderUISystem(
                 LtaePluginRule.UI_WIDTH,
                 LtaePluginRule.UI_HEIGHT));
+
+        Gdx.input.setInputProcessor(INPUT_MULTIPLEXER);
     }
 }

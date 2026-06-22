@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import net.mostlyoriginal.api.event.common.Subscribe;
+import org.ltae.LtaePlugin;
 import org.ltae.event.UIEvent;
 
 /**
@@ -35,7 +36,7 @@ public class RenderUISystem extends BaseSystem {
 
         mainStage = new Stage(extendViewport);
         mainStage.addActor(stack);
-        Gdx.input.setInputProcessor(mainStage);
+        LtaePlugin.INPUT_MULTIPLEXER.addProcessor(mainStage);
     }
 
     @Override
@@ -75,7 +76,6 @@ public class RenderUISystem extends BaseSystem {
             return;
         }
         getTable(zClass).setVisible(true);
-        Gdx.input.setInputProcessor(mainStage);
     }
     private void onlyShow(Class<? extends Table> zClass){
         hideAll();
