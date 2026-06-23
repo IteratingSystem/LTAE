@@ -95,6 +95,18 @@ public class CameraSystem extends BaseSystem {
         float activeWidth = cameraTarget.activeWidth;
         float activeHeight = cameraTarget.activeHeight;
 
+        // 计算当前偏差
+        float dx = centerX - camera.position.x;
+        float dy = centerY - camera.position.y;
+        final float THRESHOLD = 0.1f;
+
+        // 偏差极小则直接吸附，彻底消除残余抖动（放在最前面）
+        if (Math.abs(dx) < THRESHOLD && Math.abs(dy) < THRESHOLD) {
+            camera.position.x = centerX;
+            camera.position.y = centerY;
+            return;
+        }
+
         // 检查是否超出活动区域
         boolean outX = camera.position.x < centerX - activeWidth / 2 + cameraTarget.offsetX ||
                 camera.position.x > centerX + activeWidth / 2 + cameraTarget.offsetX;
@@ -106,22 +118,9 @@ public class CameraSystem extends BaseSystem {
             return;
         }
 
-        // 计算当前偏差
-        float dx = centerX - camera.position.x;
-        float dy = centerY - camera.position.y;
-        final float THRESHOLD = 0.01f;  // 像素阈值，可微调
-
-        // 偏差极小则直接吸附，彻底消除残余抖动
-        if (Math.abs(dx) < THRESHOLD && Math.abs(dy) < THRESHOLD) {
-            camera.position.x = centerX;
-            camera.position.y = centerY;
-            return;
-        }
-
-        // 指数平滑参数（decay 越大，跟随越快）
-        // 这里使用 cameraTarget.progress 映射到 decay，例如 progress 0~1 对应 decay 2~10
-        float decay = 2.0f + cameraTarget.progress * 8.0f; // 可根据需要调整范围
-        float delta = world.getDelta();  // 当前帧间隔（秒）
+        // 指数平滑参数
+        float decay = 2.0f + cameraTarget.progress * 8.0f;
+        float delta = world.getDelta();
         float smoothFactor = 1f - (float) Math.exp(-decay * delta);
 
         // 分别对超出方向进行平滑插值
@@ -130,6 +129,14 @@ public class CameraSystem extends BaseSystem {
         }
         if (outY) {
             camera.position.y = MathUtils.lerp(camera.position.y, centerY, smoothFactor);
+        }
+
+        // 插值后再次检查偏差，若小于阈值则强制吸附（双重保险）
+        dx = centerX - camera.position.x;
+        dy = centerY - camera.position.y;
+        if (Math.abs(dx) < THRESHOLD && Math.abs(dy) < THRESHOLD) {
+            camera.position.x = centerX;
+            camera.position.y = centerY;
         }
     }
 
