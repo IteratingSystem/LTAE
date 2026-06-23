@@ -34,7 +34,7 @@ public class CtrlSystem extends IteratingSystem {
     private M<StateComp> mStateComp;
 
     public CtrlSystem(int ctrlMassage) {
-        ctrlMassage = ctrlMassage;
+        this.ctrlMassage = ctrlMassage;
     }
 
     @Override

@@ -61,6 +61,7 @@ public class CameraSystem extends BaseSystem {
         if (cameraTarget == null) {
             return false;
         }
+
         if (cameraTarget.entityTag.isEmpty()) {
             Gdx.app.log(TAG, "FollowTarget has no entity set!");
             return false;
@@ -82,7 +83,7 @@ public class CameraSystem extends BaseSystem {
         camera.position.y = pos.y;
     }
     private void followTarget() {
-        if (!verifyTarget()){
+        if (!verifyTarget()) {
             return;
         }
 
@@ -94,12 +95,41 @@ public class CameraSystem extends BaseSystem {
         float activeWidth = cameraTarget.activeWidth;
         float activeHeight = cameraTarget.activeHeight;
 
-        // 如果目标实体超出摄像机的活动区域，则调整摄像机位置,平滑过渡到目标位置
-        if (camera.position.x < centerX - activeWidth / 2 + cameraTarget.offsetX || camera.position.x > centerX + activeWidth / 2 + cameraTarget.offsetX) {
-            camera.position.x = MathUtils.lerp(camera.position.x, centerX, cameraTarget.progress); // 平滑过渡
+        // 检查是否超出活动区域
+        boolean outX = camera.position.x < centerX - activeWidth / 2 + cameraTarget.offsetX ||
+                camera.position.x > centerX + activeWidth / 2 + cameraTarget.offsetX;
+        boolean outY = camera.position.y < centerY - activeHeight / 2 + cameraTarget.offsetY ||
+                camera.position.y > centerY + activeHeight / 2 + cameraTarget.offsetY;
+
+        // 如果未超出，则无需移动
+        if (!outX && !outY) {
+            return;
         }
-        if (camera.position.y < centerY - activeHeight / 2 + cameraTarget.offsetY || camera.position.y > centerY + activeHeight / 2 + cameraTarget.offsetY) {
-            camera.position.y = MathUtils.lerp(camera.position.y, centerY, cameraTarget.progress); // 平滑过渡
+
+        // 计算当前偏差
+        float dx = centerX - camera.position.x;
+        float dy = centerY - camera.position.y;
+        final float THRESHOLD = 0.01f;  // 像素阈值，可微调
+
+        // 偏差极小则直接吸附，彻底消除残余抖动
+        if (Math.abs(dx) < THRESHOLD && Math.abs(dy) < THRESHOLD) {
+            camera.position.x = centerX;
+            camera.position.y = centerY;
+            return;
+        }
+
+        // 指数平滑参数（decay 越大，跟随越快）
+        // 这里使用 cameraTarget.progress 映射到 decay，例如 progress 0~1 对应 decay 2~10
+        float decay = 2.0f + cameraTarget.progress * 8.0f; // 可根据需要调整范围
+        float delta = world.getDelta();  // 当前帧间隔（秒）
+        float smoothFactor = 1f - (float) Math.exp(-decay * delta);
+
+        // 分别对超出方向进行平滑插值
+        if (outX) {
+            camera.position.x = MathUtils.lerp(camera.position.x, centerX, smoothFactor);
+        }
+        if (outY) {
+            camera.position.y = MathUtils.lerp(camera.position.y, centerY, smoothFactor);
         }
     }
 
