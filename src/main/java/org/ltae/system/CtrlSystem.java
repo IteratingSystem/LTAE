@@ -7,6 +7,7 @@ import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.component.CtrlComp;
 import org.ltae.component.StateComp;

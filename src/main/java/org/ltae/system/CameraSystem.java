@@ -98,7 +98,7 @@ public class CameraSystem extends BaseSystem {
         // 计算当前偏差
         float dx = centerX - camera.position.x;
         float dy = centerY - camera.position.y;
-        final float THRESHOLD = 0.1f;
+        final float THRESHOLD = 1.0f;
 
         // 偏差极小则直接吸附，彻底消除残余抖动（放在最前面）
         if (Math.abs(dx) < THRESHOLD && Math.abs(dy) < THRESHOLD) {
