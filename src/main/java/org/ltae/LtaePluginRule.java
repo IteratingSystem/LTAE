@@ -34,7 +34,6 @@ public class LtaePluginRule {
     public static String PREFABRICATED_MAP_NAME = "defaultMap"; // 预制件地图名称
     public static String PHY_LAYER = "physicsLayer"; // 默认物理图层
     public static String ENTITY_LAYER = "entities";       // 默认实体图层
-    public static String ROOT_PKG = "org";    //组件包路径
     public static String COMPONENT_PKG = "com.game.component";    //组件包路径
     public final static String LTAE_COMPONENT_PKG = "org.ltae.component";    //组件包路径
     public static String STATE_PKG = "com.game.state";    //状态机包路径

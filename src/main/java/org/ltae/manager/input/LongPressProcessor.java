@@ -29,7 +29,9 @@ public class LongPressProcessor implements InputProcessor {
             public void run() {
                 // 触发长按回调
                 for (LongPressListener listener : listeners) {
-                    listener.onLongPress(keycode);
+                    if (InputManager.ENABLE){
+                        listener.onLongPress(keycode);
+                    }
                 }
                 // 任务执行后从Map中移除（表示长按已触发）
                 keyTasks.remove(keycode);
@@ -48,7 +50,9 @@ public class LongPressProcessor implements InputProcessor {
             // 任务还存在，说明长按尚未触发，取消任务并视为短按
             task.cancel();
             for (LongPressListener listener : listeners) {
-                listener.onShortPress(keycode);
+                if (InputManager.ENABLE){
+                    listener.onShortPress(keycode);
+                }
             }
         }
         // 如果 task == null，说明长按已经触发过了，此时抬起不做额外处理（或可触发“释放”事件，视需求而定）

@@ -2,7 +2,10 @@ package org.ltae.component.input;
 
 
 import com.artemis.World;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import org.ltae.component.parent.SerializeComponent;
+import org.ltae.manager.GameManager;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 import org.ltae.test.ReflectionsTest;
@@ -35,27 +38,36 @@ public class InputProcess extends SerializeComponent {
     @Override
     public void reload(World world, EntityDatum entityDatum) {
         super.reload(world, entityDatum);
-        // 1. 获取当前类所在的编译输出目录或 JAR 路径（物理路径）
-        URL codeSource = InputProcess.class.getProtectionDomain().getCodeSource().getLocation();
-        System.out.println("扫描根路径: " + codeSource.getPath());
+        Game currentGame = GameManager.getCurrent();
+        if (currentGame == null) {
+            Gdx.app.error(getTag(), "Failed to get current game, please set current game via GameManager.setCurrent()");
+            return;
+        }
 
-        // 2. 创建 Reflections，只扫描该物理路径下的所有类
+        URL codeSource = currentGame.getClass().getProtectionDomain().getCodeSource().getLocation();
         Reflections reflections = new Reflections(new ConfigurationBuilder()
-                .addUrls(codeSource)                     // 物理隔离
-                .setScanners(new SubTypesScanner(false)) // false 表示包含所有类
+                .addUrls(codeSource)
+                .setScanners(new SubTypesScanner(false))
         );
 
-        // 3. 获取该路径下的所有类
-        Set<Class<?>> allClasses = reflections.getSubTypesOf(Object.class);
-        System.out.println("扫描到的总类数: " + allClasses.size());
+        Set<Class<? extends InputProcessing>> subTypes = reflections.getSubTypesOf(InputProcessing.class);
 
-        // 4. 动态获取当前模块的根包名（如 "org"）
-        String rootPackage = ReflectionsTest.class.getPackage().getName().split("\\.")[0];
-        System.out.println("根包名: " + rootPackage);
-
-        // 5. 过滤出属于你项目的类（以根包名开头）
-        allClasses.stream()
-                .filter(c -> c.getName().startsWith(rootPackage))
-                .forEach(System.out::println);
+        // 按简单类名过滤并实例化
+        try {
+            Class<? extends InputProcessing> targetClass = subTypes.stream()
+                    .filter(c -> simpleName.equals(c.getSimpleName()))
+                    .findFirst()
+                    .orElse(null);
+            if (targetClass != null) {
+                processing = targetClass.getDeclaredConstructor().newInstance();
+                Gdx.app.log(getTag(), "Instantiated InputProcessing: " + processing.getClass().getName());
+            } else {
+                Gdx.app.error(getTag(), "No class found with simpleName: " + simpleName);
+                processing = null;
+            }
+        } catch (Exception e) {
+            Gdx.app.error(getTag(), "Failed to instantiate class with simpleName: " + simpleName, e);
+            processing = null;
+        }
     }
 }

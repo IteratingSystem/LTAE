@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.SnapshotArray;
 public class InputManager {
     private static InputMultiplexer MULTIPLEXER;
     private static LongPressProcessor LONG_PRESS_PROCESSOR;
+    public static boolean ENABLE = true;
 
     // ---------- 初始化 ----------
     private static InputMultiplexer getMultiplexer() {
@@ -46,7 +47,6 @@ public class InputManager {
 
     // ---------- 通用处理器管理 ----------
     public static void addProcessor(InputProcessor processor) {
-
         getMultiplexer().addProcessor(processor);
     }
 
@@ -72,9 +72,15 @@ public class InputManager {
 
 
     public static boolean isKeyPressed(int key){
+        if (!ENABLE){
+            return false;
+        }
         return Gdx.input.isKeyPressed(key);
     }
     public static boolean isKeyPressed(int[] keys){
+        if (!ENABLE){
+            return false;
+        }
         for (int key : keys) {
             if (!Gdx.input.isKeyPressed(key)) {
                 return false;
@@ -83,9 +89,15 @@ public class InputManager {
         return true;
     }
     public static boolean isKeyJustPressed(int key){
+        if (!ENABLE){
+            return false;
+        }
         return Gdx.input.isKeyJustPressed(key);
     }
     public static boolean isKeyJustPressed(int[] keys){
+        if (!ENABLE){
+            return false;
+        }
         for (int key : keys) {
             if (!Gdx.input.isKeyJustPressed(key)) {
                 return false;
