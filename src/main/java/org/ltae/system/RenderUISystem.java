@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import net.mostlyoriginal.api.event.common.Subscribe;
 import org.ltae.LtaePlugin;
 import org.ltae.event.UIEvent;
+import org.ltae.manager.input.InputManager;
 
 /**
  * @Auther WenLong
@@ -36,7 +37,8 @@ public class RenderUISystem extends BaseSystem {
 
         mainStage = new Stage(extendViewport);
         mainStage.addActor(stack);
-        LtaePlugin.INPUT_MULTIPLEXER.addProcessor(mainStage);
+
+        InputManager.addProcessor(mainStage);
     }
 
     @Override

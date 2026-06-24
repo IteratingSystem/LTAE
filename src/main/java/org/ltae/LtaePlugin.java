@@ -21,7 +21,6 @@ import org.ltae.system.*;
  * @Description 插件
  **/
 public class LtaePlugin implements ArtemisPlugin {
-    public final static InputMultiplexer INPUT_MULTIPLEXER = new InputMultiplexer();
     private CameraSystem cameraSystem;
 
 
@@ -95,7 +94,5 @@ public class LtaePlugin implements ArtemisPlugin {
                 new RenderUISystem(
                 LtaePluginRule.UI_WIDTH,
                 LtaePluginRule.UI_HEIGHT));
-
-        Gdx.input.setInputProcessor(INPUT_MULTIPLEXER);
     }
 }

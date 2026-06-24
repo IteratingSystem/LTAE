@@ -69,4 +69,28 @@ public class InputManager {
     public static void clear() {
         getMultiplexer().clear();
     }
+
+
+    public static boolean isKeyPressed(int key){
+        return Gdx.input.isKeyPressed(key);
+    }
+    public static boolean isKeyPressed(int[] keys){
+        for (int key : keys) {
+            if (!Gdx.input.isKeyPressed(key)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    public static boolean isKeyJustPressed(int key){
+        return Gdx.input.isKeyJustPressed(key);
+    }
+    public static boolean isKeyJustPressed(int[] keys){
+        for (int key : keys) {
+            if (!Gdx.input.isKeyJustPressed(key)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
