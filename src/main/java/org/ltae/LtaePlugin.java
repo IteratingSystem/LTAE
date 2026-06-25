@@ -63,9 +63,9 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(new StateSystem());//状态机系统
         worldConfigurationBuilder.with(cameraSystem);//摄像机系统
         worldConfigurationBuilder.with(new KeyframeShapeSystem());//动画帧形状系统
-        worldConfigurationBuilder.with(new ZIndexSystem());//渲染顺序
         worldConfigurationBuilder.with(new TileAnimSystem());//动画系统
         worldConfigurationBuilder.with(new LayerSamplingSystem());//图层采样
+        worldConfigurationBuilder.with(new ZIndexSystem());//渲染顺序
 
         //渲染
         worldConfigurationBuilder.with(new RenderTiledSystem(LtaePluginRule.WORLD_SCALE));//渲染瓦片地图
