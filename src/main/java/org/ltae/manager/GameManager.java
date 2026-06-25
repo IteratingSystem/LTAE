@@ -41,7 +41,7 @@ public class GameManager {
     public static Game getGame(Class<? extends Game> zClass){
         ObjectMap<Class<? extends Game>, Game> table = getTable();
         if (!table.containsKey(zClass)) {
-            Gdx.app.error(TAG,"This Game is not register in GameManager:"+zClass.getSimpleName());
+            Gdx.app.error(TAG,"This Game is not register in GameManager: "+zClass.getSimpleName());
             return null;
         }
         return table.get(zClass);

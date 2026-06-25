@@ -4,14 +4,14 @@ import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.managers.TagManager;
 import net.mostlyoriginal.api.event.common.EventSystem;
-import org.ltae.event.InteractiveEvent;
+import org.ltae.event.InteractEvent;
 
 /**
  * @Auther WenLong
  * @Date 2025/7/2 10:37
  * @Description 交互事件接收器
  **/
-public abstract class InteractiveListener {
+public abstract class InteractListener {
     public World world;
     public EventSystem eventSystem;
     public TagManager tagManager;
@@ -22,7 +22,7 @@ public abstract class InteractiveListener {
     public int fromEntityId;
 
 
-    public InteractiveListener(Entity entity){
+    public InteractListener(Entity entity){
         this.entity = entity;
         world = entity.getWorld();
         entityId = entity.getId();
@@ -30,7 +30,7 @@ public abstract class InteractiveListener {
         tagManager = world.getSystem(TagManager.class);
     }
 
-    public void onEvent(InteractiveEvent event) {
+    public void onEvent(InteractEvent event) {
         fromEntityId = event.fromId;
         fromEntity = world.getEntity(fromEntityId);
     }
