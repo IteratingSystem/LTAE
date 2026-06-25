@@ -13,6 +13,7 @@ public class ZIndex extends Component {
     @SerializeParam
     public float index = 0;
     @SerializeParam
+    // offset越大,月靠上边,则越被遮挡
     public float offset = 0;
     @SerializeParam
     public boolean followY = false;

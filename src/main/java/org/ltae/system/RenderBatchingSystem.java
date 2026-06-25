@@ -89,7 +89,7 @@ public class RenderBatchingSystem extends BaseSystem implements EntityProcessPri
             this.entityId = entityId;
             this.agent = agent;
         }
-        //渲染顺序,越小越提前渲染,也就越滞后
+        //渲染顺序
         @Override
         public int compareTo(Job o) {
             int entityIdO = o.entityId;

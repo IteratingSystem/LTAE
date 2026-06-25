@@ -29,6 +29,7 @@ public class ZIndexSystem extends IteratingSystem {
         }
         TiledMapTileLayer mapLayer = (TiledMapTileLayer)tiledMapSystem.getTiledMap().getLayers().get(0);
         int height = mapLayer.getTileHeight() * mapLayer.getHeight();
+
         Pos pos = mPos.get(entityId);
         zIndex.index = height - (pos.y+zIndex.offset);
     }
