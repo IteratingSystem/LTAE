@@ -2,6 +2,7 @@ package org.ltae.manager.map;
 
 import com.artemis.BaseSystem;
 import com.artemis.World;
+import com.badlogic.gdx.Gdx;
 import org.ltae.manager.JsonManager;
 import org.ltae.serialize.EntitySerializer;
 import org.ltae.serialize.SerializeParam;
@@ -14,6 +15,7 @@ import org.ltae.system.TiledMapSystem;
 import java.lang.reflect.Field;
 
 public class WorldStateManager {
+    private final static String TAG = WorldStateManager.class.getSimpleName();
     private static WorldStateManager instance;
     private WorldState worldState;
     private WorldStateManager(){
