@@ -22,8 +22,8 @@ public class InputManager {
     private static InputMultiplexer getMultiplexer() {
         if (MULTIPLEXER == null) {
             MULTIPLEXER = new InputMultiplexer();
-            Gdx.input.setInputProcessor(MULTIPLEXER);
         }
+        Gdx.input.setInputProcessor(MULTIPLEXER);
         return MULTIPLEXER;
 
     }
