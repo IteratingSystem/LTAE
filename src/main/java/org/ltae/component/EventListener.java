@@ -8,8 +8,11 @@ import org.ltae.LtaePluginRule;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.event.listener.InteractListener;
 import org.ltae.event.listener.OnlyInteractive;
+import org.ltae.manager.ReflectionManager;
 import org.ltae.serialize.data.EntityDatum;
 import org.ltae.utils.ReflectionUtils;
+
+import java.util.Set;
 
 /**
  * @Auther WenLong
@@ -24,19 +27,29 @@ public class EventListener extends SerializeComponent implements Disposable {
         super.reload(world, entityDatum);
     }
     public void registerEvent(String simpleName){
-        String onEventPkg = LtaePluginRule.ON_EVENT_PKG;
-        String className = onEventPkg + "." + simpleName;
-        if (className.isEmpty()){
-            Gdx.app.error(getTag(),"Failed to load OnEventComp,className is empty");
-            return;
+        ReflectionManager reflectionManager = ReflectionManager.getInstance();
+        Set<Class<? extends InteractListener>> subTypesOfWithGame = reflectionManager.getSubTypesOfWithGame(InteractListener.class);
+        for (Class<? extends InteractListener> aClass : subTypesOfWithGame) {
+            if (!aClass.getSimpleName().equals(simpleName)) {
+                continue;
+            }
+            onEvent = reflectionManager.createObject(
+                    aClass,
+                    new Class[]{Entity.class},
+                    new Entity[]{world.getEntity(entityId)}
+            );
         }
 
-        onEvent = ReflectionUtils.createObject(className, new Class[]{Entity.class}, new Entity[]{world.getEntity(entityId)},Object.class);
+        if (onEvent == null){
+            Gdx.app.error(getTag(),"Failed to registerEvent,'onEvent' is null,SimpleName : " + simpleName);
+            return;
+        }
         eventSystem.registerEvents(onEvent);
 
         if (onEvent instanceof OnlyInteractive) {
             isOnlyInter = true;
         }
+        Gdx.app.debug(getTag(),"Loaded registerEvent,SimpleName : " + simpleName);
     }
 
     @Override

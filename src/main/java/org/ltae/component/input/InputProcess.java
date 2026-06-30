@@ -2,10 +2,8 @@ package org.ltae.component.input;
 
 
 import com.artemis.World;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import org.ltae.component.parent.SerializeComponent;
-import org.ltae.manager.GameManager;
 import org.ltae.manager.ReflectionManager;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;

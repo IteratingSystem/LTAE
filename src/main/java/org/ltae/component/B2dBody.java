@@ -19,6 +19,7 @@ import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
 import org.ltae.box2d.setup.FixtureSetup;
 import org.ltae.component.parent.SerializeComponent;
+import org.ltae.manager.ReflectionManager;
 import org.ltae.manager.map.MapManager;
 import org.ltae.serialize.data.CompMirror;
 import org.ltae.system.B2dSystem;
@@ -26,6 +27,8 @@ import org.ltae.serialize.SerializeParam;
 import org.ltae.utils.ReflectionUtils;
 import org.ltae.utils.ShapeUtils;
 import org.ltae.serialize.data.EntityDatum;
+
+import java.util.Set;
 
 
 /**
@@ -166,18 +169,24 @@ public class B2dBody extends SerializeComponent implements Disposable {
             String categoryBit = fixDefProps.get("categoryBit", String.class);
             String maskBits = fixDefProps.get("maskBits", String.class);
             String listenerSimpleName = fixDefProps.get("listenerSimpleName", String.class);
-            //帧动画数据
+            // 帧动画数据
             String aniName = fixDefProps.get("aniName","", String.class);
             int keyframeIndex = fixDefProps.get("keyframeIndex",0, Integer.class);
 
-            //创建监听器
+            // 创建监听器
             EcsContactListener ecsContactListener = null;
-            //如果包名与类名都不为空则执行创建逻辑
-            String b2dListenerPkg = LtaePluginRule.B2D_LISTENER_PKG;
-            if (listenerSimpleName != null && !listenerSimpleName.isEmpty()
-            && b2dListenerPkg != null && !b2dListenerPkg.isEmpty()){
-                String className = b2dListenerPkg + "." + listenerSimpleName;
-                ecsContactListener = ReflectionUtils.createObject(className, new Class[]{Entity.class}, new Entity[]{world.getEntity(entityId)},EcsContactListener.class);
+
+            // 如果包名与类名都不为空则执行创建逻辑
+            ReflectionManager reflectionManager = ReflectionManager.getInstance();
+            Set<Class<? extends EcsContactListener>> subTypesOfWithGame = reflectionManager.getSubTypesOfWithGame(EcsContactListener.class);
+            for (Class<? extends EcsContactListener> aClass : subTypesOfWithGame) {
+                if (!aClass.getSimpleName().equals(listenerSimpleName)) {
+                    continue;
+                }
+                ecsContactListener = reflectionManager.createObject(
+                        aClass,
+                        new Class[]{Entity.class},
+                        new Entity[]{world.getEntity(entityId)});
             }
 
             Shape shape = ShapeUtils.getShapeByMapObject(object, worldScale,scaleWidth,scaleHeight);
