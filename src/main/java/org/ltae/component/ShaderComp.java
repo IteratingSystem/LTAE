@@ -52,7 +52,7 @@ public class ShaderComp extends SerializeComponent {
         Set<Class<? extends ShaderUniforms>> subTypesOfWithGame = reflectionManager.getSubTypesOfWithGame(ShaderUniforms.class);
         for (Class<? extends ShaderUniforms> aClass : subTypesOfWithGame) {
             if (!aClass.getSimpleName().equals(uniformSimpleName)) {
-                return;
+                continue;
             }
             shaderUniforms = reflectionManager.createObject(
                     aClass,
