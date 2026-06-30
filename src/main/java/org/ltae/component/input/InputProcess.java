@@ -38,8 +38,8 @@ public class InputProcess extends SerializeComponent {
             Gdx.app.error(getTag(), "Failed to get current game, please set current game via GameManager.setCurrent()");
             return;
         }
-
-        Set<Class<? extends InputProcessing>> subTypes = ReflectionManager.getSubTypesOf(ReflectionManager.ROOT_CLASS_GAME,InputProcessing.class);
+        ReflectionManager reflectionManager = ReflectionManager.getInstance();
+        Set<Class<? extends InputProcessing>> subTypes = reflectionManager.getSubTypesOfWithGame(InputProcessing.class);
 
         // 按简单类名过滤并实例化
         try {

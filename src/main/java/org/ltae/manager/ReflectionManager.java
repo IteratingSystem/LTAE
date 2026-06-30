@@ -23,19 +23,48 @@ public class ReflectionManager {
     public final static String TAG = ReflectionManager.class.getName();
 
     // 游戏项目的根类
-    public static Class<Object> ROOT_CLASS_GAME;
+    private static Class ROOT_CLASS_GAME;
     // 引擎项目的根类
-    public final static Class<LtaePlugin> ROOT_CLASS_ENGINE =  LtaePlugin.class;
+    private final static Class ROOT_CLASS_ENGINE = LtaePlugin.class;
 
-    private static Class<Object> getGameRootClass() {
+    private static ReflectionManager instance;
+
+    // 单例限制构造器
+    private ReflectionManager() {
         if (ROOT_CLASS_GAME == null) {
-            Gdx.app.error(TAG, "Game root class is null,Please set 'ROOT_CLASS_GAME' from 'ReflectionManager'");
-            return null;
+            Gdx.app.error(TAG, "Game root class is null,Please run 'setRootClass(Class<Object> ROOT_CLASS_GAME)' from 'ReflectionManager'");
+            return;
         }
-        return ROOT_CLASS_GAME;
+    }
+    // 设置游戏项目根类
+    public static void setRootClass(Class<Object> ROOT_CLASS_GAME){
+        ReflectionManager.ROOT_CLASS_GAME = ROOT_CLASS_GAME;
+    }
+    // 获取单例
+    public static ReflectionManager getInstance() {
+        if (instance == null) {
+            instance = new ReflectionManager();
+        }
+        return instance;
     }
 
-    public static Reflections getReflections(Class<Object> rootClass){
+
+
+    // 获取游戏项目中所有继承于传入类型的类
+    public <T> Set<Class<? extends T>> getSubTypesOfWithGame(Class<T> type) {
+        return getSubTypesOf(ROOT_CLASS_GAME,type);
+    }
+    // 获取引擎项目中所有继承于传入类型的类
+    public <T> Set<Class<? extends T>> getSubTypesOfWithEngine(Class<T> type) {
+        return getSubTypesOf(ROOT_CLASS_ENGINE,type);
+    }
+    // 获取某个类目录及其子目录下所有的传入类型的类
+    public <T> Set<Class<? extends T>> getSubTypesOf(Class<Object> rootClass, Class<T> type) {
+        return getReflections(rootClass).getSubTypesOf(type);
+    }
+
+    // 获取反射工具实例
+    public Reflections getReflections(Class<Object> rootClass){
         URL codeSource = rootClass.getProtectionDomain().getCodeSource().getLocation();
         return new Reflections(new ConfigurationBuilder()
                 .addUrls(codeSource)
@@ -45,8 +74,5 @@ public class ReflectionManager {
                         // 扫描类上的注解
                         Scanners.TypesAnnotated
                 ));
-    }
-    public static <T> Set<Class<? extends T>> getSubTypesOf(Class<Object> rootClass, Class<T> type) {
-        return getReflections(rootClass).getSubTypesOf(type);
     }
 }
