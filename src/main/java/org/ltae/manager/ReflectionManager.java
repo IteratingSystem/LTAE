@@ -37,7 +37,7 @@ public class ReflectionManager {
         }
     }
     // 设置游戏项目根类,使用此管理器的游戏项目需要设置
-    public static void setRootClass(Class<Object> ROOT_CLASS_GAME){
+    public static void setRootClass(Class ROOT_CLASS_GAME){
         ReflectionManager.ROOT_CLASS_GAME = ROOT_CLASS_GAME;
     }
     // 获取单例
@@ -59,12 +59,12 @@ public class ReflectionManager {
         return getSubTypesOf(ROOT_CLASS_ENGINE,type);
     }
     // 获取某个类目录及其子目录下所有的传入类型的类
-    public <T> Set<Class<? extends T>> getSubTypesOf(Class<Object> rootClass, Class<T> type) {
+    public <T> Set<Class<? extends T>> getSubTypesOf(Class rootClass, Class<T> type) {
         return getReflections(rootClass).getSubTypesOf(type);
     }
 
     // 通关类来得到包含其路径与子路径内所有类的反射工具示例
-    public Reflections getReflections(Class<Object> rootClass){
+    public Reflections getReflections(Class rootClass){
         URL codeSource = rootClass.getProtectionDomain().getCodeSource().getLocation();
         return new Reflections(new ConfigurationBuilder()
                 .addUrls(codeSource)
