@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.JsonManager;
+import org.ltae.manager.ReflectionManager;
 import org.ltae.serialize.data.*;
 import org.ltae.utils.ReflectionUtils;
 
@@ -35,7 +36,10 @@ public class EntitySerializer {
             entityDatum.name = entityName;
             entityDatum.type = properties.get("type", "", String.class);
 
-            Set<Class<? extends Component>> compClasses = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
+            // 获取所有组件
+            ReflectionManager reflectionManager = ReflectionManager.getInstance();
+            Set<Class<? extends Component>> compClasses = reflectionManager.getSubTypesOfWithEngineAndGame(Component.class);
+
             for (Class<? extends Component> compClass : compClasses) {
                 String simpleName = compClass.getSimpleName();
                 MapProperties property = properties.get(simpleName, null, MapProperties.class);
@@ -182,10 +186,14 @@ public class EntitySerializer {
         if (!"".equals(entityDatum.name)) {
             tagManager.register(entityDatum.name,entityId);
         }
-        //注册组件
+        // 注册组件
         Array<CompMirror> components = entityDatum.compMirrors;
-        Set<Class<? extends Component>> classes = ReflectionUtils.getClasses(new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG}, Component.class);
-        for (Class<? extends Component> aClass : classes) {
+
+        // 获取所有组件
+        ReflectionManager reflectionManager = ReflectionManager.getInstance();
+        Set<Class<? extends Component>> compClasses = reflectionManager.getSubTypesOfWithEngineAndGame(Component.class);
+
+        for (Class<? extends Component> aClass : compClasses) {
             String simpleName = aClass.getSimpleName();
             for (CompMirror compMirror : components) {
                 if (!simpleName.equals(compMirror.simpleName)) {

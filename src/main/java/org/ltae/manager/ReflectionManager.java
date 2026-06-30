@@ -51,7 +51,13 @@ public class ReflectionManager {
     }
 
 
-
+    // 获取游戏项目中所有继承于传入类型的类
+    public <T> Set<Class<? extends T>> getSubTypesOfWithEngineAndGame(Class<T> type) {
+        Set<Class<? extends T>> subTypesOfWithEngine = getSubTypesOfWithEngine(type);
+        Set<Class<? extends T>> subTypesOfWithGame = getSubTypesOfWithGame(type);
+        subTypesOfWithEngine.addAll(subTypesOfWithGame);
+        return subTypesOfWithEngine;
+    }
     // 获取游戏项目中所有继承于传入类型的类
     public <T> Set<Class<? extends T>> getSubTypesOfWithGame(Class<T> type) {
         return getSubTypesOf(ROOT_CLASS_GAME,type);

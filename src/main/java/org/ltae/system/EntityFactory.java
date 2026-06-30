@@ -36,7 +36,6 @@ public class EntityFactory extends BaseSystem {
         autoCompClasses.add(ZIndex.class);
 
         ComponentConfig componentConfig = new ComponentConfig();
-        componentConfig.compPackages = new String[]{LtaePluginRule.COMPONENT_PKG,LtaePluginRule.LTAE_COMPONENT_PKG};
         componentConfig.autoCompClasses = autoCompClasses;
     }
     @Override

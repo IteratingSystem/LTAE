@@ -9,6 +9,6 @@ import com.artemis.utils.Bag;
  * @Description
  **/
 public class ComponentConfig {
-    public String[] compPackages;
+//    public String[] compPackages;
     public Bag<Class<? extends Component>> autoCompClasses;
 }
