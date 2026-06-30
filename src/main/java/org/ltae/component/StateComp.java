@@ -9,6 +9,7 @@ import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.msg.Telegram;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.parent.SerializeComponent;
+import org.ltae.manager.ReflectionManager;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 import org.reflections.Reflections;
@@ -33,25 +34,32 @@ public class StateComp extends SerializeComponent {
     @Override
     public void reload(World world, EntityDatum entityDatum) {
         super.reload(world, entityDatum);
-        String statePkg = LtaePluginRule.STATE_PKG;
-        Reflections reflections = new Reflections(statePkg);
-        Set<Class<? extends Enum>> enumsClass = reflections.getSubTypesOf(Enum.class);
+
+
+        ReflectionManager reflectionManager = ReflectionManager.getInstance();
+        Set<Class<? extends Enum>> enumsClass = reflectionManager.getSubTypesOfWithGame(Enum.class);
+
         for (Class<? extends Enum> enumClass : enumsClass) {
             if (!simpleName.equals(enumClass.getSimpleName())) {
                 continue;
             }
-            @SuppressWarnings("unchecked")// 仅此处抑制；已知安全
+
+            @SuppressWarnings("unchecked")
             Enum<?> enumValue = Enum.valueOf(enumClass, current);
-            /* --- 运行时检查是否真的实现了 State<Entity> --- */
+
             if (!(enumValue instanceof State)) {
-                Gdx.app.error(TAG, "Enum constant '" + current
-                        + "' does not implement State<Entity>");
+                Gdx.app.error(TAG, "This enum is not a state,SimpleName: " + simpleName + " ,Package: " + enumClass.getPackageName());
+                continue;
             }
-            @SuppressWarnings("unchecked")// 此时安全
+            @SuppressWarnings("unchecked")
             State<Entity> state = (State<Entity>) enumValue;
             Entity entity = world.getEntity(entityId);
             machine = new DefaultStateMachine<>(entity,state);
             break;
+        }
+
+        if (machine == null) {
+            Gdx.app.error(TAG,"Failed to load state machine,SimpleName: " + simpleName);
         }
     }
 

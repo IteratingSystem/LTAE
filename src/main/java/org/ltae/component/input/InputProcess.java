@@ -33,11 +33,7 @@ public class InputProcess extends SerializeComponent {
     @Override
     public void reload(World world, EntityDatum entityDatum) {
         super.reload(world, entityDatum);
-        Game currentGame = GameManager.getCurrent();
-        if (currentGame == null) {
-            Gdx.app.error(getTag(), "Failed to get current game, please set current game via GameManager.setCurrent()");
-            return;
-        }
+
         ReflectionManager reflectionManager = ReflectionManager.getInstance();
         Set<Class<? extends InputProcessing>> subTypes = reflectionManager.getSubTypesOfWithGame(InputProcessing.class);
 
