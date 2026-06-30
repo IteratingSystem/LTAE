@@ -5,6 +5,8 @@ import org.ltae.LtaePlugin;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
+
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Set;
 
@@ -74,5 +76,18 @@ public class ReflectionManager {
                         // 扫描类上的注解
                         Scanners.TypesAnnotated
                 ));
+    }
+
+    // 通过class创建其对象
+    public <T> T createObject(Class<T> clazz, Class<?>[] paramTypes, Object[] paramValues) {
+        try {
+            Constructor<?> constructor = clazz.getDeclaredConstructor(paramTypes);
+            @SuppressWarnings("unchecked")
+            T instance = (T) clazz.cast(constructor.newInstance(paramValues));
+            return instance;
+        } catch (Exception e) {
+            Gdx.app.error(TAG, "Failed to createInstance: " + clazz.getSimpleName());
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -60,7 +60,9 @@ public class StateComp extends SerializeComponent {
 
         if (machine == null) {
             Gdx.app.error(TAG,"Failed to load state machine,SimpleName: " + simpleName);
+            return;
         }
+        Gdx.app.log(TAG,"Loaded state machine,SimpleName: " + simpleName);
     }
 
 
