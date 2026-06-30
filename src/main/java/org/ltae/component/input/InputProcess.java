@@ -6,14 +6,9 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.GameManager;
+import org.ltae.manager.ReflectionManager;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
-import org.ltae.test.ReflectionsTest;
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ConfigurationBuilder;
-
-import java.net.URL;
 import java.util.Set;
 
 /**
@@ -44,13 +39,7 @@ public class InputProcess extends SerializeComponent {
             return;
         }
 
-        URL codeSource = currentGame.getClass().getProtectionDomain().getCodeSource().getLocation();
-        Reflections reflections = new Reflections(new ConfigurationBuilder()
-                .addUrls(codeSource)
-                .setScanners(new SubTypesScanner(false))
-        );
-
-        Set<Class<? extends InputProcessing>> subTypes = reflections.getSubTypesOf(InputProcessing.class);
+        Set<Class<? extends InputProcessing>> subTypes = ReflectionManager.getSubTypesOf(ReflectionManager.ROOT_CLASS_GAME,InputProcessing.class);
 
         // 按简单类名过滤并实例化
         try {
