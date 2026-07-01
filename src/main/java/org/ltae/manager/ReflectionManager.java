@@ -8,6 +8,7 @@ import org.reflections.util.ConfigurationBuilder;
 
 import java.lang.reflect.Constructor;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Set;
 
 
@@ -31,6 +32,11 @@ public class ReflectionManager {
     // 单例
     private static ReflectionManager instance;
 
+    // 缓存：根类 -> Reflections 实例（避免重复 classpath 扫描）
+    private final HashMap<Class, Reflections> reflectionsCache = new HashMap<>();
+    // 缓存：基类 -> 子类型集合（避免重复 getSubTypesOf 查询）
+    private final HashMap<Class, Set<Class>> subTypesCache = new HashMap<>();
+
     // 单例限制构造器
     private ReflectionManager() {
         if (ROOT_CLASS_GAME == null) {
@@ -52,6 +58,7 @@ public class ReflectionManager {
 
 
     // 获取游戏项目中所有继承于传入类型的类
+    @SuppressWarnings("unchecked")
     public <T> Set<Class<? extends T>> getSubTypesOfWithEngineAndGame(Class<T> type) {
         Set<Class<? extends T>> subTypesOfWithEngine = getSubTypesOfWithEngine(type);
         Set<Class<? extends T>> subTypesOfWithGame = getSubTypesOfWithGame(type);
@@ -59,29 +66,31 @@ public class ReflectionManager {
         return subTypesOfWithEngine;
     }
     // 获取游戏项目中所有继承于传入类型的类
+    @SuppressWarnings("unchecked")
     public <T> Set<Class<? extends T>> getSubTypesOfWithGame(Class<T> type) {
-        return getSubTypesOf(ROOT_CLASS_GAME,type);
+        return (Set<Class<? extends T>>) subTypesCache.computeIfAbsent(type, t ->
+                getReflections(ROOT_CLASS_GAME).getSubTypesOf(t));
     }
     // 获取引擎项目中所有继承于传入类型的类
+    @SuppressWarnings("unchecked")
     public <T> Set<Class<? extends T>> getSubTypesOfWithEngine(Class<T> type) {
-        return getSubTypesOf(ROOT_CLASS_ENGINE,type);
-    }
-    // 获取某个类目录及其子目录下所有的传入类型的类
-    public <T> Set<Class<? extends T>> getSubTypesOf(Class rootClass, Class<T> type) {
-        return getReflections(rootClass).getSubTypesOf(type);
+        return (Set<Class<? extends T>>) subTypesCache.computeIfAbsent(type, t ->
+                getReflections(ROOT_CLASS_ENGINE).getSubTypesOf(t));
     }
 
     // 通关类来得到包含其路径与子路径内所有类的反射工具示例
     public Reflections getReflections(Class rootClass){
-        URL codeSource = rootClass.getProtectionDomain().getCodeSource().getLocation();
-        return new Reflections(new ConfigurationBuilder()
-                .addUrls(codeSource)
-                .setScanners(
-                        // 扫描所有子类型
-                        Scanners.SubTypes.filterResultsBy(s -> true),
-                        // 扫描类上的注解
-                        Scanners.TypesAnnotated
-                ));
+        return reflectionsCache.computeIfAbsent(rootClass, k -> {
+            URL codeSource = k.getProtectionDomain().getCodeSource().getLocation();
+            return new Reflections(new ConfigurationBuilder()
+                    .addUrls(codeSource)
+                    .setScanners(
+                            // 扫描所有子类型
+                            Scanners.SubTypes.filterResultsBy(s -> true),
+                            // 扫描类上的注解
+                            Scanners.TypesAnnotated
+                    ));
+        });
     }
 
     // 通过class创建其对象

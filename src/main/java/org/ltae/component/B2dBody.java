@@ -24,7 +24,6 @@ import org.ltae.manager.map.MapManager;
 import org.ltae.serialize.data.CompMirror;
 import org.ltae.system.B2dSystem;
 import org.ltae.serialize.SerializeParam;
-import org.ltae.utils.ReflectionUtils;
 import org.ltae.utils.ShapeUtils;
 import org.ltae.serialize.data.EntityDatum;
 
