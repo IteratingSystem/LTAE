@@ -31,6 +31,7 @@ public class StateComp extends SerializeComponent {
 
     public  StateMachine<Entity,State<Entity>> machine;
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void reload(World world, EntityDatum entityDatum) {
         super.reload(world, entityDatum);
@@ -44,14 +45,12 @@ public class StateComp extends SerializeComponent {
 
         if (aClass == null) {
             Gdx.app.error(TAG, "State not found: " + simpleName);
-            machine = null; // 清空旧状态机
+            machine = null;
             return;
         }
 
         try {
-            // 获取枚举常量
-            Enum<?> enumValue = Enum.valueOf((Class<Enum>) aClass, current);
-            @SuppressWarnings("unchecked")
+            Enum<?> enumValue = Enum.valueOf((Class) aClass, current);
             State<Entity> state = (State<Entity>) enumValue;
 
             Entity entity = world.getEntity(entityId);

@@ -1,4 +1,4 @@
-package org.ltae.event.listener;
+package org.ltae.component.inter.listener;
 
 import com.artemis.Entity;
 import com.artemis.World;
@@ -9,9 +9,9 @@ import org.ltae.event.InteractEvent;
 /**
  * @Auther WenLong
  * @Date 2025/7/2 10:37
- * @Description 交互事件接收器
+ * @Description 被交互组件,交互事件接收器
  **/
-public abstract class InteractListener {
+public abstract class OnInteractListener {
     public World world;
     public EventSystem eventSystem;
     public TagManager tagManager;
@@ -22,7 +22,7 @@ public abstract class InteractListener {
     public int fromEntityId;
 
 
-    public InteractListener(Entity entity){
+    public OnInteractListener(Entity entity){
         this.entity = entity;
         world = entity.getWorld();
         entityId = entity.getId();

@@ -57,7 +57,8 @@ public class LtaePlugin implements ArtemisPlugin {
                 LtaePluginRule.WORLD_SCALE,
                 LtaePluginRule.COMB_TILE));//物理世界初始化
         //渲染前更新
-        worldConfigurationBuilder.with(new InputProcessSystem()); //输入处理
+        worldConfigurationBuilder.with(new InputProcessSystem()); // 输入处理
+        worldConfigurationBuilder.with(new OnInteractSystem()); // 实体被交互处理系统
         worldConfigurationBuilder.with(new PosFollowBodySystem(LtaePluginRule.WORLD_SCALE)); //坐标跟随物理身体
         worldConfigurationBuilder.with(new BTreeSystem());//行为树系统
         worldConfigurationBuilder.with(new StateSystem());//状态机系统
