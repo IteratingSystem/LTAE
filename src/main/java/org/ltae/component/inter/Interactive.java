@@ -29,8 +29,8 @@ public class Interactive extends SerializeComponent {
         Class<? extends OnInteractListener> aClass = reflectionManager
                 .getSubTypesOfWithGame(OnInteractListener.class)
                 .stream()
-                .findFirst()
                 .filter(c -> c.getSimpleName().equals(simpleName))
+                .findFirst()
                 .orElse(null);
         if (aClass == null) {
             Gdx.app.error(getTag(),"Failed to find OnInteractListener, simpleName: " + simpleName);
