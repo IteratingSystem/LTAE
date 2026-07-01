@@ -53,8 +53,6 @@ public class InputProcess extends SerializeComponent {
             Gdx.app.error(getTag(), "Failed to create processing,SimpleName: " + simpleName);
             return;
         }
-        Gdx.app.log(getTag(), "Instantiated InputProcessing: " + processing.getClass().getName());
-
-
+        Gdx.app.log(getTag(), "Instantiated InputProcessing: " + simpleName);
     }
 }
