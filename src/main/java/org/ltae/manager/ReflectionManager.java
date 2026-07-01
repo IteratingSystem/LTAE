@@ -37,7 +37,7 @@ public class ReflectionManager {
     // 缓存：根类 -> Reflections 实例（避免重复 classpath 扫描）
     private final HashMap<Class, Reflections> reflectionsCache = new HashMap<>();
     // 缓存：(rootClass, type) -> 子类型集合（避免重复 getSubTypesOf 查询）
-    private final HashMap<Map.Entry<Class, Class>, Set<Class>> subTypesCache = new HashMap<>();
+    private final HashMap<Map.Entry<Class, Class>, Set> subTypesCache = new HashMap<>();
 
     // 单例限制构造器
     private ReflectionManager() {
@@ -66,19 +66,25 @@ public class ReflectionManager {
         subTypes.addAll(getSubTypesOfWithGame(type));
         return subTypes;
     }
-    // 获取游戏项目中所有继承于传入类型的类
     @SuppressWarnings("unchecked")
     public <T> Set<Class<? extends T>> getSubTypesOfWithGame(Class<T> type) {
         Map.Entry<Class, Class> key = new AbstractMap.SimpleImmutableEntry<>(ROOT_CLASS_GAME, type);
-        return (Set<Class<? extends T>>) subTypesCache.computeIfAbsent(key, k ->
-                getReflections(ROOT_CLASS_GAME).getSubTypesOf(type));
+        Set result = subTypesCache.get(key);
+        if (result == null) {
+            result = getReflections(ROOT_CLASS_GAME).getSubTypesOf(type);
+            subTypesCache.put(key, result);
+        }
+        return result;
     }
-    // 获取引擎项目中所有继承于传入类型的类
     @SuppressWarnings("unchecked")
     public <T> Set<Class<? extends T>> getSubTypesOfWithEngine(Class<T> type) {
         Map.Entry<Class, Class> key = new AbstractMap.SimpleImmutableEntry<>(ROOT_CLASS_ENGINE, type);
-        return (Set<Class<? extends T>>) subTypesCache.computeIfAbsent(key, k ->
-                getReflections(ROOT_CLASS_ENGINE).getSubTypesOf(type));
+        Set result = subTypesCache.get(key);
+        if (result == null) {
+            result = getReflections(ROOT_CLASS_ENGINE).getSubTypesOf(type);
+            subTypesCache.put(key, result);
+        }
+        return result;
     }
 
     // 通关类来得到包含其路径与子路径内所有类的反射工具示例
