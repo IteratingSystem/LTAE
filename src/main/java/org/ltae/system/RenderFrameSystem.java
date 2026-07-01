@@ -11,6 +11,7 @@ import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import net.mostlyoriginal.api.system.delegate.DeferredEntityProcessingSystem;
 import net.mostlyoriginal.api.system.delegate.EntityProcessPrincipal;
 import org.ltae.component.*;
+import org.ltae.component.Inert;
 
 /**
  * @Auther WenLong

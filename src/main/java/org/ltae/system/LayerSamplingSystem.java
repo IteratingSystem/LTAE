@@ -10,6 +10,7 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.utils.Array;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.component.*;
+import org.ltae.component.Inert;
 import org.ltae.utils.SamplingUtils;
 
 @All({LayerSampling.class, Render.class, Pos.class})

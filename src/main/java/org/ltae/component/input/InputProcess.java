@@ -34,23 +34,27 @@ public class InputProcess extends SerializeComponent {
 
         ReflectionManager reflectionManager = ReflectionManager.getInstance();
         Set<Class<? extends InputProcessing>> subTypes = reflectionManager.getSubTypesOfWithGame(InputProcessing.class);
+        Class<? extends InputProcessing> targetClass = subTypes.stream()
+                .filter(c -> simpleName.equals(c.getSimpleName()))
+                .findFirst()
+                .orElse(null);
 
-        // 按简单类名过滤并实例化
-        try {
-            Class<? extends InputProcessing> targetClass = subTypes.stream()
-                    .filter(c -> simpleName.equals(c.getSimpleName()))
-                    .findFirst()
-                    .orElse(null);
-            if (targetClass != null) {
-                processing = targetClass.getDeclaredConstructor().newInstance();
-                Gdx.app.log(getTag(), "Instantiated InputProcessing: " + processing.getClass().getName());
-            } else {
-                Gdx.app.error(getTag(), "No class found with simpleName: " + simpleName);
-                processing = null;
-            }
-        } catch (Exception e) {
-            Gdx.app.error(getTag(), "Failed to instantiate class with simpleName: " + simpleName, e);
-            processing = null;
+        if (targetClass == null) {
+            Gdx.app.error(getTag(), "No suitable InputProcess found for " + simpleName);
+            return;
         }
+        processing = reflectionManager.createObject(
+                targetClass,
+                null,
+                null
+        );
+
+        if (processing == null) {
+            Gdx.app.error(getTag(), "Failed to create processing,SimpleName: " + simpleName);
+            return;
+        }
+        Gdx.app.log(getTag(), "Instantiated InputProcessing: " + processing.getClass().getName());
+
+
     }
 }

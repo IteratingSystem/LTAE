@@ -1,6 +1,5 @@
 package org.ltae.system;
 
-import com.artemis.annotations.All;
 import com.artemis.annotations.Exclude;
 import com.artemis.annotations.One;
 import com.artemis.systems.IteratingSystem;

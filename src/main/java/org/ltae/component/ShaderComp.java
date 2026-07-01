@@ -49,18 +49,22 @@ public class ShaderComp extends SerializeComponent {
         }
 
         ReflectionManager reflectionManager = ReflectionManager.getInstance();
-        Set<Class<? extends ShaderUniforms>> subTypesOfWithGame = reflectionManager.getSubTypesOfWithGame(ShaderUniforms.class);
-        for (Class<? extends ShaderUniforms> aClass : subTypesOfWithGame) {
-            if (!aClass.getSimpleName().equals(uniformSimpleName)) {
-                continue;
-            }
-            shaderUniforms = reflectionManager.createObject(
-                    aClass,
-                    new Class[]{Entity.class},
-                    new Entity[]{world.getEntity(entityId)}
-            );
-            break;
+        Class<? extends ShaderUniforms> aClass = reflectionManager.getSubTypesOfWithGame(ShaderUniforms.class)
+                .stream()
+                .filter(c -> c.getSimpleName().equals(uniformSimpleName))
+                .findFirst()
+                .orElse(null);
+
+        if (aClass == null){
+            Gdx.app.error(getTag(),"Could not find ShaderUniforms for "+uniformSimpleName);
+            return;
         }
+
+        shaderUniforms = reflectionManager.createObject(
+                aClass,
+                new Class[]{Entity.class},
+                new Entity[]{world.getEntity(entityId)}
+        );
 
         if (shaderUniforms == null) {
             Gdx.app.error(getTag(),"Could not find shaderUniforms for "+shaderUniforms);

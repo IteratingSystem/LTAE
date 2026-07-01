@@ -87,12 +87,26 @@ public class ReflectionManager {
     // 通过class创建其对象
     public <T> T createObject(Class<T> clazz, Class<?>[] paramTypes, Object[] paramValues) {
         try {
-            Constructor<?> constructor = clazz.getDeclaredConstructor(paramTypes);
+            Constructor<?> constructor;
+
+            // 1. 处理 null 或空数组：明确调用无参构造
+            if (paramTypes == null || paramTypes.length == 0) {
+                constructor = clazz.getDeclaredConstructor();
+            } else {
+                constructor = clazz.getDeclaredConstructor(paramTypes);
+            }
+
+            // 2. 暴力破解访问权限（解决 private/protected 问题）
+            constructor.setAccessible(true);
+
+            // 3. 处理 null 参数值
+            Object[] args = (paramValues == null) ? new Object[0] : paramValues;
+
             @SuppressWarnings("unchecked")
-            T instance = (T) clazz.cast(constructor.newInstance(paramValues));
+            T instance = (T) constructor.newInstance(args);
             return instance;
         } catch (Exception e) {
-            Gdx.app.error(TAG, "Failed to createInstance: " + clazz.getSimpleName());
+            Gdx.app.error(TAG, "Failed to createInstance: " + clazz.getSimpleName(), e);
             throw new RuntimeException(e);
         }
     }

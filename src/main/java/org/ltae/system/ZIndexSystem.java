@@ -3,7 +3,6 @@ package org.ltae.system;
 import com.artemis.annotations.All;
 import com.artemis.annotations.Exclude;
 import com.artemis.systems.IteratingSystem;
-import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.component.Inert;

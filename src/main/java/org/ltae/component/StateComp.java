@@ -35,34 +35,32 @@ public class StateComp extends SerializeComponent {
     public void reload(World world, EntityDatum entityDatum) {
         super.reload(world, entityDatum);
 
-
         ReflectionManager reflectionManager = ReflectionManager.getInstance();
-        Set<Class<? extends Enum>> enumsClass = reflectionManager.getSubTypesOfWithGame(Enum.class);
+        Class<? extends State> aClass = reflectionManager.getSubTypesOfWithGame(State.class)
+                .stream()
+                .filter(c -> c.getSimpleName().equals(simpleName) && c.isEnum())
+                .findFirst()
+                .orElse(null);
 
-        for (Class<? extends Enum> enumClass : enumsClass) {
-            if (!simpleName.equals(enumClass.getSimpleName())) {
-                continue;
-            }
-
-            @SuppressWarnings("unchecked")
-            Enum<?> enumValue = Enum.valueOf(enumClass, current);
-
-            if (!(enumValue instanceof State)) {
-                Gdx.app.error(TAG, "This enum is not a state,SimpleName: " + simpleName + " ,Package: " + enumClass.getPackageName());
-                continue;
-            }
-            @SuppressWarnings("unchecked")
-            State<Entity> state = (State<Entity>) enumValue;
-            Entity entity = world.getEntity(entityId);
-            machine = new DefaultStateMachine<>(entity,state);
-            break;
-        }
-
-        if (machine == null) {
-            Gdx.app.error(TAG,"Failed to load state machine,SimpleName: " + simpleName);
+        if (aClass == null) {
+            Gdx.app.error(TAG, "State not found: " + simpleName);
+            machine = null; // 清空旧状态机
             return;
         }
-        Gdx.app.log(TAG,"Loaded state machine,SimpleName: " + simpleName);
+
+        try {
+            // 获取枚举常量
+            Enum<?> enumValue = Enum.valueOf((Class<Enum>) aClass, current);
+            @SuppressWarnings("unchecked")
+            State<Entity> state = (State<Entity>) enumValue;
+
+            Entity entity = world.getEntity(entityId);
+            machine = new DefaultStateMachine<>(entity, state);
+            Gdx.app.log(TAG, "Loaded state machine, SimpleName: " + simpleName);
+        } catch (IllegalArgumentException e) {
+            Gdx.app.error(TAG, "Enum constant '" + current + "' not found in " + aClass.getName(), e);
+            machine = null;
+        }
     }
 
 

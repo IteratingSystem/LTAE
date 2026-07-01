@@ -1,19 +1,12 @@
 package org.ltae.ui.inventory;
 
-import com.artemis.ComponentMapper;
 import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import net.mostlyoriginal.api.event.common.EventSystem;
-import org.ltae.component.Inert;
-import org.ltae.component.Render;
-import org.ltae.event.EntityEvent;
 import org.ltae.manager.map.MapManager;
-import org.ltae.serialize.data.EntityData;
 import org.ltae.serialize.data.EntityDatum;
 
 public class SlotDatum {

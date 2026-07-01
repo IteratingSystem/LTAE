@@ -1,6 +1,7 @@
-package org.ltae.component;
+package org.ltae.component.inter;
 
 import com.artemis.World;
+import org.ltae.component.EventListener;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 

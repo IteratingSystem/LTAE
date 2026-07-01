@@ -179,10 +179,12 @@ public class B2dBody extends SerializeComponent implements Disposable {
             // 如果包名与类名都不为空则执行创建逻辑
             ReflectionManager reflectionManager = ReflectionManager.getInstance();
             Set<Class<? extends EcsContactListener>> subTypesOfWithGame = reflectionManager.getSubTypesOfWithGame(EcsContactListener.class);
-            for (Class<? extends EcsContactListener> aClass : subTypesOfWithGame) {
-                if (!aClass.getSimpleName().equals(listenerSimpleName)) {
-                    continue;
-                }
+
+            Class<? extends EcsContactListener> aClass = subTypesOfWithGame.stream()
+                    .filter(c -> c.getSimpleName().equals(listenerSimpleName))
+                    .findFirst()
+                    .orElse(null);
+            if (aClass != null) {
                 ecsContactListener = reflectionManager.createObject(
                         aClass,
                         new Class[]{Entity.class},
