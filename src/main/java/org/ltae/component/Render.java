@@ -57,28 +57,51 @@ public class Render extends SerializeComponent {
             rotation = 0;
             sheetOffset = 0;
 
-            // ----- 修正 LibGDX TmxMapLoader 解析带翻转图块时偏移一格的 Bug -----
-            // 当图块带有翻转标志时，引擎错误地将 GID 映射到右侧领格。
-            // 这里检测到翻转，则深拷贝一份当前纹理，手动左移一格，并重新施加翻转。
+            // ----- 修正 LibGDX TmxMapLoader 解析翻转图块时偏移一格的 Bug -----
+            // 原理：引擎把 GID=N 的图块错误地映射到了 GID=N+1（右侧领格）。
+            // 修正：向前回退一格。若遇到行首，则回退到上一行尾部。
             if (flipX || flipY) {
+                // 获取纹理总宽度，用于计算列数
+                int texWidth = keyframe.getTexture().getWidth();
+                // 假设图块集无间距（spacing=0）和边距（margin=0），这是 Tiled 最常见的默认导出设置
+                int tileW = regionWidth;
+                int tileH = regionHeight;
                 int currentX = keyframe.getRegionX();
-                // 防止左移越界（若图块已在纹理最左侧，则无法修正，保留原样）
-                if (currentX - regionWidth >= 0) {
-                    // 1. 深拷贝（避免污染地图缓存中的原始纹理）
+                int currentY = keyframe.getRegionY();
+
+                // 计算当前纹理中每行最多容纳几个图块（列数）
+                int cols = texWidth / tileW;
+                if (cols == 0) cols = 1; // 容错处理，防止除零
+
+                int newX, newY;
+                if (currentX - tileW >= 0) {
+                    // 情况1：不在行首，直接水平左移一格
+                    newX = currentX - tileW;
+                    newY = currentY;
+                } else {
+                    // 情况2：在行首（X=0），说明右侧领格实际上位于下一行的行首，
+                    // 则原本的正确图块在上一行的行尾。
+                    newX = (cols - 1) * tileW;
+                    newY = currentY - tileH;
+                }
+
+                // 安全检查：确保坐标有效（若 newY < 0 说明图块原本在第一行，理论上不会发生）
+                if (newX >= 0 && newY >= 0) {
+                    // 1. 深拷贝纹理，避免污染地图缓存
                     TextureRegion fixedRegion = new TextureRegion(keyframe);
-                    // 2. 坐标左移一格（setRegionX 会重置 UV 为正向）
-                    fixedRegion.setRegionX(currentX - regionWidth);
-                    // 3. 重新施加翻转（因为 setRegionX 清除了翻转状态）
+                    // 2. 用计算出的正确坐标重新设置区域（会自动重置 UV 为正方向）
+                    fixedRegion.setRegion(newX, newY, tileW, tileH);
+                    // 3. 重新施加原本的翻转效果（因为 setRegion 会清除翻转状态）
                     if (flipX) fixedRegion.flip(true, false);
                     if (flipY) fixedRegion.flip(false, true);
-                    // 4. 替换当前持有的纹理
+                    // 4. 替换组件持有的纹理
                     this.keyframe = fixedRegion;
-                    // 5. 更新翻转标志为 false，因为修正后的纹理自身已经包含了翻转，
-                    //    外部渲染逻辑不应该再根据这两个字段额外翻转，避免双重翻转。
+                    // 5. 关键：将翻转标志置 false。因为修正后的纹理自身已包含翻转，
+                    //    外部渲染逻辑若再根据这两个字段翻转，会导致双重翻转。
                     this.flipX = false;
                     this.flipY = false;
                 }
-                // 若越界，则不做修正（此时 keyframe 仍为错误的右一格，但场景极少出现）
+                // 若坐标越界（极少发生），则不修正，保留原样
             }
         }
     }
