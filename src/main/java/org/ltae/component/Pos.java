@@ -14,17 +14,15 @@ import org.ltae.serialize.data.EntityDatum;
  **/
 public class Pos extends SerializeComponent {
     @SerializeParam
-    public float x = -1;
+    public float x;
     @SerializeParam
-    public float y = -1;
+    public float y;
 
     @Override
     public void reload(World world, EntityDatum entityDatum) {
         super.reload(world, entityDatum);
-        if (x == -1 && y == -1){
-            x = (float)mapObject.getProperties().get("x");
-            y = (float)mapObject.getProperties().get("y");
-        }
+
+        set((float)mapObject.getProperties().get("x"), (float)mapObject.getProperties().get("y"));
     }
 
     /**
@@ -34,5 +32,14 @@ public class Pos extends SerializeComponent {
      */
     public float dst(Pos orderPos){
         return Vector2.dst(x,y,orderPos.x,orderPos.y);
+    }
+
+    public void set(float x, float y){
+        this.x = x;
+        this.y = y;
+    }
+    public void copy(Pos orderPos){
+        this.x = orderPos.x;
+        this.y = orderPos.y;
     }
 }

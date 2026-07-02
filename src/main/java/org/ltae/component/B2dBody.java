@@ -57,7 +57,7 @@ public class B2dBody extends SerializeComponent implements Disposable {
     public transient  boolean needFlipX = false;
 
 
-@Override
+    @Override
     public void reload(com.artemis.World world, EntityDatum entityDatum) {
         super.reload(world, entityDatum);
         
@@ -99,6 +99,7 @@ public class B2dBody extends SerializeComponent implements Disposable {
 
         float worldScale = LtaePluginRule.WORLD_SCALE;
         bodyDef.position.set(worldScale*posX, worldScale*posY);
+
         body = b2dWorld.createBody(bodyDef);
         body.setLinearDamping(linearDamping);
 
@@ -376,7 +377,7 @@ public class B2dBody extends SerializeComponent implements Disposable {
         return null;
     }
 
-@Override
+    @Override
     public void dispose() {
         if (body != null && b2dWorld != null) {
             try {
@@ -386,5 +387,10 @@ public class B2dBody extends SerializeComponent implements Disposable {
             }
             body = null;
         }
+    }
+
+    public void setPos(Pos pos) {
+        float worldScale = LtaePluginRule.WORLD_SCALE;
+        body.setTransform(worldScale*pos.x, worldScale*pos.y, body.getAngle());
     }
 }
