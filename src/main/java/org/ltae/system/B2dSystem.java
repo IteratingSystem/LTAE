@@ -138,4 +138,10 @@ public class B2dSystem extends BaseSystem {
             return;
         }
     }
+
+    @Override
+    protected void dispose() {
+        super.dispose();
+        box2DWorld.dispose();
+    }
 }
