@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Disposable;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.ReflectionManager;
+import org.ltae.manager.input.InputManager;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 import java.util.Set;
@@ -60,6 +61,9 @@ public class InputProcess extends SerializeComponent implements Disposable {
 
     @Override
     public void dispose() {
-        processing = null;
+        if (processing != null) {
+            processing.dispose();
+            processing = null;
+        }
     }
 }

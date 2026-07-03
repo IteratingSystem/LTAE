@@ -3,13 +3,17 @@ package org.ltae.component.input;
 import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.managers.TagManager;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.utils.Disposable;
 import net.mostlyoriginal.api.event.common.EventSystem;
+import org.ltae.manager.input.InputManager;
+import org.ltae.manager.input.LongPressListener;
 
 /**
  * 处理输入
  */
 
-public abstract class InputProcessing {
+public abstract class InputProcessing implements LongPressListener, Disposable {
     public boolean isInited = false;
 
     public World world;
@@ -28,4 +32,9 @@ public abstract class InputProcessing {
         eventSystem = world.getSystem(EventSystem.class);
     }
     public abstract void update();
+
+    @Override
+    public void dispose() {
+        InputManager.removeLongPressListener(this);
+    }
 }
