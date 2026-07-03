@@ -140,7 +140,7 @@ public class B2dSystem extends BaseSystem {
     }
 
     @Override
-    protected void dispose() {
+    public void dispose() {
         super.dispose();
         box2DWorld.dispose();
     }

@@ -3,6 +3,7 @@ package org.ltae.component.input;
 
 import com.artemis.World;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Disposable;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.ReflectionManager;
 import org.ltae.serialize.SerializeParam;
@@ -19,7 +20,8 @@ import java.util.Set;
  * @date 2026/6/23 11:52
  * @see InputProcess
  */
-public class InputProcess extends SerializeComponent {
+
+public class InputProcess extends SerializeComponent implements Disposable {
     // 是否开启操控
     @SerializeParam
     public boolean enabled;
@@ -54,5 +56,10 @@ public class InputProcess extends SerializeComponent {
             return;
         }
         Gdx.app.log(getTag(), "Instantiated InputProcessing: " + simpleName);
+    }
+
+    @Override
+    public void dispose() {
+        processing = null;
     }
 }
