@@ -28,6 +28,9 @@ public class WorldStateManager {
         }
         return instance;
     }
+    public static void setNull(){
+        instance = null;
+    }
     public void setWorldState(WorldState worldState){
         this.worldState = worldState;
     }

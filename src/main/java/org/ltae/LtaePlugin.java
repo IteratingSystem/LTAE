@@ -13,6 +13,7 @@ import net.mostlyoriginal.api.event.common.SubscribeAnnotationFinder;
 import net.mostlyoriginal.api.event.dispatcher.FastEventDispatcher;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.ExtendedComponentMapperPlugin;
 import net.mostlyoriginal.plugin.ProfilerPlugin;
+import org.ltae.manager.map.WorldStateManager;
 import org.ltae.system.*;
 
 /**
@@ -46,8 +47,9 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(eventSystem);//事件总线
         //初始系统
         worldConfigurationBuilder.with(new AssetSystem(LtaePluginRule.SKIN_PATH));//资源系统
+        String curtMap = WorldStateManager.getInstance().getWorldState().curtMap;
         worldConfigurationBuilder.with(new TiledMapSystem(
-                LtaePluginRule.MAP_NAME,
+                !"".equals(curtMap)?curtMap:LtaePluginRule.MAP_NAME,
                 LtaePluginRule.ENTITY_LAYERS,
                 LtaePluginRule.PHY_LAYERS));
         worldConfigurationBuilder.with(new B2dSystem(
@@ -87,7 +89,7 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
                 new EntityFactory());
-        //创建实体
+        //光源系统
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
                 new LightSystem(LtaePluginRule.ENABLE_LIGHT));
