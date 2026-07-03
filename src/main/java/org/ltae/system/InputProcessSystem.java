@@ -1,8 +1,12 @@
 package org.ltae.system;
 
 
+import com.artemis.Aspect;
+import com.artemis.EntitySubscription;
 import com.artemis.annotations.One;
 import com.artemis.systems.IteratingSystem;
+import com.artemis.utils.BitVector;
+import com.artemis.utils.IntBag;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.component.input.InputProcess;
 import org.ltae.component.input.InputProcessing;
@@ -37,5 +41,18 @@ public class InputProcessSystem extends IteratingSystem {
         }
 
         processing.update();
+    }
+
+    @Override
+    protected void dispose() {
+        super.dispose();
+        EntitySubscription subscription = world.getAspectSubscriptionManager()
+                .get(Aspect.all(InputProcess.class));
+        IntBag entities = subscription.getEntities();
+        for (int i = 0; i < entities.size(); i++) {
+            int i1 = entities.get(i);
+            mInputProcess.get(i1).dispose();
+        }
+
     }
 }
