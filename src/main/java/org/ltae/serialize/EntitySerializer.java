@@ -4,6 +4,7 @@ import com.artemis.*;
 import com.artemis.managers.TagManager;
 import com.artemis.utils.Bag;
 import com.artemis.utils.IntBag;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.*;
 import com.badlogic.gdx.utils.Array;
 import org.ltae.LtaePluginRule;
@@ -21,6 +22,8 @@ import java.util.Set;
  * @Description
  **/
 public class EntitySerializer {
+    private final static String TAG = EntitySerializer.class.getSimpleName();
+
     public static EntityData createEntityData(String mapName, MapObjects mapObjects){
         EntityData entityDateList = new EntityData();
         for (MapObject mapObject : mapObjects) {
@@ -267,7 +270,12 @@ public class EntitySerializer {
                     try {
                         // 递归查找字段（包括父类）
                         Field field = findField(aClass, key);
+                        if (field == null) {
+                            Gdx.app.error(TAG,"Failed to findField: "+field.getName()+" in "+ compMirror.simpleName);
+                            continue;
+                        }
                         if (!field.isAnnotationPresent(SerializeParam.class)) {
+                            Gdx.app.error(TAG,"Field " + key + " is not annotated with " + SerializeParam.class.getSimpleName() + "in "+compMirror.simpleName );
                             continue;
                         }
                         field.setAccessible(true); // 允许访问私有字段
@@ -300,7 +308,7 @@ public class EntitySerializer {
             if (superclass != null && superclass != Object.class) {
                 return findField(superclass, fieldName);
             } else {
-                throw e; // 找不到则抛出
+                return null;
             }
         }
     }
