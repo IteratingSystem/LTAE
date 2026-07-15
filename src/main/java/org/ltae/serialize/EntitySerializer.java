@@ -176,19 +176,72 @@ public class EntitySerializer {
         }
         entityData.add(entityDatum);
     }
-    public static int buildEntity(World world,EntityDatum entityDatum){
+//    public static int buildEntity(World world,EntityDatum entityDatum){
+//        TagManager tagManager = world.getSystem(TagManager.class);
+//        //创建
+//        int entityId = world.create();
+//        entityDatum.entityId = entityId;
+//        //注册tag
+//        if (!"".equals(entityDatum.name)) {
+//            tagManager.register(entityDatum.name,entityId);
+//        }
+//        // 注册组件
+//        Array<CompMirror> components = entityDatum.compMirrors;
+//
+//        // 获取所有组件
+//        ReflectionManager reflectionManager = ReflectionManager.getInstance();
+//        Set<Class<? extends Component>> compClasses = reflectionManager.getSubTypesOfWithEngineAndGame(Component.class);
+//
+//        for (Class<? extends Component> aClass : compClasses) {
+//            String simpleName = aClass.getSimpleName();
+//            for (CompMirror compMirror : components) {
+//                if (!simpleName.equals(compMirror.simpleName)) {
+//                    continue;
+//                }
+//                //通过类对象创建组件Mapper
+//                ComponentMapper<? extends Component> mapper = world.getMapper(aClass);
+//                if (mapper == null) {
+//                    break;
+//                }
+//                //通过组件Mapper创建组件
+//                Component component = mapper.create(entityId);
+//                //写入默认值
+//                Array<Property> props = compMirror.properties;
+//                for (Property prop : props) {
+//                    String key = prop.key;
+//                    Object value = prop.value;
+//                    try {
+//                        Field declaredField = aClass.getDeclaredField(key);
+//                        if (!declaredField.isAnnotationPresent(SerializeParam.class)) {
+//                            continue;
+//                        }
+//                        if(value != null){
+//                            declaredField.set(component,value);
+//                        }
+//                    } catch (NoSuchFieldException | IllegalAccessException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                }
+//                //执行reload
+//                if (component instanceof SerializeComponent serializeComponent) {
+//                    serializeComponent.reload(world, entityDatum);
+//                    break;
+//                }
+//            }
+//        }
+//        return entityId;
+//    }
+    public static int buildEntity(World world, EntityDatum entityDatum) {
         TagManager tagManager = world.getSystem(TagManager.class);
-        //创建
         int entityId = world.create();
         entityDatum.entityId = entityId;
-        //注册tag
-        if (!"".equals(entityDatum.name)) {
-            tagManager.register(entityDatum.name,entityId);
-        }
-        // 注册组件
-        Array<CompMirror> components = entityDatum.compMirrors;
 
-        // 获取所有组件
+        // 注册 tag
+        if (!"".equals(entityDatum.name)) {
+            tagManager.register(entityDatum.name, entityId);
+        }
+
+        Array<CompMirror> components = entityDatum.compMirrors;
         ReflectionManager reflectionManager = ReflectionManager.getInstance();
         Set<Class<? extends Component>> compClasses = reflectionManager.getSubTypesOfWithEngineAndGame(Component.class);
 
@@ -198,39 +251,61 @@ public class EntitySerializer {
                 if (!simpleName.equals(compMirror.simpleName)) {
                     continue;
                 }
-                //通过类对象创建组件Mapper
+
                 ComponentMapper<? extends Component> mapper = world.getMapper(aClass);
                 if (mapper == null) {
                     break;
                 }
-                //通过组件Mapper创建组件
+
                 Component component = mapper.create(entityId);
-                //写入默认值
+
+                // 赋值属性
                 Array<Property> props = compMirror.properties;
                 for (Property prop : props) {
                     String key = prop.key;
                     Object value = prop.value;
                     try {
-                        Field declaredField = aClass.getDeclaredField(key);
-                        if (!declaredField.isAnnotationPresent(SerializeParam.class)) {
+                        // 递归查找字段（包括父类）
+                        Field field = findField(aClass, key);
+                        if (!field.isAnnotationPresent(SerializeParam.class)) {
                             continue;
                         }
-                        if(value != null){
-                            declaredField.set(component,value);
+                        field.setAccessible(true); // 允许访问私有字段
+                        if (value != null) {
+                            field.set(component, value);
                         }
                     } catch (NoSuchFieldException | IllegalAccessException e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException("Failed to set field " + key + " on " + aClass.getName(), e);
                     }
                 }
-                //执行reload
-                if (component instanceof SerializeComponent serializeComponent) {
-                    serializeComponent.reload(world, entityDatum);
-                    break;
+
+                // 执行 reload
+                if (component instanceof SerializeComponent) {
+                    ((SerializeComponent) component).reload(world, entityDatum);
+                    break; // 注意：break 只会跳出内部循环，但通常此组件已处理完成，可以继续下一个组件类
                 }
             }
         }
         return entityId;
     }
+
+    /**
+     * 递归查找字段，包括父类
+     */
+    private static Field findField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
+        try {
+            return clazz.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            Class<?> superclass = clazz.getSuperclass();
+            if (superclass != null && superclass != Object.class) {
+                return findField(superclass, fieldName);
+            } else {
+                throw e; // 找不到则抛出
+            }
+        }
+    }
+
+
     public static void buildEntities(World world, EntityData entityData){
         if (entityData == null) {
             return;
