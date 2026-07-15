@@ -41,4 +41,8 @@ public class BundleManager {
         }
         return bundle;
     }
+
+    public static String get(String key){
+        return getBundle().get(key);
+    }
 }
