@@ -20,6 +20,7 @@ public class SlotDatum {
     public int maxStack;
     public int unitPrice;
 
+    // 存入物品的实体信息,用于快速创建实体
     public EntityDatum entityDatum;
 
     public void copy(SlotDatum fromSlotDatum){
@@ -31,20 +32,31 @@ public class SlotDatum {
         this.unitPrice = fromSlotDatum.unitPrice;
         this.itemType = fromSlotDatum.itemType;
     }
+
     public void exchange(SlotDatum slotDatum){
         SlotDatum newSlotDatum = new SlotDatum();
         newSlotDatum.copy(this);
+
         this.copy(slotDatum);
         slotDatum.copy(newSlotDatum);
     }
+
     public boolean isBlank(){
         return stackAmount == 0 || entityDatum == null;
     }
+
+    // 用于对比是否是同一个对象
+    public boolean itemEquals(SlotDatum slotDatum){
+        if (slotDatum.itemId == itemId && itemId != -1) {
+            return true;
+        }
+        return false;
+    }
+
     public TextureRegionDrawable getDrawable(World world) {
         if (entityDatum == null){
             return null;
         }
-
 
         MapManager mapManager = MapManager.getInstance();
         String fromMap = entityDatum.fromMap;

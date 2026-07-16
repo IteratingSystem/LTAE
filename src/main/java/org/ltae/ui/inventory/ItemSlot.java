@@ -2,7 +2,6 @@ package org.ltae.ui.inventory;
 
 import com.artemis.Entity;
 import com.artemis.World;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -12,16 +11,16 @@ import com.badlogic.gdx.utils.Align;
 /**
  * 库存单元格,默认拥有图片和堆叠数量,需要增加其它的数据或者样式直接继承就可以了
  */
-public class SlotUI extends WidgetGroup {
+public class ItemSlot extends WidgetGroup {
     //相对于库存的格子位置,在一个库存页面中,左上角为原点0,0
     private int invX;
     private int invY;
-    private SlotMatrixUI invUI;
+    private ItemSlotGrid invUI;
 
     private World world;
     private SlotDatum slotDatum;
 
-    private SlotStyle style;
+    private ItemSlotStyle style;
     private Image bg;      // 背景
     private Image icon;    // 物品图标
     private Label amount;  // 右下角数量
@@ -31,11 +30,11 @@ public class SlotUI extends WidgetGroup {
     private int ownerId;
     private Entity owner;
 
-    public SlotUI(World world, Skin skin, String styleName) {
-        this(world,skin.get(styleName, SlotStyle.class));
+    public ItemSlot(World world, Skin skin, String styleName) {
+        this(world,skin.get(styleName, ItemSlotStyle.class));
     }
 
-    public SlotUI(World world, SlotStyle style) {
+    public ItemSlot(World world, ItemSlotStyle style) {
         this.world = world;
         this.style = style;
 
@@ -105,10 +104,10 @@ public class SlotUI extends WidgetGroup {
         invX = x;
         invY = y;
     }
-    public SlotMatrixUI getInvUI() {
+    public ItemSlotGrid getInvUI() {
         return invUI;
     }
-    public void setInvUI(SlotMatrixUI invUI) {
+    public void setInvUI(ItemSlotGrid invUI) {
         this.invUI = invUI;
     }
 
@@ -179,12 +178,6 @@ public class SlotUI extends WidgetGroup {
         else if (hovered && style.over != null) front = style.over;
         else if (checked && style.checked != null) front = style.checked;
         bg.setDrawable(front);
-
-//        // 图标染色（可选）
-//        Color tint = disabled ? Color.GRAY : Color.WHITE;
-//        icon.setColor(tint);
-//
-//        icon.setDrawable(icon.getDrawable());
     }
 
 
@@ -200,6 +193,6 @@ public class SlotUI extends WidgetGroup {
     }
 
 
-    public static class SlotStyle extends TextButton.TextButtonStyle {
+    public static class ItemSlotStyle extends TextButton.TextButtonStyle {
     }
 }

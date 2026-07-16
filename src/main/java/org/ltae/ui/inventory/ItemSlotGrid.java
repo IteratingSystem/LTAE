@@ -9,42 +9,39 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.ui.BaseEcsUI;
 
 /**
  * 库存UI
  */
-public class SlotMatrixUI extends BaseEcsUI {
+public class ItemSlotGrid extends BaseEcsUI {
 
-    //拖拽功能
+    // 拖拽功能
     private DragAndDrop dragAndDrop;
-    //拖拽来源黑名单
+    // 拖拽来源黑名单
     private Array<Actor> dragBlacklist;
-    //是否能拖到地上
+    // 是否能拖到地上
     private boolean canDragStop;
-    //归属者(实体id)
+    // 归属者(实体id)
     public int ownerId;
     public Entity owner;
-    //数据
-    //用于存储拥有来源的格子,防止被rebuild清空
-    public ObjectMap<SlotDatum,Integer> datumFrom;
+
     private Array<Array<SlotDatum>> slotData;
-    //格子尺寸
+    // 格子尺寸
     private int slotSize;
-    //ui
+    // ui
     public Table slotTable;
-    public SlotUI.SlotStyle slotStyle;
-    public SlotUI[][] slots;
+    public ItemSlot.ItemSlotStyle itemSlotStyle;
+    public ItemSlot[][] slots;
 
 
-    public SlotMatrixUI(World world, DragAndDrop dragAndDrop, String slotStyleName) {
+    public ItemSlotGrid(World world, DragAndDrop dragAndDrop, String slotStyleName) {
         super(world);
         this.dragAndDrop = dragAndDrop;
 
-        slotStyle = skin.get(slotStyleName, SlotUI.SlotStyle.class);
+        itemSlotStyle = skin.get(slotStyleName, ItemSlot.ItemSlotStyle.class);
         dragBlacklist = new Array<>();
-        datumFrom = new ObjectMap<>();
+
         slotSize = 32;
         canDragStop = true;
         initUI();
@@ -54,12 +51,12 @@ public class SlotMatrixUI extends BaseEcsUI {
         add(slotTable);
     }
 
-    //是否能拖到地上
+    // 是否能拖到地上
     public void setCanDragStop(boolean canDragStop) {
         this.canDragStop = canDragStop;
     }
 
-    //归属者
+    // 归属者
     public void setOwner(int ownerId) {
         this.ownerId = ownerId;
         this.owner = world.getEntity(ownerId);
@@ -70,18 +67,20 @@ public class SlotMatrixUI extends BaseEcsUI {
     public int getOwnerId() {
         return ownerId;
     }
-    //格子尺寸
+    // 格子尺寸
     public void setSlotSize(int slotSize) {
         this.slotSize = slotSize;
     }
-    //拖拽来源黑名单
+    // 拖拽来源黑名单
     public void addDragBlack(Actor actor){
         dragBlacklist.add(actor);
     }
+
     public void rmDragBlack(Actor actor){
         dragBlacklist.removeValue(actor,true);
     }
-    //数据
+
+    // 数据
     public void setSlotData(Array<Array<SlotDatum>> slotData){
         this.slotData = slotData;
     }
@@ -90,36 +89,39 @@ public class SlotMatrixUI extends BaseEcsUI {
     }
 
 
+    // 将所有的格子以及数据画出来
     public void rebuild() {
         if (slotData == null) {
             Gdx.app.error(getTag(),"Failed to rebuild,'slotData' is null!Please run function with 'setSlotData()'");
             return;
         }
+
         slotTable.clear();
+
         int rows = slotData.size;
         int cols = slotData.get(0).size;
-        slots = new SlotUI[rows][cols];
+        slots = new ItemSlot[rows][cols];
 
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                SlotUI slotUI = new SlotUI(world,slotStyle);
-                slotTable.add(slotUI).size(slotSize);
-                slotUI.setInvPos(r,c);
-                slotUI.setInvUI(this);
+                ItemSlot itemSlot = new ItemSlot(world, itemSlotStyle);
+                slotTable.add(itemSlot).size(slotSize);
+                itemSlot.setInvPos(r,c);
+                itemSlot.setInvUI(this);
                 if (owner != null){
-                    slotUI.setOwner(ownerId);
+                    itemSlot.setOwner(ownerId);
                 }
-                slots[r][c] = slotUI;
-                enableDrag(slotUI);
+                slots[r][c] = itemSlot;
+                enableDrag(itemSlot);
 
                 SlotDatum slotDatum = slotData.get(r).get(c);
-                slotUI.setSlotDatum(slotDatum);
+                itemSlot.setSlotDatum(slotDatum);
             }
             slotTable.row();
         }
     }
 
-    public SlotUI getSlot(int x,int y){
+    public ItemSlot getSlot(int x, int y){
         if (slots == null) {
             return null;
         }
@@ -127,7 +129,7 @@ public class SlotMatrixUI extends BaseEcsUI {
     }
 
     /* ===== 拖拽能力 ===== */
-    public void enableDrag(SlotUI slot) {
+    public void enableDrag(ItemSlot slot) {
         dragAndDrop.addSource(new DragAndDrop.Source(slot) {
             //按住开始拖拽
             @Override
@@ -159,7 +161,7 @@ public class SlotMatrixUI extends BaseEcsUI {
                              DragAndDrop.Payload payload,
                              float x, float y, int pointer) {
                 //黑名单中的库存无法触发拖放
-                SlotUI fromSlot = (SlotUI)source.getActor();
+                ItemSlot fromSlot = (ItemSlot)source.getActor();
                 if (dragBlacklist.contains(fromSlot.getInvUI(),true)) {
                     return;
                 }
@@ -171,17 +173,18 @@ public class SlotMatrixUI extends BaseEcsUI {
 
     /* ===== 子类唯一要关心的两个钩子 ===== */
     //按住开始拖拽
-    public DragAndDrop.Payload onDragStart(SlotUI slot) {
+    public DragAndDrop.Payload onDragStart(ItemSlot slot) {
         DragAndDrop.Payload payload = new DragAndDrop.Payload();
         Image dragActor = new Image(slot.getIcon().getDrawable());
         dragActor.setScale(4f);
         payload.setDragActor(dragActor);
         return payload;
     }
-    //拖到空地丢弃
+    // 拖到空地
     public void onDragStop(InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload, DragAndDrop.Target target){
+
     }
-    //拖拽后松开按钮
+    // 拖拽后松开按钮
     public void onDrop(DragAndDrop.Source source,
                           DragAndDrop.Payload payload,
                           Actor targetActor) {
@@ -190,8 +193,9 @@ public class SlotMatrixUI extends BaseEcsUI {
             return;
         }
 
-        SlotUI fromSlot = (SlotUI)source.getActor();
-        SlotUI targetSlot = (SlotUI)targetActor;
+        ItemSlot fromSlot = (ItemSlot)source.getActor();
+        ItemSlot targetSlot = (ItemSlot)targetActor;
+
         //不允许自己拖拽到自己
         if (fromSlot == targetSlot){
             return;
@@ -201,7 +205,7 @@ public class SlotMatrixUI extends BaseEcsUI {
         SlotDatum fromDatum = fromSlot.getSlotDatum();
         SlotDatum targetDatum = targetSlot.getSlotDatum();
         //同一种物品需要合并
-        if (fromDatum.itemId == targetDatum.itemId) {
+        if (fromDatum.itemEquals(targetDatum)) {
             merge(fromSlot,targetSlot);
             return;
         }
@@ -210,8 +214,8 @@ public class SlotMatrixUI extends BaseEcsUI {
         exchangeData(fromSlot,targetSlot);
     }
 
-    /** 合并数据 **/
-    public void merge(SlotUI fromSlot,SlotUI targetSlot){
+    // 合并数据
+    public void merge(ItemSlot fromSlot, ItemSlot targetSlot){
         SlotDatum fromDatum = fromSlot.getSlotDatum();
         SlotDatum targetDatum = targetSlot.getSlotDatum();
         if (targetDatum.stackAmount == targetDatum.maxStack) {
@@ -228,31 +232,33 @@ public class SlotMatrixUI extends BaseEcsUI {
             fromDatum.stackAmount -= canSetAmount;
         }
 
-        SlotMatrixUI fromInvUI = fromSlot.getInvUI();
-        SlotMatrixUI targetInvUI = targetSlot.getInvUI();
+        ItemSlotGrid fromInvUI = fromSlot.getInvUI();
+        ItemSlotGrid targetInvUI = targetSlot.getInvUI();
         fromInvUI.slotData.get(fromSlot.getInvX()).set(fromSlot.getInvY(), fromDatum);
         targetInvUI.slotData.get(targetSlot.getInvX()).set(targetSlot.getInvY(), targetDatum);
         fromInvUI.rebuild();
-        targetInvUI.rebuild();
-
+        if (fromInvUI != targetInvUI) {
+            targetInvUI.rebuild();
+        }
     }
-    /** 交换数据 **/
-    public void exchangeData(SlotUI fromSlot,SlotUI targetSlot){
+
+    // 交换数据
+    public void exchangeData(ItemSlot fromSlot, ItemSlot targetSlot){
         SlotDatum fromDatum = fromSlot.getSlotDatum();
         SlotDatum targetDatum = targetSlot.getSlotDatum();
-        SlotDatum swapDatum = fromDatum;
 
-        SlotMatrixUI fromInvUI = fromSlot.getInvUI();
-        SlotMatrixUI targetInvUI = targetSlot.getInvUI();
-        fromInvUI.slotData.get(fromSlot.getInvX()).set(fromSlot.getInvY(), targetDatum);
-        targetInvUI.slotData.get(targetSlot.getInvX()).set(targetSlot.getInvY(), swapDatum);
+        fromDatum.exchange(targetDatum);
 
-        //记录数据来源
-        if (targetInvUI == this && fromInvUI != this){
-            datumFrom.put(swapDatum,fromInvUI.ownerId);
-        }
+        ItemSlotGrid fromInvUI = fromSlot.getInvUI();
+        ItemSlotGrid targetInvUI = targetSlot.getInvUI();
+
+        fromInvUI.slotData.get(fromSlot.getInvX()).set(fromSlot.getInvY(), fromDatum);
+        targetInvUI.slotData.get(targetSlot.getInvX()).set(targetSlot.getInvY(), targetDatum);
 
         fromInvUI.rebuild();
-        targetInvUI.rebuild();
+        if (fromInvUI != targetInvUI) {
+            targetInvUI.rebuild();
+        }
+
     }
 }
