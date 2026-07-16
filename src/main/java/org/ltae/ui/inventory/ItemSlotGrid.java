@@ -2,6 +2,7 @@ package org.ltae.ui.inventory;
 
 import com.artemis.Entity;
 import com.artemis.World;
+import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -19,8 +20,12 @@ public class ItemSlotGrid extends BaseEcsUI {
 
     //拖拽功能
     private DragAndDrop dragAndDrop;
-    //拖拽来源黑名单
-    private Array<Actor> dragBlacklist;
+
+    /**
+     * 阻止从这些类型的视图中拖拽物品并放入当前网格。
+     * 例如：blockedSourceTypes.add(ShopGridView.class) 将阻止所有商店网格拖入。
+     */
+    private Bag<Class<? extends ItemSlotGrid>> blockedSourceTypes;
     //是否能拖到地上
     private boolean canDragStop;
     //归属者(实体id)
@@ -43,7 +48,7 @@ public class ItemSlotGrid extends BaseEcsUI {
         this.dragAndDrop = dragAndDrop;
 
         slotStyle = skin.get(slotStyleName, ItemSlot.ItemSlotStyle.class);
-        dragBlacklist = new Array<>();
+        blockedSourceTypes = new Bag<>();
         datumFrom = new ObjectMap<>();
         slotSize = 32;
         canDragStop = true;
@@ -75,11 +80,11 @@ public class ItemSlotGrid extends BaseEcsUI {
         this.slotSize = slotSize;
     }
     //拖拽来源黑名单
-    public void addDragBlack(Actor actor){
-        dragBlacklist.add(actor);
+    public void addBlockedSourceType(Class<? extends ItemSlotGrid> blockedSourceType) {
+        blockedSourceTypes.add(blockedSourceType);
     }
-    public void rmDragBlack(Actor actor){
-        dragBlacklist.removeValue(actor,true);
+    public void delBlockedSourceType(Class<? extends ItemSlotGrid> blockedSourceType){
+        blockedSourceTypes.remove(blockedSourceType);
     }
     //数据
     public void setSlotData(Array<Array<SlotDatum>> slotData){
@@ -160,7 +165,8 @@ public class ItemSlotGrid extends BaseEcsUI {
                              float x, float y, int pointer) {
                 //黑名单中的库存无法触发拖放
                 ItemSlot fromSlot = (ItemSlot)source.getActor();
-                if (dragBlacklist.contains(fromSlot.getInvUI(),true)) {
+                if (blockedSourceTypes.contains(fromSlot.getInvUI().getClass())) {
+                    Gdx.app.debug(getTag(),"This drag originates from the blacklist and is prohibited!");
                     return;
                 }
                 onDrop(source,payload,getActor());
