@@ -23,12 +23,14 @@ public class ItemSlot extends WidgetGroup {
     private ItemSlotStyle style;
     private Image bg;      // 背景
     private Image icon;    // 物品图标
+    private Image selectedOverlay;
     private Label amount;  // 右下角数量
     private boolean hovered, pressed, checked, disabled;
 
     //归属者(实体id)
     private int ownerId;
     private Entity owner;
+    private boolean selected;
 
     public ItemSlot(World world, Skin skin, String styleName) {
         this(world,skin.get(styleName, ItemSlotStyle.class));
@@ -40,12 +42,18 @@ public class ItemSlot extends WidgetGroup {
 
         bg = new Image();
         icon = new Image();
+        selectedOverlay = new Image();
+
         amount = new Label("", new Label.LabelStyle(style.font, style.fontColor));
         amount.setAlignment(Align.bottomRight);
+
+        selectedOverlay = new Image(style.selectedOverlay);
+        selectedOverlay.setVisible(false);
 
         addActor(bg);
         addActor(icon);
         addActor(amount);
+        addActor(selectedOverlay);
 
         // 统一大小
         setSize(style.up.getMinWidth(), style.up.getMinHeight());
@@ -168,7 +176,15 @@ public class ItemSlot extends WidgetGroup {
 
     public boolean isDisabled() { return disabled; }
 
-    /* =============== 内部 =============== */
+    // ---------- 选中状态控制 ----------
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+        selectedOverlay.setVisible(selected && style.selectedOverlay != null);
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
 
     public void refreshDrawables() {
         // 背景状态机
@@ -190,9 +206,11 @@ public class ItemSlot extends WidgetGroup {
         icon.setBounds((getWidth() - iconSize) / 2, (getHeight() - iconSize) / 2, iconSize, iconSize);
         // 数量右下角
         amount.setBounds(getWidth() - amount.getPrefWidth() - 6, 2, amount.getPrefWidth(), amount.getPrefHeight());
+        selectedOverlay.setBounds(0, 0, getWidth(), getHeight());
     }
 
 
     public static class ItemSlotStyle extends TextButton.TextButtonStyle {
+        public Drawable selectedOverlay;
     }
 }
