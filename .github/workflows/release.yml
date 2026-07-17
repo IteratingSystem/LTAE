@@ -12,15 +12,27 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整历史，确保 git log 可用
+
       - name: Extract version
         id: get_version
         run: echo "VERSION=$(grep 'projectVersion' gradle.properties | cut -d'=' -f2 | tr -d ' ')" >> $GITHUB_OUTPUT
+
       - name: Create Git Tag
         run: |
           git tag ${{ steps.get_version.outputs.VERSION }}
           git push origin ${{ steps.get_version.outputs.VERSION }}
+
+      - name: Get commit message
+        id: commit_msg
+        run: |
+          echo "msg<<EOF" >> $GITHUB_OUTPUT
+          git log -1 --format=%B >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
-          body: $(git log -1 --format=%B)
+          body: ${{ steps.commit_msg.outputs.msg }}
