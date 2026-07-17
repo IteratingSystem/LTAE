@@ -61,7 +61,7 @@ public class ItemSlot extends WidgetGroup {
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, com.badlogic.gdx.scenes.scene2d.Actor toActor) {
-                hovered = true;
+                hovered = false;
                 refreshDrawables();
             }
 
@@ -74,7 +74,7 @@ public class ItemSlot extends WidgetGroup {
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                pressed = true;
+                pressed = false;
                 refreshDrawables();
             }
         });
