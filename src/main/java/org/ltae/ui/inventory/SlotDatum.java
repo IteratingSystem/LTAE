@@ -19,6 +19,7 @@ public class SlotDatum {
     public int stackAmount;
     public int maxStack;
     public int unitPrice;
+    public boolean selected;
 
     // 存入物品的实体信息,用于快速创建实体
     public EntityDatum entityDatum;

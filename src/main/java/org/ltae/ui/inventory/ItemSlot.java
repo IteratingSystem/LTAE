@@ -57,7 +57,7 @@ public class ItemSlot extends WidgetGroup {
 
         // 统一大小
         setSize(style.up.getMinWidth(), style.up.getMinHeight());
-        //首次绘制
+        // 首次绘制
         refreshDrawables();
         // 按钮事件（悬停/按下/点击）
         addListener(new ClickListener() {
@@ -179,6 +179,7 @@ public class ItemSlot extends WidgetGroup {
     // ---------- 选中状态控制 ----------
     public void setSelected(boolean selected) {
         this.selected = selected;
+        slotDatum.selected = selected;
         selectedOverlay.setVisible(selected && style.selectedOverlay != null);
     }
 
