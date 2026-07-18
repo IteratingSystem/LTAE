@@ -156,7 +156,7 @@ public class ItemSlot extends WidgetGroup {
             slotDatum = new SlotDatum();
         }
         this.slotDatum = slotDatum;
-        setIcon(slotDatum.getDrawable(world));
+        setIcon(slotDatum.getDrawable());
         setAmount(slotDatum.stackAmount);
     }
 

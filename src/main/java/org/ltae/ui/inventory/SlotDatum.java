@@ -54,7 +54,7 @@ public class SlotDatum {
         return false;
     }
 
-    public TextureRegionDrawable getDrawable(World world) {
+    public TextureRegionDrawable getDrawable() {
         if (entityDatum == null){
             return null;
         }
