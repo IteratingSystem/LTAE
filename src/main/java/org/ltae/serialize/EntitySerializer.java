@@ -291,8 +291,9 @@ public class EntitySerializer {
                             // 假设 value 为 String（枚举名称）或 Number（枚举序数）
                             if (value instanceof String) {
                                 try {
-                                    // 按枚举名称转换（不区分大小写可选择 toUpperCase）
-                                    value = Enum.valueOf((Class<Enum>) type, (String) value);
+                                    @SuppressWarnings("unchecked")
+                                    Class<? extends Enum> enumClass = type.asSubclass(Enum.class);
+                                    value = Enum.valueOf(enumClass, (String) value);
                                 } catch (IllegalArgumentException e) {
                                     Gdx.app.error(TAG, "Invalid enum name: " + value + " for field " + key);
                                     continue;
