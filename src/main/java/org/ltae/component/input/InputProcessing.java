@@ -37,4 +37,8 @@ public abstract class InputProcessing implements LongPressListener, Disposable {
     public void dispose() {
         InputManager.removeLongPressListener(this);
     }
+
+    public String getTag(){
+        return getClass().getSimpleName();
+    }
 }
