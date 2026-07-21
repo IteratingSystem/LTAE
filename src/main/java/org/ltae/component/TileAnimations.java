@@ -46,11 +46,11 @@ public class TileAnimations extends SerializeComponent {
             }
             MapProperties animProp = props.get("TileAnimation",MapProperties.class);
             String name = animProp.get("name", String.class);
-            String playModeName = animProp.get("playModeName", String.class);
+            String playMode = animProp.get("playMode", String.class);
             float offsetX = animProp.get("offsetX", float.class);
             float offsetY = animProp.get("offsetY", float.class);
             TileAnimation tileAnimation = new TileAnimation();
-            tileAnimation.initialize(animatedTile, Animation.PlayMode.valueOf(playModeName),offsetX,offsetY);
+            tileAnimation.initialize(animatedTile, Animation.PlayMode.valueOf(playMode),offsetX,offsetY);
             if (table.containsKey(name)){
                 Gdx.app.log(TAG,"Repetitive animation naming:"+name);
                 continue;
