@@ -22,7 +22,7 @@ public class TileAnimation extends SerializeComponent {
     @SerializeParam
     public String name;
     @SerializeParam
-    public String playModeName;
+    public Animation.PlayMode playMode;
     @SerializeParam
     public float offsetX;
     @SerializeParam
@@ -47,7 +47,6 @@ public class TileAnimation extends SerializeComponent {
     private int lastFrameNumber;
     //上一帧的时间戳
     private float lastStateTime;
-    private Animation.PlayMode playMode;
 
 
     @Override
@@ -59,7 +58,7 @@ public class TileAnimation extends SerializeComponent {
             return;
         }
 
-        initialize(animatedTile,Animation.PlayMode.valueOf(playModeName),offsetX,offsetY);
+        initialize(animatedTile,playMode,offsetX,offsetY);
     }
 
     /**
