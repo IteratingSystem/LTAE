@@ -150,6 +150,9 @@ public class EntitySerializer {
                 Object value = null;
                 try {
                     value = field.get(component);
+                    if (value == null){
+                        continue;
+                    }
                     if (type.isEnum()) {
                         value = ((Enum<?>) field.get(component)).name();
                     }
