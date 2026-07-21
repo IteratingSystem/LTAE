@@ -39,7 +39,7 @@ public class B2dBody extends SerializeComponent implements Disposable {
 
     private final static String TAG = B2dBody.class.getSimpleName();
     @SerializeParam
-    public String defType;//动静态类型
+    public BodyDef.BodyType defType;//动静态类型
     @SerializeParam
     public boolean defFixed;//是否固定旋转
     @SerializeParam
@@ -94,7 +94,7 @@ public class B2dBody extends SerializeComponent implements Disposable {
         //构造关键数据
         bodyDef = new BodyDef();
         bodyDef.fixedRotation = defFixed;
-        bodyDef.type = BodyDef.BodyType.valueOf(defType);
+        bodyDef.type = defType;
         keyframeFixSetups = new Bag<>();
 
         float worldScale = LtaePluginRule.WORLD_SCALE;

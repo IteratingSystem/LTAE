@@ -267,6 +267,9 @@ public class EntitySerializer {
                 for (Property prop : props) {
                     String key = prop.key;
                     Object value = prop.value;
+                    if (value == null) {
+                        continue;
+                    }
                     try {
                         // 递归查找字段（包括父类）
                         Field field = findField(aClass, key);
@@ -279,9 +282,37 @@ public class EntitySerializer {
                             continue;
                         }
                         field.setAccessible(true); // 允许访问私有字段
-                        if (value != null) {
-                            field.set(component, value);
+
+                        Class<?> type = field.getType();
+                        if (type.isEnum()) {
+                            // 假设 value 为 String（枚举名称）或 Number（枚举序数）
+                            if (value instanceof String) {
+                                try {
+                                    // 按枚举名称转换（不区分大小写可选择 toUpperCase）
+                                    value = Enum.valueOf((Class<Enum>) type, (String) value);
+                                } catch (IllegalArgumentException e) {
+                                    Gdx.app.error(TAG, "Invalid enum name: " + value + " for field " + key);
+                                    continue;
+                                }
+                            } else if (value instanceof Number) {
+                                // 按枚举序数转换
+                                int ordinal = ((Number) value).intValue();
+                                Object[] enumConstants = type.getEnumConstants();
+                                if (ordinal >= 0 && ordinal < enumConstants.length) {
+                                    value = enumConstants[ordinal];
+                                } else {
+                                    Gdx.app.error(TAG, "Invalid enum ordinal: " + ordinal + " for field " + key);
+                                    continue;
+                                }
+                            } else {
+                                Gdx.app.error(TAG, "Unsupported value type for enum field " + key + ": " + value.getClass());
+                                continue;
+                            }
                         }
+
+                        field.set(component, value);
+
+
                     } catch (NoSuchFieldException | IllegalAccessException e) {
                         throw new RuntimeException("Failed to set field " + key + " on " + aClass.getName(), e);
                     }
