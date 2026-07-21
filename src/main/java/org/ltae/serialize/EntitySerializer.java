@@ -146,10 +146,13 @@ public class EntitySerializer {
                     continue;
                 }
                 String key = field.getName();
-                Class type = field.getType();
+                Class<?> type = field.getType();
                 Object value = null;
                 try {
                     value = field.get(component);
+                    if (type.isEnum()) {
+                        value = ((Enum<?>) field.get(component)).name();
+                    }
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
