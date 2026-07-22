@@ -2,6 +2,7 @@ package org.ltae.ui.inventory;
 
 import com.artemis.Entity;
 import com.artemis.World;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -213,5 +214,23 @@ public class ItemSlot extends WidgetGroup {
 
     public static class ItemSlotStyle extends TextButton.TextButtonStyle {
         public Drawable selectedOverlay;
+    }
+
+
+    public boolean equalsPos(ItemSlot itemSlot) {
+        if (itemSlot == null){
+            Gdx.app.log(getTag(), "Failed to 'equalsPos',itemSlot is null!");
+            return false;
+        }
+        return equalsPos(itemSlot.invX,itemSlot.invY);
+    }
+    public boolean equalsPos(int x,int y) {
+        if (x == invX && y == invY) {
+            return true;
+        }
+        return false;
+    }
+    public String getTag(){
+        return getClass().getSimpleName();
     }
 }

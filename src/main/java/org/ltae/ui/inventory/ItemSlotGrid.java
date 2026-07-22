@@ -131,6 +131,24 @@ public class ItemSlotGrid extends BaseEcsUI {
         return slots[x][y];
     }
 
+    public void setSelectOnly(ItemSlot targetSlot){
+        if (targetSlot == null) {
+            Gdx.app.log(getTag(), "Failed to 'setSelectOnly','targetSlot' is null!");
+            return;
+        }
+        setSelectOnly(targetSlot.getInvX(),targetSlot.getInvY());
+    }
+    public void setSelectOnly(int x,int y){
+        for (ItemSlot[] slot : slots) {
+            for (ItemSlot itemSlot : slot) {
+                itemSlot.setSelected(false);
+                if (itemSlot.equalsPos(x,y)) {
+                    itemSlot.setSelected(true);
+                }
+            }
+        }
+    }
+
     /* ===== 拖拽能力 ===== */
     public void enableDrag(ItemSlot slot) {
         dragAndDrop.addSource(new DragAndDrop.Source(slot) {
