@@ -1,10 +1,7 @@
-package org.ltae.component;
+package org.ltae.component.dir;
 
 import com.artemis.World;
 import org.ltae.component.parent.SerializeComponent;
-import org.ltae.enums.HorizontalDir;
-import org.ltae.enums.OrthogonalDir;
-import org.ltae.enums.VerticalDir;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 

@@ -1,4 +1,4 @@
-package org.ltae.enums;
+package org.ltae.component.dir;
 
 /**
  * @Auther WenLong
@@ -6,6 +6,7 @@ package org.ltae.enums;
  * @Description
  **/
 public enum OrthogonalDir {
+    NONE,
     UP,
     DOWN,
     LEFT,
