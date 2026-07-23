@@ -76,7 +76,7 @@ public class EcsMapLoader extends TmxMapLoader {
                         }
                         for (Member member : propertyType.members) {
                             String n = member.name;
-                            String v = member.value.toString();
+                            Object v = member.value;
                             String t = member.type;
                             childProps.put(n, v);
                         }

@@ -185,61 +185,6 @@ public class EntitySerializer {
         }
         entityData.add(entityDatum);
     }
-//    public static int buildEntity(World world,EntityDatum entityDatum){
-//        TagManager tagManager = world.getSystem(TagManager.class);
-//        //创建
-//        int entityId = world.create();
-//        entityDatum.entityId = entityId;
-//        //注册tag
-//        if (!"".equals(entityDatum.name)) {
-//            tagManager.register(entityDatum.name,entityId);
-//        }
-//        // 注册组件
-//        Array<CompMirror> components = entityDatum.compMirrors;
-//
-//        // 获取所有组件
-//        ReflectionManager reflectionManager = ReflectionManager.getInstance();
-//        Set<Class<? extends Component>> compClasses = reflectionManager.getSubTypesOfWithEngineAndGame(Component.class);
-//
-//        for (Class<? extends Component> aClass : compClasses) {
-//            String simpleName = aClass.getSimpleName();
-//            for (CompMirror compMirror : components) {
-//                if (!simpleName.equals(compMirror.simpleName)) {
-//                    continue;
-//                }
-//                //通过类对象创建组件Mapper
-//                ComponentMapper<? extends Component> mapper = world.getMapper(aClass);
-//                if (mapper == null) {
-//                    break;
-//                }
-//                //通过组件Mapper创建组件
-//                Component component = mapper.create(entityId);
-//                //写入默认值
-//                Array<Property> props = compMirror.properties;
-//                for (Property prop : props) {
-//                    String key = prop.key;
-//                    Object value = prop.value;
-//                    try {
-//                        Field declaredField = aClass.getDeclaredField(key);
-//                        if (!declaredField.isAnnotationPresent(SerializeParam.class)) {
-//                            continue;
-//                        }
-//                        if(value != null){
-//                            declaredField.set(component,value);
-//                        }
-//                    } catch (NoSuchFieldException | IllegalAccessException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                }
-//                //执行reload
-//                if (component instanceof SerializeComponent serializeComponent) {
-//                    serializeComponent.reload(world, entityDatum);
-//                    break;
-//                }
-//            }
-//        }
-//        return entityId;
-//    }
 
     @SuppressWarnings("unchecked")
     public static int buildEntity(World world, EntityDatum entityDatum) {
