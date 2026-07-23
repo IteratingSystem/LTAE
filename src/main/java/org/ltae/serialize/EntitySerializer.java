@@ -261,6 +261,8 @@ public class EntitySerializer {
                                 Gdx.app.error(TAG, "Unsupported value type for enum field " + key + ": " + value.getClass());
                                 continue;
                             }
+                        } else {
+                            value = coerceType(value, type);
                         }
 
                         field.set(component, value);
@@ -295,6 +297,28 @@ public class EntitySerializer {
                 return null;
             }
         }
+    }
+
+    private static Object coerceType(Object value, Class<?> type) {
+        if (value == null || type.isInstance(value)) return value;
+        if (value instanceof Number n) {
+            if (type == int.class || type == Integer.class) return n.intValue();
+            if (type == float.class || type == Float.class) return n.floatValue();
+            if (type == double.class || type == Double.class) return n.doubleValue();
+            if (type == long.class || type == Long.class) return n.longValue();
+            if (type == short.class || type == Short.class) return n.shortValue();
+            if (type == byte.class || type == Byte.class) return n.byteValue();
+            if (type == boolean.class || type == Boolean.class) return n.intValue() != 0;
+        } else if (value instanceof String s) {
+            if (type == int.class || type == Integer.class) return Integer.parseInt(s);
+            if (type == float.class || type == Float.class) return Float.parseFloat(s);
+            if (type == double.class || type == Double.class) return Double.parseDouble(s);
+            if (type == long.class || type == Long.class) return Long.parseLong(s);
+            if (type == short.class || type == Short.class) return Short.parseShort(s);
+            if (type == byte.class || type == Byte.class) return Byte.parseByte(s);
+            if (type == boolean.class || type == Boolean.class) return Boolean.parseBoolean(s);
+        }
+        return value;
     }
 
 
