@@ -10,6 +10,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.XmlReader;
+import org.ltae.manager.JsonManager;
 
 
 /**
@@ -64,7 +65,7 @@ public class EcsMapLoader extends TmxMapLoader {
                 //读取自定义类型文件赋予初始值
                 FileHandle propClassHandle = Gdx.files.internal(propTypePath);
                 if (propClassHandle.exists()) {
-                    Json json = new Json();
+                    Json json = JsonManager.getJson();
                     CustomType[] customTypes = json.fromJson(CustomType[].class,propClassHandle );
                     for (CustomType customType : customTypes) {
                         if (!customType.name.equals(name)) {
