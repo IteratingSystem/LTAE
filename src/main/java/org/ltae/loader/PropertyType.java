@@ -5,7 +5,7 @@ package org.ltae.loader;
  * @Date 2025/2/13 11:04
  * @Description tiled中自定义类型的抽象对象
  **/
-public class CustomType {
+public class PropertyType {
     public String color;
     public boolean drawFill;
     public int id;

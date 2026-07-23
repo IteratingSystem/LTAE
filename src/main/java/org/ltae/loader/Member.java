@@ -8,6 +8,6 @@ package org.ltae.loader;
 public class Member {
     public String name;
     public String type;
-    public String value;
+    public Object value;
     public String propertyType;
 }

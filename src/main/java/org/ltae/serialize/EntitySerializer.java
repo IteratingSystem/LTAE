@@ -240,6 +240,8 @@ public class EntitySerializer {
 //        }
 //        return entityId;
 //    }
+
+    @SuppressWarnings("unchecked")
     public static int buildEntity(World world, EntityDatum entityDatum) {
         TagManager tagManager = world.getSystem(TagManager.class);
         int entityId = world.create();
@@ -294,7 +296,6 @@ public class EntitySerializer {
                             // 假设 value 为 String（枚举名称）或 Number（枚举序数）
                             if (value instanceof String) {
                                 try {
-                                    @SuppressWarnings("unchecked")
                                     Class<? extends Enum> enumClass = type.asSubclass(Enum.class);
                                     value = Enum.valueOf(enumClass, (String) value);
                                 } catch (IllegalArgumentException e) {

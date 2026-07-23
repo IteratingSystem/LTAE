@@ -65,19 +65,21 @@ public class EcsMapLoader extends TmxMapLoader {
                 //读取自定义类型文件赋予初始值
                 FileHandle propClassHandle = Gdx.files.internal(propTypePath);
                 if (propClassHandle.exists()) {
+
                     Json json = JsonManager.getJson();
-                    CustomType[] customTypes = json.fromJson(CustomType[].class,propClassHandle );
-                    for (CustomType customType : customTypes) {
-                        if (!customType.name.equals(name)) {
+                    PropertyType[] propertyTypes = json.fromJson(PropertyType[].class,propClassHandle);
+
+                    for (PropertyType propertyType : propertyTypes) {
+                        if (!propertyType.name.equals(name)) {
                             continue;
                         }
-                        for (Member member : customType.members) {
+                        for (Member member : propertyType.members) {
                             String n = member.name;
-                            String v = member.value;
+                            String v = member.value.toString();
                             String t = member.type;
 
-                            Object castValue = castProperty(n, v, t);
-                            childProps.put(n, castValue);
+//                            Object castValue = castProperty(n, v, t);
+                            childProps.put(n, v);
                         }
                     }
                 }else {
