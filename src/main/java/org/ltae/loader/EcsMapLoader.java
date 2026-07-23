@@ -96,7 +96,7 @@ public class EcsMapLoader extends TmxMapLoader {
                         if (v == null && cProperty.getText()!=null && !cProperty.getText().isBlank()){
                             v = cProperty.getText();
                         }
-                        if (t.equals("list")){
+                        if ("list".equals(t)){
                             v = cProperty.getChildByName(n);
                         }
                         Object castValue = castProperty(n, v, t);
