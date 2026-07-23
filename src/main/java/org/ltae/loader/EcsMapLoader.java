@@ -22,9 +22,15 @@ public class EcsMapLoader extends TmxMapLoader {
     private final static String TAG = EcsMapLoader.class.getSimpleName();
     //tiled中"自定义属性"的导出文件地址
     private final String propTypePath;
+    private PropertyType[] propertyTypes;
+    private FileHandle propClassHandle;
     public EcsMapLoader(FileHandleResolver resolver, String propTypePath){
         super(resolver);
         this.propTypePath = propTypePath;
+
+        propClassHandle = Gdx.files.internal(propTypePath);
+        Json json = JsonManager.getJson();
+        propertyTypes = json.fromJson(PropertyType[].class,propClassHandle);
     }
 
     @Override
@@ -63,12 +69,7 @@ public class EcsMapLoader extends TmxMapLoader {
                 MapProperties childProps = new MapProperties();
 
                 //读取自定义类型文件赋予初始值
-                FileHandle propClassHandle = Gdx.files.internal(propTypePath);
                 if (propClassHandle.exists()) {
-
-                    Json json = JsonManager.getJson();
-                    PropertyType[] propertyTypes = json.fromJson(PropertyType[].class,propClassHandle);
-
                     for (PropertyType propertyType : propertyTypes) {
                         if (!propertyType.name.equals(name)) {
                             continue;
@@ -77,8 +78,6 @@ public class EcsMapLoader extends TmxMapLoader {
                             String n = member.name;
                             String v = member.value.toString();
                             String t = member.type;
-
-//                            Object castValue = castProperty(n, v, t);
                             childProps.put(n, v);
                         }
                     }
@@ -92,12 +91,16 @@ public class EcsMapLoader extends TmxMapLoader {
                     if (child == null) continue;
                     for (XmlReader.Element cProperty : child.getChildrenByName("property")){
                         String n = cProperty.getAttribute("name", null);
-                        String v = cProperty.getAttribute("value", null);
+                        Object v = cProperty.getAttribute("value", null);
+                        String t = cProperty.getAttribute("type", null);
                         if (v == null && cProperty.getText()!=null && !cProperty.getText().isBlank()){
                             v = cProperty.getText();
                         }
-                        String t = cProperty.getAttribute("type", null);
+                        if (t.equals("list")){
+                            v = cProperty.getChildByName(n);
+                        }
                         Object castValue = castProperty(n, v, t);
+
                         childProps.put(n, castValue);
                     }
                 }
@@ -109,27 +112,20 @@ public class EcsMapLoader extends TmxMapLoader {
         }
     }
 
-    @Override
-    protected Object castProperty (String name, String value, String type) {
+
+    protected Object castProperty (String name, Object value, String type) {
         if (type == null) {
             return value;
         }else if (type.equals("String") || type.equals("string")) {
-            return value;
-        }else if (type.equals("int")) {
-            return Integer.valueOf(value);
-        } else if (type.equals("float")) {
-            return Float.valueOf(value);
-        } else if (type.equals("bool")) {
-            return Boolean.valueOf(value);
-        } else if (type.equals("color")) {
-            // Tiled uses the format #AARRGGBB
-            String opaqueColor = value.substring(3);
-            String alpha = value.substring(1, 3);
-            return Color.valueOf(opaqueColor + alpha);
-        } else {
-            Gdx.app.error(TAG,"Wrong type given for property " + name + ", given : " + type + ", supported : string, bool, int, float, color");
-            throw new GdxRuntimeException(
-                "Wrong type given for property " + name + ", given : " + type + ", supported : string, bool, int, float, color");
+            return value.toString();
+        }else if (type.equals("list")) {
+            if (value instanceof XmlReader.Element element) {
+                return element.getAttribute("value", null);
+            }
+        }else {
+            return super.castProperty(name,value.toString(),type);
         }
+        return null;
     }
+
 }
