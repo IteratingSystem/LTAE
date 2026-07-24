@@ -14,6 +14,8 @@ import org.ltae.manager.ReflectionManager;
 import org.ltae.serialize.data.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Set;
 
 /**
@@ -263,6 +265,35 @@ public class EntitySerializer {
                             }
                         } else {
                             value = coerceType(value, type);
+                        }
+
+                        if (value instanceof Array<?> arrayValue && arrayValue.notEmpty()) {
+                            try {
+                                Type genericType = field.getGenericType();
+                                if (genericType instanceof ParameterizedType pt) {
+                                    Class<?> elementType = (Class<?>) pt.getActualTypeArguments()[0];
+                                    @SuppressWarnings("unchecked")
+                                    Array<Object> rawArray = (Array<Object>) arrayValue;
+                                    for (int i = 0; i < rawArray.size; i++) {
+                                        Object elem = rawArray.get(i);
+                                        if (elem == null) continue;
+                                        if (elementType.isEnum() && elem instanceof String s) {
+                                            try {
+                                                rawArray.set(i, Enum.valueOf(elementType.asSubclass(Enum.class), s));
+                                            } catch (IllegalArgumentException e) {
+                                                Gdx.app.error(TAG, "Invalid enum value: " + s + " for element " + i + " in field " + key);
+                                            }
+                                        } else if (!elementType.isInstance(elem)) {
+                                            Object converted = coerceType(elem, elementType);
+                                            if (converted != null) {
+                                                rawArray.set(i, converted);
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Gdx.app.error(TAG, "Failed to convert Array elements for field " + key + ": " + e.getMessage());
+                            }
                         }
 
                         field.set(component, value);
