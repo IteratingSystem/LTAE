@@ -111,6 +111,20 @@ public class ItemSlot extends WidgetGroup {
         return invY;
     }
 
+    public Bag<Enum<?>> getAcceptTypes() {
+        return acceptTypes;
+    }
+
+    public void addAcceptType(Enum<?> acceptType) {
+        if (acceptTypes == null) {
+            acceptTypes = new Bag<>();
+        }
+        if (acceptTypes.contains(acceptType)) {
+            return;
+        }
+        acceptTypes.add(acceptType);
+    }
+
     /*在库存中的坐标*/
     public void setInvPos(int x,int y) {
         invX = x;
