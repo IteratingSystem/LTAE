@@ -36,7 +36,7 @@ public class ItemSlotGrid extends BaseEcsUI {
     public ObjectMap<SlotDatum,Integer> datumFrom;
     private Array<Array<SlotDatum>> slotData;
     //格子尺寸
-    private int slotSize;
+    public int slotSize;
     //ui
     public Table slotTable;
     public ItemSlot.ItemSlotStyle slotStyle;
@@ -75,10 +75,7 @@ public class ItemSlotGrid extends BaseEcsUI {
     public int getOwnerId() {
         return ownerId;
     }
-    //格子尺寸
-    public void setSlotSize(int slotSize) {
-        this.slotSize = slotSize;
-    }
+
     //拖拽来源黑名单
     public void addBlockedSourceType(Class<? extends ItemSlotGrid> blockedSourceType) {
         blockedSourceTypes.add(blockedSourceType);
