@@ -14,7 +14,9 @@ public class SlotDatum {
 
     public int itemId;
     public String itemName;
-    public String itemType;
+    public Enum<?> itemType;
+    public String labelName;
+    public String labelNameI18;
 
     public int stackAmount;
     public int maxStack;

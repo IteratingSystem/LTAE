@@ -2,6 +2,7 @@ package org.ltae.ui.inventory;
 
 import com.artemis.Entity;
 import com.artemis.World;
+import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -20,6 +21,8 @@ public class ItemSlot extends WidgetGroup {
 
     private World world;
     private SlotDatum slotDatum;
+    private Bag<Enum<?>> acceptTypes;
+    public ItemSlot(World world, SlotDatum slotDatum) {}
 
     private ItemSlotStyle style;
     private Image bg;      // 背景
