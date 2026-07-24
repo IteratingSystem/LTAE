@@ -8,6 +8,7 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.XmlReader;
 import org.ltae.manager.JsonManager;
@@ -97,7 +98,7 @@ public class EcsMapLoader extends TmxMapLoader {
                             v = cProperty.getText();
                         }
                         if ("list".equals(t)){
-                            v = cProperty.getChildByName(n);
+                            v = parseListProperty(cProperty);
                         }
                         Object castValue = castProperty(n, v, t);
 
@@ -113,14 +114,28 @@ public class EcsMapLoader extends TmxMapLoader {
     }
 
 
+    private Array<String> parseListProperty(XmlReader.Element listElement) {
+        Array<String> result = new Array<>();
+        for (XmlReader.Element item : listElement.getChildrenByName("item")) {
+            String value = item.getAttribute("value", null);
+            if (value != null) {
+                result.add(value);
+            }
+        }
+        return result;
+    }
+
     protected Object castProperty (String name, Object value, String type) {
         if (type == null) {
             return value;
         }else if (type.equals("String") || type.equals("string")) {
             return value.toString();
         }else if (type.equals("list")) {
+            if (value instanceof Array) {
+                return value;
+            }
             if (value instanceof XmlReader.Element element) {
-                return element.getAttribute("value", null);
+                return parseListProperty(element);
             }
         }else {
             return super.castProperty(name,value.toString(),type);
