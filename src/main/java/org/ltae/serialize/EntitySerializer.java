@@ -135,7 +135,6 @@ public class EntitySerializer {
                 serializeComponent.beforeSerialization();
             }
 
-
             Class<? extends Component> compClass = component.getClass();
             String compName = compClass.getSimpleName();
             Field[] fields = compClass.getFields();
@@ -267,34 +266,6 @@ public class EntitySerializer {
                             value = coerceType(value, type);
                         }
 
-//                        if (value instanceof Array<?> arrayValue && arrayValue.notEmpty()) {
-//                            try {
-//                                Type genericType = field.getGenericType();
-//                                if (genericType instanceof ParameterizedType pt) {
-//                                    Class<?> elementType = (Class<?>) pt.getActualTypeArguments()[0];
-//                                    @SuppressWarnings("unchecked")
-//                                    Array<Object> rawArray = (Array<Object>) arrayValue;
-//                                    for (int i = 0; i < rawArray.size; i++) {
-//                                        Object elem = rawArray.get(i);
-//                                        if (elem == null) continue;
-//                                        if (elementType.isEnum() && elem instanceof String s) {
-//                                            try {
-//                                                rawArray.set(i, Enum.valueOf(elementType.asSubclass(Enum.class), s));
-//                                            } catch (IllegalArgumentException e) {
-//                                                Gdx.app.error(TAG, "Invalid enum value: " + s + " for element " + i + " in field " + key);
-//                                            }
-//                                        } else if (!elementType.isInstance(elem)) {
-//                                            Object converted = coerceType(elem, elementType);
-//                                            if (converted != null) {
-//                                                rawArray.set(i, converted);
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                            } catch (Exception e) {
-//                                Gdx.app.error(TAG, "Failed to convert Array elements for field " + key + ": " + e.getMessage());
-//                            }
-//                        }
                         if (value instanceof Array<?> arrayValue && arrayValue.notEmpty()) {
                             try {
                                 Type genericType = field.getGenericType();
@@ -331,7 +302,6 @@ public class EntitySerializer {
                         }
 
                         field.set(component, value);
-
 
                     } catch (NoSuchFieldException | IllegalAccessException e) {
                         throw new RuntimeException("Failed to set field " + key + " on " + aClass.getName(), e);
@@ -385,7 +355,6 @@ public class EntitySerializer {
         }
         return value;
     }
-
 
     public static void buildEntities(World world, EntityData entityData){
         if (entityData == null) {
