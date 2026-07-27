@@ -104,18 +104,18 @@ public class ItemSlotGrid extends BaseEcsUI {
 
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                ItemSlot ItemSlot = new ItemSlot(world,slotStyle);
-                slotTable.add(ItemSlot).size(slotSize);
-                ItemSlot.setInvPos(r,c);
-                ItemSlot.setInvUI(this);
+                ItemSlot itemSlot = new ItemSlot(world,slotStyle);
+                slotTable.add(itemSlot).size(slotSize);
+                itemSlot.setInvPos(r,c);
+                itemSlot.setInvUI(this);
                 if (owner != null){
-                    ItemSlot.setOwner(ownerId);
+                    itemSlot.setOwner(ownerId);
                 }
-                slots[r][c] = ItemSlot;
-                enableDrag(ItemSlot);
+                slots[r][c] = itemSlot;
+                enableDrag(itemSlot);
 
                 SlotDatum slotDatum = slotData.get(r).get(c);
-                ItemSlot.setSlotDatum(slotDatum);
+                itemSlot.setSlotDatum(slotDatum);
             }
             slotTable.row();
         }
