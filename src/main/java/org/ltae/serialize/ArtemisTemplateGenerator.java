@@ -46,7 +46,7 @@ public class ArtemisTemplateGenerator {
 
         IntBag entityIds = new IntBag();
         for (EntityDatum datum : entityData) {
-            int entityId = EntitySerializer.buildEntity(tempWorld, datum);
+            int entityId = EntitySerializer.buildEntityFieldsOnly(tempWorld, datum);
             entityIds.add(entityId);
         }
 

@@ -6,7 +6,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import org.ltae.component.parent.SerializeComponent;
+import org.ltae.serialize.PostLoad;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 
@@ -50,15 +53,34 @@ public class TileAnimation extends SerializeComponent {
 
 
     @Override
-    public void reload(World world, EntityDatum entityDatum) {
-        super.reload(world, entityDatum);
-        isPause = false;
+    public void write(Json json) {
+        super.write(json);
+        json.writeValue("name", name);
+        json.writeValue("playMode", playMode != null ? playMode.name() : null);
+        json.writeValue("offsetX", offsetX);
+        json.writeValue("offsetY", offsetY);
+        json.writeValue("stateTime", stateTime);
+    }
 
+    @Override
+    public void read(Json json, JsonValue jsonData) {
+        super.read(json, jsonData);
+        name = jsonData.has("name") ? jsonData.getString("name") : null;
+        String pm = jsonData.has("playMode") ? jsonData.getString("playMode") : null;
+        playMode = pm != null ? Animation.PlayMode.valueOf(pm) : Animation.PlayMode.NORMAL;
+        offsetX = jsonData.getFloat("offsetX", 0f);
+        offsetY = jsonData.getFloat("offsetY", 0f);
+        stateTime = jsonData.getFloat("stateTime", 0f);
+        isPause = false;
+    }
+
+    @PostLoad
+    public void postLoadTileAnimation(World world) {
+        isPause = false;
         if (!(tiledMapTile instanceof AnimatedTiledMapTile animatedTile)) {
             return;
         }
-
-        initialize(animatedTile,playMode,offsetX,offsetY);
+        initialize(animatedTile, playMode, offsetX, offsetY);
     }
 
     /**

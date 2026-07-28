@@ -17,6 +17,9 @@ import org.ltae.serialize.data.EntityDatum;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -73,13 +76,27 @@ public class EntityBuilder {
         for (int i = 0; i < entities.size(); i++) {
             int entityId = entities.get(i);
             SerializeComponent sc = mapper.get(entityId);
-            for (Method method : sc.getClass().getMethods()) {
-                if (method.isAnnotationPresent(PostLoad.class)) {
-                    try {
-                        method.invoke(sc, world);
-                    } catch (Exception e) {
-                        Gdx.app.error(TAG, "Failed to invoke @PostLoad on " + sc.getClass().getSimpleName(), e);
+
+            sc.postLoad(world);
+
+            List<Method> childMethods = new ArrayList<>();
+            Class<?> clazz = sc.getClass();
+            while (clazz != null && clazz != SerializeComponent.class) {
+                for (Method method : clazz.getDeclaredMethods()) {
+                    if (method.isAnnotationPresent(PostLoad.class)) {
+                        childMethods.add(method);
                     }
+                }
+                clazz = clazz.getSuperclass();
+            }
+            Collections.reverse(childMethods);
+
+            for (Method method : childMethods) {
+                method.setAccessible(true);
+                try {
+                    method.invoke(sc, world);
+                } catch (Exception e) {
+                    Gdx.app.error(TAG, "Failed to invoke @PostLoad on " + sc.getClass().getSimpleName() + "#" + method.getName(), e);
                 }
             }
         }

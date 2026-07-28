@@ -2,6 +2,8 @@ package org.ltae.component;
 
 import com.artemis.World;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
@@ -19,10 +21,17 @@ public class Pos extends SerializeComponent {
     public float y;
 
     @Override
-    public void reload(World world, EntityDatum entityDatum) {
-        super.reload(world, entityDatum);
+    public void write(Json json) {
+        super.write(json);
+        json.writeValue("x", x);
+        json.writeValue("y", y);
+    }
 
-        set((float)mapObject.getProperties().get("x"), (float)mapObject.getProperties().get("y"));
+    @Override
+    public void read(Json json, JsonValue jsonData) {
+        super.read(json, jsonData);
+        x = jsonData.getFloat("x", 0f);
+        y = jsonData.getFloat("y", 0f);
     }
 
     /**
