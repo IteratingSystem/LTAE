@@ -1,22 +1,28 @@
 package org.ltae.system;
 
+import com.artemis.Aspect;
+import com.artemis.AspectSubscriptionManager;
 import com.artemis.BaseSystem;
 import com.artemis.Component;
+import com.artemis.io.SaveFileFormat;
+import com.artemis.managers.WorldSerializationManager;
 import com.artemis.utils.Bag;
-import com.badlogic.gdx.maps.MapObject;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.utils.ObjectMap;
 import net.mostlyoriginal.api.event.common.Subscribe;
-import org.ltae.LtaePluginRule;
 import org.ltae.component.Pos;
 import org.ltae.component.Render;
 import org.ltae.component.ZIndex;
 import org.ltae.event.EntityEvent;
-import org.ltae.serialize.EntityDeleter;
 import org.ltae.serialize.ComponentConfig;
 import org.ltae.serialize.EntityBuilder;
+import org.ltae.serialize.EntityDeleter;
 import org.ltae.serialize.EntitySerializer;
 import org.ltae.serialize.data.EntityData;
 import org.ltae.serialize.data.EntityDatum;
+
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 
 
 /**
@@ -27,7 +33,7 @@ import org.ltae.serialize.data.EntityDatum;
 public class EntityFactory extends BaseSystem {
     private final static String TAG = EntityFactory.class.getSimpleName();
     private TiledMapSystem tiledMapSystem;
-    private ObjectMap<String, MapObject> prefabricatedObjects;
+    private ObjectMap<String, com.badlogic.gdx.maps.MapObject> prefabricatedObjects;
 
     public EntityFactory(){
         Bag<Class<? extends Component>> autoCompClasses = new Bag<>();
@@ -48,14 +54,14 @@ public class EntityFactory extends BaseSystem {
     }
     private void delAndCreateAll(){
         EntityDeleter.deleteAll(world);
-        EntityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
+        EntityBuilder.buildEntitiesFromSave(world);
     }
     private void delAndCreateAll(EntityData EntityData){
         EntityDeleter.deleteAll(world);
         EntityBuilder.buildEntities(world, EntityData);
     }
     private void buildAll(){
-        EntityBuilder.buildEntities(world,tiledMapSystem.getCurrent());
+        EntityBuilder.buildEntitiesFromSave(world);
     }
     private void buildEntities(EntityData entityData){
         EntityBuilder.buildEntities(world, entityData);
@@ -70,8 +76,11 @@ public class EntityFactory extends BaseSystem {
         return EntitySerializer.createEntityDatum(world,entityId);
     }
     private String serializerEntitiesJson(){
-        EntityData EntityData = EntitySerializer.createEntityData(world);
-        return EntitySerializer.toJson(EntityData);
+        AspectSubscriptionManager asm = world.getSystem(AspectSubscriptionManager.class);
+        IntBag allEntities = asm.get(Aspect.all()).getEntities();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        world.getSystem(WorldSerializationManager.class).save(baos, new SaveFileFormat(allEntities));
+        return baos.toString(StandardCharsets.UTF_8);
     }
     private void deleteEntity(int entityId){
         EntityDeleter.deleteEntity(world,entityId);

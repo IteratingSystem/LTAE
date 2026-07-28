@@ -21,8 +21,8 @@ public class ShaderComp extends SerializeComponent {
     @SerializeParam
     public String uniformSimpleName;
 
-    public ShaderProgram shaderProgram;
-    public ShaderUniforms shaderUniforms;
+    public transient ShaderProgram shaderProgram;
+    public transient ShaderUniforms shaderUniforms;
 
     @Override
     public void reload(World world, EntityDatum entityDatum) {

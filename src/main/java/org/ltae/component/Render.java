@@ -23,10 +23,10 @@ public class Render extends SerializeComponent {
     public float offsetY = 0;
     public float scaleWidth = 1;
     public float scaleHeight = 1;
-    public TextureRegion keyframe;
+    public transient TextureRegion keyframe;
 
     //纹理集,用于堆叠渲染
-    public Array<TextureRegion> textureSheets;
+    public transient Array<TextureRegion> textureSheets;
     public float sheetOffset;
 
     public boolean flipX = false;

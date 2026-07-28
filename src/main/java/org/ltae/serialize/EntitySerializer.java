@@ -69,7 +69,7 @@ public class EntitySerializer {
                 }
                 entityDatum.compMirrors.add(compMirror);
             }
-            //添加默认组件
+            // 添加默认组件
             for (Class autoCompClass : LtaePluginRule.AUTO_COMP_CLASSES) {
                 String simpleName = autoCompClass.getSimpleName();
                 if (entityDatum.hasComp(simpleName)) {

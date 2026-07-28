@@ -20,7 +20,7 @@ public class Interactive extends SerializeComponent {
     public String simpleName;
 
 
-    public OnInteractListener onInteractListener;
+    public transient OnInteractListener onInteractListener;
     public boolean isExclusiveInteract;
     @Override
     public void reload(World world, EntityDatum entityDatum) {

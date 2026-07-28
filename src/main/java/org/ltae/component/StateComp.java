@@ -29,7 +29,7 @@ public class StateComp extends SerializeComponent {
     @SerializeParam
     public String current;
 
-    public  StateMachine<Entity,State<Entity>> machine;
+    public transient StateMachine<Entity,State<Entity>> machine;
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override

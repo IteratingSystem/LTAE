@@ -29,7 +29,7 @@ public class InputProcess extends SerializeComponent implements Disposable {
     @SerializeParam
     public String simpleName;
 
-    public InputProcessing processing;
+    public transient InputProcessing processing;
 
     @Override
     public void reload(World world, EntityDatum entityDatum) {

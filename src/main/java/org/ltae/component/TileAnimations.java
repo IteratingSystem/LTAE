@@ -23,7 +23,7 @@ import java.util.Iterator;
  **/
 public class TileAnimations extends SerializeComponent {
     private final static String TAG = TileAnimations.class.getSimpleName();
-    public ObjectMap<String,TileAnimation> table;
+    public transient ObjectMap<String,TileAnimation> table;
 
     @SerializeParam
     public String current;

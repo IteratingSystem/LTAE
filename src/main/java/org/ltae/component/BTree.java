@@ -17,7 +17,7 @@ import org.ltae.serialize.data.EntityDatum;
  **/
 public class BTree extends SerializeComponent {
     private final static String TAG = BTree.class.getSimpleName();
-    public BehaviorTree<Entity> tree;
+    public transient BehaviorTree<Entity> tree;
 
     @SerializeParam
     public String treeName;
