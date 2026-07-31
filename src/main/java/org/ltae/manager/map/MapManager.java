@@ -77,7 +77,12 @@ public class MapManager {
         return instance;
     }
     public ObjectMap<String, EntityData> getProtoEntityDate(){
-        return protoEntityData;
+        ObjectMap<String, EntityData> entityData = new ObjectMap<>();
+        for (ObjectMap.Entry<String, EntityData> entry : protoEntityData) {
+            String json = EntitySerializer.toJson(entry.value);
+            entityData.put(entry.key, EntitySerializer.toEntityBag(json));
+        }
+        return entityData;
     }
 
 

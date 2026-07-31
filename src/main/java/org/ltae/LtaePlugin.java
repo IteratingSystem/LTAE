@@ -49,7 +49,7 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(new AssetSystem(LtaePluginRule.SKIN_PATH));//资源系统
         String curtMap = WorldStateManager.getInstance().getWorldState().curtMap;
         worldConfigurationBuilder.with(new TiledMapSystem(
-                !"".equals(curtMap)?curtMap:LtaePluginRule.MAP_NAME,
+                curtMap != null && !curtMap.isBlank() ? curtMap : LtaePluginRule.MAP_NAME,
                 LtaePluginRule.ENTITY_LAYERS,
                 LtaePluginRule.PHY_LAYERS));
         worldConfigurationBuilder.with(new B2dSystem(
