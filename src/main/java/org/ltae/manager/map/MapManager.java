@@ -76,13 +76,20 @@ public class MapManager {
         }
         return instance;
     }
-    public ObjectMap<String, EntityData> getProtoEntityDate(){
+    /** Creates an isolated copy of the Tiled-map prototypes for a new game. */
+    public ObjectMap<String, EntityData> createInitialEntityData(){
         ObjectMap<String, EntityData> entityData = new ObjectMap<>();
         for (ObjectMap.Entry<String, EntityData> entry : protoEntityData) {
             String json = EntitySerializer.toJson(entry.value);
             entityData.put(entry.key, EntitySerializer.toEntityBag(json));
         }
         return entityData;
+    }
+
+    /** @deprecated Use {@link #createInitialEntityData()}. */
+    @Deprecated
+    public ObjectMap<String, EntityData> getProtoEntityDate(){
+        return createInitialEntityData();
     }
 
 

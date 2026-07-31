@@ -2,7 +2,7 @@ package org.ltae.manager.map;
 
 import com.artemis.BaseSystem;
 import com.artemis.World;
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.manager.JsonManager;
 import org.ltae.serialize.EntitySerializer;
 import org.ltae.serialize.SerializeParam;
@@ -14,86 +14,141 @@ import org.ltae.system.TiledMapSystem;
 
 import java.lang.reflect.Field;
 
+/** Owns the active multi-map session and its serialization lifecycle. */
 public class WorldStateManager {
-    private final static String TAG = WorldStateManager.class.getSimpleName();
     private static WorldStateManager instance;
     private WorldState worldState;
-    private WorldStateManager(){
 
+    private WorldStateManager() {
     }
 
-    public static WorldStateManager getInstance(){
+    public static WorldStateManager getInstance() {
         if (instance == null) {
             instance = new WorldStateManager();
         }
         return instance;
     }
-    public static void setNull(){
+
+    public static void setNull() {
         instance = null;
     }
-    public void setWorldState(WorldState worldState){
+
+    public void setWorldState(WorldState worldState) {
+        if (worldState == null) {
+            throw new IllegalArgumentException("worldState cannot be null");
+        }
+        if (worldState.entityData == null) {
+            worldState.entityData = new ObjectMap<>();
+        }
+        if (worldState.systemProps == null) {
+            worldState.systemProps = new ObjectMap<>();
+        }
         this.worldState = worldState;
     }
-    public WorldState getWorldState(){
+
+    public WorldState getWorldState() {
+        requireWorldState();
         return worldState;
     }
 
-    // 更新当前的世界状态
-    public void updateWorldState(World world){
-        // 保存当年地图
-        TiledMapSystem tiledMapSystem = world.getSystem(TiledMapSystem.class);
-        String curtMap = tiledMapSystem.getCurrent();
-        worldState.curtMap = curtMap;
-
-        // 保存当前地图实体数据(其它地图在切换过程中已经写入到状态了)
-        EntityData entityData = EntitySerializer.createEntityData(world);
-        worldState.entityData.put(curtMap, entityData);
-
-        // 保存系统参数
-        for (BaseSystem system : world.getSystems()) {
-            Class<? extends BaseSystem> clazz = system.getClass();
-            // 检查类是否有 @SerializeSystem 注解，而不是 instanceof
-            if (!clazz.isAnnotationPresent(SerializeSystem.class)) {
-                continue;          // 只关心我们自己标记的系统
-            }
-
-            Properties props = new Properties();          // 本系统所有可序列化字段
-
-            /* 遍历 public 字段，只有带 @SerializeParam 的才处理 */
-            for (Field f : clazz.getFields()) {
-                if (!f.isAnnotationPresent(SerializeParam.class)) {
-                    continue;
-                }
-                f.setAccessible(true);   // 保险，防止包权限问题
-                Property p = new Property();
-                p.key   = f.getName();
-                p.type  = f.getType().getName();
-
-                try {
-                    // 真正的反射取值
-                    p.value = f.get(system);
-                } catch (IllegalAccessException e) {
-                    // 理论上不会发生，因为我们提前 setAccessible(true)
-                    throw new RuntimeException("Unable to access field: " + f, e);
-                }
-                props.add(p);
-            }
-
-            /* 写进 worldState */
-            // 注意：worldState.systemProps 的 key 是 Class<BaseSystem>
-            // 而 ss 的实际类型是 Class<? extends SerializeSystem>，可以安全强转
-
-            worldState.systemProps.put(clazz.getName(), props);  // 保存类名而不是Class对象
-        }
+    public String getCurrentMap() {
+        return getWorldState().curtMap;
     }
-    public EntityData getEntityData(String mapName){
+
+    /** Starts an isolated session from the entities defined in the Tiled maps. */
+    public void startNewGame(String initialMap) {
+        if (initialMap == null || initialMap.isBlank()) {
+            throw new IllegalArgumentException("initialMap cannot be blank");
+        }
+        WorldState initialState = new WorldState();
+        initialState.curtMap = initialMap;
+        initialState.entityData = MapManager.getInstance().createInitialEntityData();
+        setWorldState(initialState);
+    }
+
+    /** Replaces the active session with a serialized save. */
+    public void loadSaveJson(String json) {
+        if (json == null || json.isBlank()) {
+            throw new IllegalArgumentException("save json cannot be blank");
+        }
+        setWorldState(JsonManager.fromJson(WorldState.class, json));
+    }
+
+    /** Captures the current map and all serializable system fields. */
+    public void captureCurrentWorld(World world) {
+        requireWorldState();
+        TiledMapSystem tiledMapSystem = world.getSystem(TiledMapSystem.class);
+        String currentMap = tiledMapSystem.getCurrent();
+        worldState.curtMap = currentMap;
+        worldState.entityData.put(currentMap, EntitySerializer.createEntityData(world));
+        captureSystemProperties(world);
+    }
+
+    /** Captures the running world and returns the complete multi-map save. */
+    public String createSaveJson(World world) {
+        captureCurrentWorld(world);
+        return getSaveJson();
+    }
+
+    /** @deprecated Use {@link #captureCurrentWorld(World)}. */
+    @Deprecated
+    public void updateWorldState(World world) {
+        captureCurrentWorld(world);
+    }
+
+    public void changeCurrentMap(String mapName) {
+        if (mapName == null || mapName.isBlank()) {
+            throw new IllegalArgumentException("mapName cannot be blank");
+        }
+        requireWorldState();
+        worldState.curtMap = mapName;
+    }
+
+    public EntityData getEntityData(String mapName) {
+        requireWorldState();
         EntityData entityData = worldState.entityData.get(mapName);
         if (entityData == null) {
             entityData = new EntityData();
+            worldState.entityData.put(mapName, entityData);
         }
         return entityData;
     }
-    public String getSaveJson(){
+
+    public String getSaveJson() {
+        requireWorldState();
         return JsonManager.toJson(worldState);
+    }
+
+    private void captureSystemProperties(World world) {
+        for (BaseSystem system : world.getSystems()) {
+            Class<? extends BaseSystem> systemClass = system.getClass();
+            if (!systemClass.isAnnotationPresent(SerializeSystem.class)) {
+                continue;
+            }
+
+            Properties properties = new Properties();
+            for (Field field : systemClass.getFields()) {
+                if (!field.isAnnotationPresent(SerializeParam.class)) {
+                    continue;
+                }
+                field.setAccessible(true);
+                Property property = new Property();
+                property.key = field.getName();
+                property.type = field.getType().getName();
+                try {
+                    property.value = field.get(system);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Unable to access field: " + field, e);
+                }
+                properties.add(property);
+            }
+            worldState.systemProps.put(systemClass.getName(), properties);
+        }
+    }
+
+    private void requireWorldState() {
+        if (worldState == null) {
+            throw new IllegalStateException("WorldState is not initialized");
+        }
     }
 }

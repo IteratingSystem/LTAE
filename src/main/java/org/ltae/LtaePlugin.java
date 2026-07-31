@@ -47,7 +47,7 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(eventSystem);//事件总线
         //初始系统
         worldConfigurationBuilder.with(new AssetSystem(LtaePluginRule.SKIN_PATH));//资源系统
-        String curtMap = WorldStateManager.getInstance().getWorldState().curtMap;
+        String curtMap = WorldStateManager.getInstance().getCurrentMap();
         worldConfigurationBuilder.with(new TiledMapSystem(
                 curtMap != null && !curtMap.isBlank() ? curtMap : LtaePluginRule.MAP_NAME,
                 LtaePluginRule.ENTITY_LAYERS,
@@ -61,6 +61,7 @@ public class LtaePlugin implements ArtemisPlugin {
         //渲染前更新
         worldConfigurationBuilder.with(new InputProcessSystem()); // 输入处理
         worldConfigurationBuilder.with(new OnInteractSystem()); // 实体被交互处理系统
+        worldConfigurationBuilder.with(new MapTransitionSystem()); // 地图切换事务
         worldConfigurationBuilder.with(new PosFollowBodySystem(LtaePluginRule.WORLD_SCALE)); //坐标跟随物理身体
         worldConfigurationBuilder.with(new BTreeSystem());//行为树系统
         worldConfigurationBuilder.with(new StateSystem());//状态机系统
