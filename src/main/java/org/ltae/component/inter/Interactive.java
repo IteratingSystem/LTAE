@@ -3,10 +3,13 @@ package org.ltae.component.inter;
 import com.artemis.Entity;
 import com.artemis.World;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import org.ltae.component.inter.listener.ExclusiveInteract;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.component.inter.listener.OnInteractListener;
 import org.ltae.manager.ReflectionManager;
+import org.ltae.serialize.PostLoad;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 
@@ -20,11 +23,25 @@ public class Interactive extends SerializeComponent {
     public String simpleName;
 
 
-    public OnInteractListener onInteractListener;
+    public transient OnInteractListener onInteractListener;
     public boolean isExclusiveInteract;
+
     @Override
-    public void reload(World world, EntityDatum entityDatum) {
-        super.reload(world, entityDatum);
+    public void write(Json json) {
+        super.write(json);
+        json.writeValue("simpleName", simpleName);
+        json.writeValue("isExclusiveInteract", isExclusiveInteract);
+    }
+
+    @Override
+    public void read(Json json, JsonValue jsonData) {
+        super.read(json, jsonData);
+        simpleName = jsonData.has("simpleName") ? jsonData.getString("simpleName") : null;
+        isExclusiveInteract = jsonData.getBoolean("isExclusiveInteract", false);
+    }
+
+    @PostLoad
+    public void postLoadInteractive(World world) {
         ReflectionManager reflectionManager = ReflectionManager.getInstance();
         Class<? extends OnInteractListener> aClass = reflectionManager
                 .getSubTypesOfWithGame(OnInteractListener.class)

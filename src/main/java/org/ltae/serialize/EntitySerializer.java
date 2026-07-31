@@ -69,7 +69,7 @@ public class EntitySerializer {
                 }
                 entityDatum.compMirrors.add(compMirror);
             }
-            //添加默认组件
+            // 添加默认组件
             for (Class autoCompClass : LtaePluginRule.AUTO_COMP_CLASSES) {
                 String simpleName = autoCompClass.getSimpleName();
                 if (entityDatum.hasComp(simpleName)) {
@@ -189,6 +189,15 @@ public class EntitySerializer {
 
     @SuppressWarnings("unchecked")
     public static int buildEntity(World world, EntityDatum entityDatum) {
+        return buildEntityInternal(world, entityDatum, true);
+    }
+
+    public static int buildEntityFieldsOnly(World world, EntityDatum entityDatum) {
+        return buildEntityInternal(world, entityDatum, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static int buildEntityInternal(World world, EntityDatum entityDatum, boolean doReload) {
         TagManager tagManager = world.getSystem(TagManager.class);
         int entityId = world.create();
         entityDatum.entityId = entityId;
@@ -309,7 +318,7 @@ public class EntitySerializer {
                 }
 
                 // 执行 reload
-                if (component instanceof SerializeComponent) {
+                if (doReload && component instanceof SerializeComponent) {
                     ((SerializeComponent) component).reload(world, entityDatum);
                     break; // 注意：break 只会跳出内部循环，但通常此组件已处理完成，可以继续下一个组件类
                 }

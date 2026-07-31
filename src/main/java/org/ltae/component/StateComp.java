@@ -7,9 +7,12 @@ import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import org.ltae.LtaePluginRule;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.ReflectionManager;
+import org.ltae.serialize.PostLoad;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 import org.reflections.Reflections;
@@ -29,13 +32,25 @@ public class StateComp extends SerializeComponent {
     @SerializeParam
     public String current;
 
-    public  StateMachine<Entity,State<Entity>> machine;
+    public transient StateMachine<Entity,State<Entity>> machine;
+
+    @Override
+    public void write(Json json) {
+        super.write(json);
+        json.writeValue("simpleName", simpleName);
+        json.writeValue("current", current);
+    }
+
+    @Override
+    public void read(Json json, JsonValue jsonData) {
+        super.read(json, jsonData);
+        simpleName = jsonData.has("simpleName") ? jsonData.getString("simpleName") : null;
+        current = jsonData.has("current") ? jsonData.getString("current") : null;
+    }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    @Override
-    public void reload(World world, EntityDatum entityDatum) {
-        super.reload(world, entityDatum);
-
+    @PostLoad
+    public void postLoadState(World world) {
         ReflectionManager reflectionManager = ReflectionManager.getInstance();
         Class<? extends State> aClass = reflectionManager.getSubTypesOfWithGame(State.class)
                 .stream()

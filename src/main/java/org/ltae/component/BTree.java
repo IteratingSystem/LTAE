@@ -4,8 +4,11 @@ import com.artemis.Entity;
 import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
 import org.ltae.component.parent.SerializeComponent;
+import org.ltae.serialize.PostLoad;
 import org.ltae.system.AssetSystem;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
@@ -17,13 +20,25 @@ import org.ltae.serialize.data.EntityDatum;
  **/
 public class BTree extends SerializeComponent {
     private final static String TAG = BTree.class.getSimpleName();
-    public BehaviorTree<Entity> tree;
+    public transient BehaviorTree<Entity> tree;
 
     @SerializeParam
     public String treeName;
+
     @Override
-    public void reload(World world, EntityDatum entityDatum) {
-        super.reload(world, entityDatum);
+    public void write(Json json) {
+        super.write(json);
+        json.writeValue("treeName", treeName);
+    }
+
+    @Override
+    public void read(Json json, JsonValue jsonData) {
+        super.read(json, jsonData);
+        treeName = jsonData.has("treeName") ? jsonData.getString("treeName") : null;
+    }
+
+    @PostLoad
+    public void postLoadBTree(World world) {
         AssetSystem assetSystem = world.getSystem(AssetSystem.class);
         if (assetSystem == null){
             Gdx.app.error(TAG,"assetSystem is null!");

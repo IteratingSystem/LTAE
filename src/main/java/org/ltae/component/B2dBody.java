@@ -2,6 +2,8 @@ package org.ltae.component;
 
 import com.artemis.Entity;
 import com.artemis.utils.Bag;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
@@ -14,6 +16,8 @@ import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import org.ltae.LtaePluginRule;
 import org.ltae.box2d.*;
 import org.ltae.box2d.listener.EcsContactListener;
@@ -21,6 +25,7 @@ import org.ltae.box2d.setup.FixtureSetup;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.ReflectionManager;
 import org.ltae.manager.map.MapManager;
+import org.ltae.serialize.PostLoad;
 import org.ltae.serialize.data.CompMirror;
 import org.ltae.system.B2dSystem;
 import org.ltae.serialize.SerializeParam;
@@ -46,18 +51,190 @@ public class B2dBody extends SerializeComponent implements Disposable {
     public float linearDamping;//线性阻尼
 
 
-    public Bag<FixtureSetup> keyframeFixSetups;
-    public World b2dWorld;
-    public BodyDef bodyDef;
-    public Body body;
+    public transient Bag<FixtureSetup> keyframeFixSetups;
+    public transient World b2dWorld;
+    public transient BodyDef bodyDef;
+    public transient Body body;
 
     //创建阶段是否翻转,用于给需要随时创建和删除的形状标记创建时的初始位置
     //目前使用的地方未KeyframeShapeSystem
     //需要翻转与当前翻转状态
     public transient  boolean needFlipX = false;
 
+    @Override
+    public void write(Json json) {
+        super.write(json);
+        json.writeValue("defType", defType != null ? defType.name() : null);
+        json.writeValue("defFixed", defFixed);
+        json.writeValue("linearDamping", linearDamping);
+    }
 
     @Override
+    public void read(Json json, JsonValue jsonData) {
+        super.read(json, jsonData);
+        String defTypeName = jsonData.has("defType") ? jsonData.getString("defType") : null;
+        defType = defTypeName != null ? BodyDef.BodyType.valueOf(defTypeName) : BodyDef.BodyType.StaticBody;
+        defFixed = jsonData.getBoolean("defFixed", false);
+        linearDamping = jsonData.getFloat("linearDamping", 0f);
+
+        bodyDef = new BodyDef();
+        bodyDef.fixedRotation = defFixed;
+        bodyDef.type = defType;
+    }
+
+    @PostLoad
+    public void postLoadB2d(com.artemis.World world) {
+        if (bodyDef == null) return;
+
+        B2dSystem b2dSystem = world.getSystem(B2dSystem.class);
+        if (b2dSystem == null) {
+            Gdx.app.error(TAG, "B2dSystem is null");
+            return;
+        }
+        b2dWorld = b2dSystem.box2DWorld;
+
+        if (mapObject == null || tiledMapTile == null) {
+            Gdx.app.error(TAG, "mapObject or tiledMapTile is null");
+            return;
+        }
+
+        MapObjects allObjects = new MapObjects();
+
+        float worldScale = LtaePluginRule.WORLD_SCALE;
+        MapProperties props = mapObject.getProperties();
+        float posX = props.get("x", float.class);
+        float posY = props.get("y", float.class);
+        bodyDef.position.set(worldScale * posX, worldScale * posY);
+
+        body = b2dWorld.createBody(bodyDef);
+        body.setLinearDamping(linearDamping);
+
+        MapObjects objects = tiledMapTile.getObjects();
+        for (MapObject object : objects) {
+            allObjects.add(object);
+        }
+
+        MapManager mapManager = MapManager.getInstance();
+        TiledMapTileSet tileSet = mapManager.getTileSet(tiledMapTile);
+        for (TiledMapTile aTile : tileSet) {
+            if (!(aTile instanceof AnimatedTiledMapTile animatedTile)) {
+                continue;
+            }
+            MapProperties allProps = animatedTile.getProperties();
+            if (!allProps.containsKey("TileAnimation")) {
+                continue;
+            }
+            MapProperties aniProp = allProps.get("TileAnimation", MapProperties.class);
+            if (!aniProp.containsKey("name")) {
+                continue;
+            }
+
+            StaticTiledMapTile[] frameTiles = animatedTile.getFrameTiles();
+            String aniName = aniProp.get("name", "", String.class);
+            for (int i = 0; i < frameTiles.length; i++) {
+                StaticTiledMapTile frameTile = frameTiles[i];
+                MapObjects frameTileObjects = frameTile.getObjects();
+                for (MapObject frameTileObject : frameTileObjects) {
+                    MapProperties properties = frameTileObject.getProperties();
+                    if (!properties.containsKey("FixDef")) {
+                        continue;
+                    }
+                    MapProperties fixDefProps = properties.get("FixDef", MapProperties.class);
+                    fixDefProps.put("keyframeIndex", i);
+                    fixDefProps.put("aniName", aniName);
+                    allObjects.add(frameTileObject);
+                }
+            }
+        }
+
+        float scaleWidth = 1;
+        float scaleHeight = 1;
+        if (mapObject instanceof TextureMapObject textureMapObject) {
+            int regionWidth = textureMapObject.getTextureRegion().getRegionWidth();
+            int regionHeight = textureMapObject.getTextureRegion().getRegionHeight();
+            float tileWidth = props.get("width", (float) regionWidth, float.class);
+            float tileHeight = props.get("height", (float) regionHeight, float.class);
+            scaleWidth = tileWidth / regionWidth;
+            scaleHeight = tileHeight / regionHeight;
+        }
+
+        keyframeFixSetups = new Bag<>();
+
+        for (MapObject object : allObjects) {
+            MapProperties shapeProps = object.getProperties();
+            if (!shapeProps.containsKey("FixDef")) {
+                continue;
+            }
+            MapProperties fixDefProps = shapeProps.get("FixDef", MapProperties.class);
+            float density = fixDefProps.get("density", float.class);
+            float friction = fixDefProps.get("friction", float.class);
+            float restitution = fixDefProps.get("restitution", float.class);
+            boolean isSensor = fixDefProps.get("isSensor", boolean.class);
+            int sensorType = fixDefProps.get("sensorType", Integer.class);
+            String categoryBit = fixDefProps.get("categoryBit", String.class);
+            String maskBits = fixDefProps.get("maskBits", String.class);
+            String listenerSimpleName = fixDefProps.get("listenerSimpleName", String.class);
+            String aniName = fixDefProps.get("aniName", "", String.class);
+            int keyframeIndex = fixDefProps.get("keyframeIndex", 0, Integer.class);
+
+            EcsContactListener ecsContactListener = null;
+
+            ReflectionManager reflectionManager = ReflectionManager.getInstance();
+            Set<Class<? extends EcsContactListener>> subTypesOfWithGame = reflectionManager.getSubTypesOfWithGame(EcsContactListener.class);
+
+            Class<? extends EcsContactListener> aClass = subTypesOfWithGame.stream()
+                    .filter(c -> c.getSimpleName().equals(listenerSimpleName))
+                    .findFirst()
+                    .orElse(null);
+            if (aClass != null) {
+                ecsContactListener = reflectionManager.createObject(
+                        aClass,
+                        new Class[]{Entity.class},
+                        new Entity[]{world.getEntity(entityId)});
+            }
+
+            Shape shape = ShapeUtils.getShapeByMapObject(object, worldScale, scaleWidth, scaleHeight);
+
+            if (shape == null) {
+                continue;
+            }
+
+            Filter filter = new Filter();
+            filter.categoryBits = CategoryBits.valueOf(categoryBit).getBit();
+            filter.maskBits = CategoryBits.getMask(maskBits);
+
+            FixtureDef fixtureDef = new FixtureDef();
+            fixtureDef.density = density;
+            fixtureDef.friction = friction;
+            fixtureDef.restitution = restitution;
+            fixtureDef.isSensor = isSensor;
+            fixtureDef.filter.set(filter);
+            fixtureDef.shape = shape;
+
+            if ("".equals(aniName)) {
+                Fixture fixture = body.createFixture(fixtureDef);
+
+                DefFixData defFixData = new DefFixData();
+                defFixData.entityId = entityId;
+                defFixData.entity = world.getEntity(entityId);
+                defFixData.sensorType = sensorType;
+                defFixData.listener = ecsContactListener;
+
+                fixture.setUserData(defFixData);
+
+                continue;
+            }
+            KeyframeShapeData keyframeShapeData = new KeyframeShapeData();
+            keyframeShapeData.entityId = entityId;
+            keyframeShapeData.entity = world.getEntity(entityId);
+            keyframeShapeData.sensorType = sensorType;
+            keyframeShapeData.listener = ecsContactListener;
+            keyframeShapeData.aniName = aniName;
+            keyframeShapeData.keyframeIndex = keyframeIndex;
+            FixtureSetup fixtureSetup = new FixtureSetup(fixtureDef, keyframeShapeData);
+            keyframeFixSetups.add(fixtureSetup);
+        }
+    }
     public void reload(com.artemis.World world, EntityDatum entityDatum) {
         super.reload(world, entityDatum);
         

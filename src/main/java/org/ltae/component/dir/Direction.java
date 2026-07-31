@@ -1,6 +1,8 @@
 package org.ltae.component.dir;
 
 import com.artemis.World;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
@@ -17,8 +19,23 @@ public class Direction extends SerializeComponent {
     public OrthogonalDir orthogonalDir;
     @SerializeParam
     public VerticalDir verticalDir;
+
     @Override
-    public void reload(World world, EntityDatum entityDatum) {
-        super.reload(world, entityDatum);
+    public void write(Json json) {
+        super.write(json);
+        json.writeValue("horizontalDir", horizontalDir != null ? horizontalDir.name() : null);
+        json.writeValue("orthogonalDir", orthogonalDir != null ? orthogonalDir.name() : null);
+        json.writeValue("verticalDir", verticalDir != null ? verticalDir.name() : null);
+    }
+
+    @Override
+    public void read(Json json, JsonValue jsonData) {
+        super.read(json, jsonData);
+        String hDir = jsonData.has("horizontalDir") ? jsonData.getString("horizontalDir") : null;
+        horizontalDir = hDir != null ? HorizontalDir.valueOf(hDir) : null;
+        String oDir = jsonData.has("orthogonalDir") ? jsonData.getString("orthogonalDir") : null;
+        orthogonalDir = oDir != null ? OrthogonalDir.valueOf(oDir) : null;
+        String vDir = jsonData.has("verticalDir") ? jsonData.getString("verticalDir") : null;
+        verticalDir = vDir != null ? VerticalDir.valueOf(vDir) : null;
     }
 }

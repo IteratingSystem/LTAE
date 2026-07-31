@@ -1,18 +1,24 @@
 package org.ltae.manager.map;
 
+import com.artemis.Aspect;
+import com.artemis.AspectSubscriptionManager;
 import com.artemis.BaseSystem;
 import com.artemis.World;
+import com.artemis.io.SaveFileFormat;
+import com.artemis.managers.WorldSerializationManager;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import org.ltae.manager.JsonManager;
-import org.ltae.serialize.EntitySerializer;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.SerializeSystem;
-import org.ltae.serialize.data.EntityData;
 import org.ltae.serialize.data.Properties;
 import org.ltae.serialize.data.Property;
 import org.ltae.system.TiledMapSystem;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 
 public class WorldStateManager {
     private final static String TAG = WorldStateManager.class.getSimpleName();
@@ -38,61 +44,52 @@ public class WorldStateManager {
         return worldState;
     }
 
-    // 更新当前的世界状态
     public void updateWorldState(World world){
-        // 保存当年地图
         TiledMapSystem tiledMapSystem = world.getSystem(TiledMapSystem.class);
         String curtMap = tiledMapSystem.getCurrent();
         worldState.curtMap = curtMap;
 
-        // 保存当前地图实体数据(其它地图在切换过程中已经写入到状态了)
-        EntityData entityData = EntitySerializer.createEntityData(world);
-        worldState.entityData.put(curtMap, entityData);
+        AspectSubscriptionManager asm = world.getSystem(AspectSubscriptionManager.class);
+        IntBag allEntities = asm.get(Aspect.all()).getEntities();
 
-        // 保存系统参数
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        world.getSystem(WorldSerializationManager.class).save(baos, new SaveFileFormat(allEntities));
+        worldState.entityDataJson.put(curtMap, baos.toString(StandardCharsets.UTF_8));
+
         for (BaseSystem system : world.getSystems()) {
             Class<? extends BaseSystem> clazz = system.getClass();
-            // 检查类是否有 @SerializeSystem 注解，而不是 instanceof
             if (!clazz.isAnnotationPresent(SerializeSystem.class)) {
-                continue;          // 只关心我们自己标记的系统
+                continue;
             }
 
-            Properties props = new Properties();          // 本系统所有可序列化字段
-
-            /* 遍历 public 字段，只有带 @SerializeParam 的才处理 */
+            Properties props = new Properties();
             for (Field f : clazz.getFields()) {
                 if (!f.isAnnotationPresent(SerializeParam.class)) {
                     continue;
                 }
-                f.setAccessible(true);   // 保险，防止包权限问题
+                f.setAccessible(true);
                 Property p = new Property();
                 p.key   = f.getName();
                 p.type  = f.getType().getName();
-
                 try {
-                    // 真正的反射取值
                     p.value = f.get(system);
                 } catch (IllegalAccessException e) {
-                    // 理论上不会发生，因为我们提前 setAccessible(true)
                     throw new RuntimeException("Unable to access field: " + f, e);
                 }
                 props.add(p);
             }
-
-            /* 写进 worldState */
-            // 注意：worldState.systemProps 的 key 是 Class<BaseSystem>
-            // 而 ss 的实际类型是 Class<? extends SerializeSystem>，可以安全强转
-
-            worldState.systemProps.put(clazz.getName(), props);  // 保存类名而不是Class对象
+            worldState.systemProps.put(clazz.getName(), props);
         }
     }
-    public EntityData getEntityData(String mapName){
-        EntityData entityData = worldState.entityData.get(mapName);
-        if (entityData == null) {
-            entityData = new EntityData();
-        }
-        return entityData;
+
+    public String getEntityDataJson(String mapName){
+        return worldState.entityDataJson.get(mapName);
     }
+
+    public void setEntityDataJson(String mapName, String json){
+        worldState.entityDataJson.put(mapName, json);
+    }
+
     public String getSaveJson(){
         return JsonManager.toJson(worldState);
     }

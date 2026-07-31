@@ -1,18 +1,24 @@
 package org.ltae.component;
 
 import com.artemis.ComponentMapper;
+import com.artemis.io.SaveFileFormat;
 import com.artemis.managers.TagManager;
+import com.artemis.managers.WorldSerializationManager;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.event.CameraEvent;
 import org.ltae.event.MapEvent;
 import org.ltae.manager.map.WorldStateManager;
 import org.ltae.serialize.EntityBuilder;
 import org.ltae.serialize.EntityDeleter;
-import org.ltae.serialize.EntitySerializer;
 import org.ltae.serialize.SerializeParam;
-import org.ltae.serialize.data.EntityData;
-import org.ltae.serialize.data.EntityDatum;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @Auther WenLong
@@ -30,13 +36,7 @@ public class Portal extends SerializeComponent {
     public String targetPosEntity;
 
 
-    /**
-     * 将传入的id跳转到目标地点
-     * switchMap: 是否要立即切换游戏地图,比如把玩家传送到另一幅图,则直接切换
-     * @param entityIds
-     * @param switchMap
-     */
-    public void teleport(int[] entityIds,int playerEntityId,boolean switchMap){
+    public void teleport(int[] entityIds, int playerEntityId, boolean switchMap){
         TagManager tagManager = world.getSystem(TagManager.class);
 
         ComponentMapper<Pos> mPos = world.getMapper(Pos.class);
@@ -45,61 +45,84 @@ public class Portal extends SerializeComponent {
         WorldStateManager worldStateManager = WorldStateManager.getInstance();
         String curtMap = worldStateManager.getWorldState().curtMap;
 
-        // 同地图跳转,只需要改pos
         if (targetMap.equals(curtMap)) {
             setPos(entityIds);
-        }else {
-            // 不同地图
+        } else {
             // 世界状态存档
             worldStateManager.updateWorldState(world);
 
-            // 删除当前世界中,需要传送的实体j,并将其加入到目标世界的数据中
-            EntityData cutData = worldStateManager.getEntityData(curtMap);
-            EntityData targetData = worldStateManager.getEntityData(targetMap);
+            // 获取当前地图和目标地图的 Artemis JSON
+            String curtJson = worldStateManager.getEntityDataJson(curtMap);
+            String targetJson = worldStateManager.getEntityDataJson(targetMap);
+
+            Json json = new Json();
+            json.setUsePrototypes(false);
+
+            JsonValue curtRoot = new JsonReader().parse(curtJson);
+            JsonValue curtEntities = curtRoot.get("entities");
+
+            JsonValue targetRoot = (targetJson != null && !targetJson.isEmpty())
+                ? new JsonReader().parse(targetJson)
+                : createEmptyArtemisSave();
+            JsonValue targetEntities = targetRoot.get("entities");
+
             for (int entityId : entityIds) {
-                EntityDatum entityDatum = EntitySerializer.createEntityDatum(world, entityId);
-
-                for (EntityDatum cutDatum : cutData) {
-                    if (cutDatum.entityId != entityId) {
-                        continue;
-                    }
-
-                    // 删除实体在当前世界的数据
-                    cutData.removeValue(cutDatum, false);
-
-                    // 当不需要跳转地图的时候,还需要删除跳转到目标的实体
-                    if (!switchMap){
-                        targetData.add(entityDatum);
+                String idStr = Integer.toString(entityId);
+                JsonValue entityValue = curtEntities.get(idStr);
+                if (entityValue != null) {
+                    // 从当前地图移除
+                    removeChildByName(curtEntities, idStr);
+                    if (!switchMap) {
+                        // 添加到目标地图
+                        targetEntities.addChild(idStr, entityValue);
                         EntityDeleter.deleteEntity(world, entityId);
                     }
                 }
             }
 
-            // 跳转地图
-            if (!switchMap){
+            // 写回 JSON
+            Json jsonWrite = new Json(com.badlogic.gdx.utils.JsonWriter.OutputType.json);
+            worldStateManager.setEntityDataJson(curtMap, jsonWrite.toJson(curtRoot));
+            worldStateManager.setEntityDataJson(targetMap, jsonWrite.toJson(targetRoot));
+
+            if (!switchMap) {
                 return;
             }
-            //删除所有实体,(保留需要跳转的实体)
+            // 删除所有实体(保留需要跳转的)
             EntityDeleter.deleteAll(world, entityIds);
 
             // 切换至目标地图
             MapEvent mapEvent = new MapEvent(MapEvent.CHANGE_MAP);
             mapEvent.mapName = targetMap;
             eventSystem.dispatch(mapEvent);
+
             // 创建目标地图的实体
-            EntityBuilder.buildEntities(world,targetData);
-            // 将当前实体跳转到目标坐标
+            EntityBuilder.buildEntitiesFromJson(world, targetJson);
             setPos(entityIds);
 
             Pos playerPos = mPos.get(playerEntityId);
-            // 直接切换摄像头坐标
             CameraEvent cameraEvent = new CameraEvent(CameraEvent.JUMP_POS);
             cameraEvent.pos = playerPos;
             eventSystem.dispatch(cameraEvent);
 
-            // 切换当前地图
             worldStateManager.getWorldState().curtMap = targetMap;
         }
+    }
+
+    private void removeChildByName(JsonValue parent, String name) {
+        for (JsonValue child = parent.child; child != null; child = child.next) {
+            if (name.equals(child.name())) {
+                parent.remove(name);
+                return;
+            }
+        }
+    }
+
+    private JsonValue createEmptyArtemisSave() {
+        Json json = new Json();
+        SaveFileFormat empty = new SaveFileFormat();
+        String emptyJson = json.toJson(empty);
+        return new JsonReader().parse(emptyJson);
     }
 
     private void setPos(int[] entityIds){
@@ -108,7 +131,6 @@ public class Portal extends SerializeComponent {
         ComponentMapper<B2dBody> mB2dBody = world.getMapper(B2dBody.class);
         int targetId = tagManager.getEntityId(targetPosEntity);
 
-        // 没有找到目标跳转到0
         if (targetId == -1) {
             Gdx.app.error(TAG,"Target pos not found!");
             for (int id : entityIds) {
@@ -121,7 +143,6 @@ public class Portal extends SerializeComponent {
             }
             return;
         }
-        // 有目标跳转
         Pos targetPos = mPos.get(targetId);
         for (int id : entityIds) {
             Pos pos = mPos.get(id);

@@ -7,8 +7,11 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.map.MapManager;
+import org.ltae.serialize.PostLoad;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 
@@ -23,16 +26,31 @@ public class LayerSampling extends SerializeComponent {
 
     //已采样纹理
     public TextureRegion[] regions;
-    public AnimatedTiledMapTile flagAnimTile;
+    public transient AnimatedTiledMapTile flagAnimTile;
     public boolean isCreateAnim;
 
     @Override
-    public void reload(World world, EntityDatum entityDatum) {
-        super.reload(world, entityDatum);
+    public void write(Json json) {
+        super.write(json);
+        json.writeValue("layerName", layerName);
+        json.writeValue("isCreateAnim", isCreateAnim);
+    }
+
+    @Override
+    public void read(Json json, JsonValue jsonData) {
+        super.read(json, jsonData);
+        layerName = jsonData.has("layerName") ? jsonData.getString("layerName") : null;
+        isCreateAnim = jsonData.getBoolean("isCreateAnim", false);
+    }
+
+    @PostLoad
+    public void postLoadLayerSampling(World world) {
         isCreateAnim = false;
-        //获取地图
-        TiledMap tiledMap = MapManager.getInstance().getTiledMap(entityDatum.fromMap);
-        //获取图层
+        if (fromMap == null) return;
+
+        TiledMap tiledMap = MapManager.getInstance().getTiledMap(fromMap);
+        if (tiledMap == null) return;
+
         TiledMapTileLayer mapLayer = null;
         try{
             mapLayer = (TiledMapTileLayer)tiledMap.getLayers().get(layerName);
@@ -40,7 +58,6 @@ public class LayerSampling extends SerializeComponent {
             Gdx.app.error(TAG,"Failed to samplingLayer,layerName is '"+layerName+"'");
             throw new RuntimeException(e);
         }
-        //便利所有的块,找出帧数最高的AnimaTile
         int width = mapLayer.getWidth();
         int height = mapLayer.getHeight();
         for (int i = 0; i < width; i++) {

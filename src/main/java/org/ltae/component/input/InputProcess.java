@@ -4,9 +4,12 @@ package org.ltae.component.input;
 import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import org.ltae.component.parent.SerializeComponent;
 import org.ltae.manager.ReflectionManager;
 import org.ltae.manager.input.InputManager;
+import org.ltae.serialize.PostLoad;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.data.EntityDatum;
 import java.util.Set;
@@ -29,12 +32,24 @@ public class InputProcess extends SerializeComponent implements Disposable {
     @SerializeParam
     public String simpleName;
 
-    public InputProcessing processing;
+    public transient InputProcessing processing;
 
     @Override
-    public void reload(World world, EntityDatum entityDatum) {
-        super.reload(world, entityDatum);
+    public void write(Json json) {
+        super.write(json);
+        json.writeValue("enabled", enabled);
+        json.writeValue("simpleName", simpleName);
+    }
 
+    @Override
+    public void read(Json json, JsonValue jsonData) {
+        super.read(json, jsonData);
+        enabled = jsonData.getBoolean("enabled", false);
+        simpleName = jsonData.has("simpleName") ? jsonData.getString("simpleName") : null;
+    }
+
+    @PostLoad
+    public void postLoadInputProcess(World world) {
         ReflectionManager reflectionManager = ReflectionManager.getInstance();
         Set<Class<? extends InputProcessing>> subTypes = reflectionManager.getSubTypesOfWithGame(InputProcessing.class);
         Class<? extends InputProcessing> targetClass = subTypes.stream()
