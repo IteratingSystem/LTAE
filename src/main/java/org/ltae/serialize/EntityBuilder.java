@@ -1,7 +1,7 @@
 package org.ltae.serialize;
 
 import com.artemis.World;
-import org.ltae.manager.map.WorldStateManager;
+import org.ltae.manager.map.GameSnapshotManager;
 import org.ltae.serialize.data.EntityData;
 import org.ltae.serialize.data.EntityDatum;
 
@@ -14,7 +14,7 @@ public class EntityBuilder {
     private final static String TAG = EntityBuilder.class.getSimpleName();
 
     public static void buildEntities(World world,String mapName) {
-        EntityData entityData = WorldStateManager.getInstance().getEntityData(mapName);
+        EntityData entityData = GameSnapshotManager.getInstance().getEntityData(mapName);
         buildEntities(world, entityData);
     }
     public static void buildEntities(World world, EntityData entityData) {

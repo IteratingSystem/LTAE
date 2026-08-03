@@ -10,7 +10,7 @@ import org.ltae.component.Portal;
 import org.ltae.component.Pos;
 import org.ltae.event.CameraEvent;
 import org.ltae.event.MapEvent;
-import org.ltae.manager.map.WorldStateManager;
+import org.ltae.manager.map.GameSnapshotManager;
 import org.ltae.serialize.EntityBuilder;
 import org.ltae.serialize.EntityDeleter;
 import org.ltae.serialize.EntitySerializer;
@@ -44,7 +44,7 @@ public class MapTransitionSystem extends BaseSystem {
             return;
         }
 
-        WorldStateManager stateManager = WorldStateManager.getInstance();
+        GameSnapshotManager stateManager = GameSnapshotManager.getInstance();
         stateManager.captureCurrentWorld(world);
 
         EntityData sourceData = stateManager.getEntityData(sourceMap);

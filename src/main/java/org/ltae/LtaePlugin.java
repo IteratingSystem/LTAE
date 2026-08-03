@@ -6,14 +6,12 @@ import com.artemis.link.EntityLinkManager;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.TeamManager;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
 import net.mostlyoriginal.api.event.common.EventSystem;
 import net.mostlyoriginal.api.event.common.SubscribeAnnotationFinder;
 import net.mostlyoriginal.api.event.dispatcher.FastEventDispatcher;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.ExtendedComponentMapperPlugin;
 import net.mostlyoriginal.plugin.ProfilerPlugin;
-import org.ltae.manager.map.WorldStateManager;
+import org.ltae.manager.map.GameSnapshotManager;
 import org.ltae.system.*;
 
 /**
@@ -47,7 +45,7 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(eventSystem);//事件总线
         //初始系统
         worldConfigurationBuilder.with(new AssetSystem(LtaePluginRule.SKIN_PATH));//资源系统
-        String curtMap = WorldStateManager.getInstance().getCurrentMap();
+        String curtMap = GameSnapshotManager.getInstance().getCurrentMap();
         worldConfigurationBuilder.with(new TiledMapSystem(
                 curtMap != null && !curtMap.isBlank() ? curtMap : LtaePluginRule.MAP_NAME,
                 LtaePluginRule.ENTITY_LAYERS,
@@ -84,7 +82,7 @@ public class LtaePlugin implements ArtemisPlugin {
         //自动还原系统属性
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
-                new SysPropsRestoreSystem(true)
+                new SysRestoreSystem(true)
         );
         //创建实体
         worldConfigurationBuilder.with(

@@ -5,8 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.ObjectMap;
 import net.mostlyoriginal.api.event.common.Subscribe;
 import org.ltae.event.SystemEvent;
-import org.ltae.manager.map.WorldState;
-import org.ltae.manager.map.WorldStateManager;
+import org.ltae.manager.map.GameSnapshot;
+import org.ltae.manager.map.GameSnapshotManager;
 import org.ltae.serialize.SerializeParam;
 import org.ltae.serialize.SerializeSystem;
 import org.ltae.serialize.data.Properties;
@@ -20,13 +20,13 @@ import java.lang.reflect.Field;
  * @description: 系统属性还原系统
  */
 
-public class SysPropsRestoreSystem extends BaseSystem {
-    private final static String TAG = SysPropsRestoreSystem.class.getSimpleName();
+public class SysRestoreSystem extends BaseSystem {
+    private final static String TAG = SysRestoreSystem.class.getSimpleName();
 
     //自动还原
     private boolean autoRestore;
 
-    public SysPropsRestoreSystem(boolean autoRestore){
+    public SysRestoreSystem(boolean autoRestore){
         this.autoRestore = autoRestore;
     }
 
@@ -54,8 +54,8 @@ public class SysPropsRestoreSystem extends BaseSystem {
     }
 
     private void restoreProps() {
-        WorldState worldState = WorldStateManager.getInstance().getWorldState();
-        ObjectMap<String, Properties> systemProps = worldState.systemProps;
+        GameSnapshot gameSnapshot = GameSnapshotManager.getInstance().getWorldState();
+        ObjectMap<String, Properties> systemProps = gameSnapshot.systemProps;
         if (systemProps == null) {
             Gdx.app.debug(TAG, "Failed to restoreProps, 'systemProps' is null!");
             return;

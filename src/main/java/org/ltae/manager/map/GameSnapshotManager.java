@@ -15,16 +15,16 @@ import org.ltae.system.TiledMapSystem;
 import java.lang.reflect.Field;
 
 /** Owns the active multi-map session and its serialization lifecycle. */
-public class WorldStateManager {
-    private static WorldStateManager instance;
-    private WorldState worldState;
+public class GameSnapshotManager {
+    private static GameSnapshotManager instance;
+    private GameSnapshot gameSnapshot;
 
-    private WorldStateManager() {
+    private GameSnapshotManager() {
     }
 
-    public static WorldStateManager getInstance() {
+    public static GameSnapshotManager getInstance() {
         if (instance == null) {
-            instance = new WorldStateManager();
+            instance = new GameSnapshotManager();
         }
         return instance;
     }
@@ -33,22 +33,22 @@ public class WorldStateManager {
         instance = null;
     }
 
-    public void setWorldState(WorldState worldState) {
-        if (worldState == null) {
+    public void setSnapshot(GameSnapshot gameSnapshot) {
+        if (gameSnapshot == null) {
             throw new IllegalArgumentException("worldState cannot be null");
         }
-        if (worldState.entityData == null) {
-            worldState.entityData = new ObjectMap<>();
+        if (gameSnapshot.entityData == null) {
+            gameSnapshot.entityData = new ObjectMap<>();
         }
-        if (worldState.systemProps == null) {
-            worldState.systemProps = new ObjectMap<>();
+        if (gameSnapshot.systemProps == null) {
+            gameSnapshot.systemProps = new ObjectMap<>();
         }
-        this.worldState = worldState;
+        this.gameSnapshot = gameSnapshot;
     }
 
-    public WorldState getWorldState() {
+    public GameSnapshot getWorldState() {
         requireWorldState();
-        return worldState;
+        return gameSnapshot;
     }
 
     public String getCurrentMap() {
@@ -60,10 +60,10 @@ public class WorldStateManager {
         if (initialMap == null || initialMap.isBlank()) {
             throw new IllegalArgumentException("initialMap cannot be blank");
         }
-        WorldState initialState = new WorldState();
+        GameSnapshot initialState = new GameSnapshot();
         initialState.curtMap = initialMap;
         initialState.entityData = MapManager.getInstance().createInitialEntityData();
-        setWorldState(initialState);
+        setSnapshot(initialState);
     }
 
     /** Replaces the active session with a serialized save. */
@@ -71,7 +71,7 @@ public class WorldStateManager {
         if (json == null || json.isBlank()) {
             throw new IllegalArgumentException("save json cannot be blank");
         }
-        setWorldState(JsonManager.fromJson(WorldState.class, json));
+        setSnapshot(JsonManager.fromJson(GameSnapshot.class, json));
     }
 
     /** Captures the current map and all serializable system fields. */
@@ -79,8 +79,8 @@ public class WorldStateManager {
         requireWorldState();
         TiledMapSystem tiledMapSystem = world.getSystem(TiledMapSystem.class);
         String currentMap = tiledMapSystem.getCurrent();
-        worldState.curtMap = currentMap;
-        worldState.entityData.put(currentMap, EntitySerializer.createEntityData(world));
+        gameSnapshot.curtMap = currentMap;
+        gameSnapshot.entityData.put(currentMap, EntitySerializer.createEntityData(world));
         captureSystemProperties(world);
     }
 
@@ -101,22 +101,22 @@ public class WorldStateManager {
             throw new IllegalArgumentException("mapName cannot be blank");
         }
         requireWorldState();
-        worldState.curtMap = mapName;
+        gameSnapshot.curtMap = mapName;
     }
 
     public EntityData getEntityData(String mapName) {
         requireWorldState();
-        EntityData entityData = worldState.entityData.get(mapName);
+        EntityData entityData = gameSnapshot.entityData.get(mapName);
         if (entityData == null) {
             entityData = new EntityData();
-            worldState.entityData.put(mapName, entityData);
+            gameSnapshot.entityData.put(mapName, entityData);
         }
         return entityData;
     }
 
     public String getSaveJson() {
         requireWorldState();
-        return JsonManager.toJson(worldState);
+        return JsonManager.toJson(gameSnapshot);
     }
 
     private void captureSystemProperties(World world) {
@@ -142,12 +142,12 @@ public class WorldStateManager {
                 }
                 properties.add(property);
             }
-            worldState.systemProps.put(systemClass.getName(), properties);
+            gameSnapshot.systemProps.put(systemClass.getName(), properties);
         }
     }
 
     private void requireWorldState() {
-        if (worldState == null) {
+        if (gameSnapshot == null) {
             throw new IllegalStateException("WorldState is not initialized");
         }
     }
