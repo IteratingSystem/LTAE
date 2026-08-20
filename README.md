@@ -10,7 +10,7 @@ LTAE 不是一个独立运行的游戏，也不接管 LibGDX 的 `ApplicationLis
 
 - JDK 21
 - Gradle 8.14.5（项目当前使用版本）
-- LibGDX 1.12.1
+- LibGDX 1.14.2
 - Artemis-ODB 2.3.0
 - Tiled 1.11.x 至 1.12.x
 - 使用 gdx-liftoff 风格的资源模块，并生成 `assets.txt`
