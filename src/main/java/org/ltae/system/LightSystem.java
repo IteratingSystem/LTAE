@@ -31,10 +31,7 @@ public class LightSystem extends BaseSystem {
         RayHandler.useDiffuseLight(true);
         rayHandler = new RayHandler(b2dSystem.box2DWorld);
         rayHandler.setBlurNum(3);
-        Color color = Color.WHITE;
-        color.r = 0.5f;
-        color.g = 0.5f;
-        color.b = 0.5f;
+        Color color = new Color(0.5f, 0.5f, 0.5f, 1.0f);
         rayHandler.setAmbientLight(color);
     }
 

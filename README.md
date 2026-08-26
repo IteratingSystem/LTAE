@@ -470,6 +470,60 @@ public class HurtUniforms extends ShaderUniforms {
 
 创建 `World` 前设置 `LtaePluginRule.ENABLE_LIGHT = true`。`LightSystem` 与引擎 Box2D World 和相机协同更新；关闭时保留系统但不启用实际光照流程。
 
+#### 动态环境光与地图配置
+
+`DynamicAmbientLight` 根据游戏时间更新环境光，并根据 `TiledMapSystem` 的当前地图选择配置。引擎不限定游戏的时间系统；游戏侧时间系统只需实现 `AmbientLightTimeSource`：
+
+```java
+public class DateTimeSystem extends BaseSystem implements AmbientLightTimeSource {
+    public int hour;
+    public int minute;
+
+    @Override
+    public int getHour() {
+        return hour;
+    }
+
+    @Override
+    public int getMinute() {
+        return minute;
+    }
+}
+```
+
+`AmbientLightProfile.hourly(...)` 接收严格 24 个 `Color`，分别表示 0 点到 23 点的颜色。系统根据当前分钟向下一小时颜色平滑插值。`AmbientLightProfile.constant(...)` 创建全天不变的配置，适合室内或不受世界昼夜影响的地图：
+
+```java
+AmbientLightProfile worldProfile = AmbientLightProfile.hourly(hourlyColors);
+AmbientLightProfile indoorProfile = AmbientLightProfile.constant(
+    new Color(1f, 1f, 1f, 1f)
+);
+
+AmbientLightConfig lightConfig = new AmbientLightConfig(worldProfile)
+    .setMapProfile("house", indoorProfile)
+    .setMapProfile("shop", indoorProfile);
+```
+
+构建 World 时传入同一个时间系统实例：
+
+```java
+DateTimeSystem dateTimeSystem = new DateTimeSystem();
+
+WorldConfiguration configuration = new WorldConfigurationBuilder()
+    .with(new LtaePlugin())
+    .with(dateTimeSystem)
+    .with(new DynamicAmbientLight(dateTimeSystem, lightConfig))
+    .build();
+```
+
+地图选择规则：
+
+1. 当前地图通过 `setMapProfile(mapName, profile)` 配置过时，使用该地图的配置。
+2. 当前地图没有专用配置时，自动使用 `AmbientLightConfig` 的默认配置。
+3. 地图切换后不需要手动通知动态光照系统，下一帧会根据新的当前地图自动选择配置。
+
+`DynamicAmbientLight` 需要由游戏侧显式加入 World，因为时间来源和颜色配置属于具体游戏。应使用普通优先级注册，使它在 LTAE 最低优先级的 `LightSystem` 渲染前完成更新。
+
 ### 10.4 图层采样
 
 `SamplingUtils.getInstance().samplingLayer(map, layerName)` 可直接把一个瓦片层渲染到 `TextureRegion`。`LayerSampling` + `LayerSamplingSystem` 则将这项能力绑定到 ECS 实体，并处理动画层的逐帧采样。返回纹理由 FrameBuffer 持有，长期反复创建时应自行规划释放时机。
