@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.IntArray;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.component.Inert;
@@ -30,6 +31,8 @@ import org.ltae.light.TopDownShadowConfig;
 import org.ltae.light.TopDownShadowLight;
 import org.ltae.light.TopDownSunLight;
 import org.ltae.manager.ShaderManager;
+
+import java.nio.IntBuffer;
 
 /**
  * 为带有TopDownShadow组件的精灵生成并合成俯视角阴影。
@@ -45,6 +48,8 @@ public class TopDownShadowSystem extends BaseSystem {
     private final IntArray sortedShadowEntities = new IntArray();
     private final Vector2 lightDirection = new Vector2();
     private final Vector2 lightPosition = new Vector2();
+    private final IntBuffer glStateBuffer = BufferUtils.newIntBuffer(1);
+    private final int[] previousTextureBindings = new int[4];
 
     private B2dSystem b2dSystem;
     private CameraSystem cameraSystem;
@@ -146,13 +151,52 @@ public class TopDownShadowSystem extends BaseSystem {
         resizeBuffersIfNeeded();
         shadowTime = (shadowTime + Math.min(world.getDelta(), 1f / 15f)) % 1000f;
         synchronizePointLights();
-        sortShadowEntities();
-        renderEntityMask();
-        renderHeightMap();
+        if (shadowSubscription.getEntities().isEmpty()
+            && pointLightSubscription.getEntities().isEmpty()) {
+            return;
+        }
 
-        renderShadowMasks(sunLight);
-        compositeSunShadow();
-        renderPointLights();
+        int previousActiveTexture = captureTextureBindings();
+        try {
+            sortShadowEntities();
+            renderEntityMask();
+            renderHeightMap();
+
+            renderShadowMasks(sunLight);
+            compositeSunShadow();
+            renderPointLights();
+        } finally {
+            restoreTextureBindings(previousActiveTexture);
+        }
+    }
+
+    /**
+     * 保存本系统会占用的纹理单元，避免污染海洋等其它多纹理Shader。
+     */
+    private int captureTextureBindings() {
+        int activeTexture = getGlInteger(GL20.GL_ACTIVE_TEXTURE);
+        for (int unit = 0; unit < previousTextureBindings.length; unit++) {
+            Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0 + unit);
+            previousTextureBindings[unit] =
+                getGlInteger(GL20.GL_TEXTURE_BINDING_2D);
+        }
+        Gdx.gl.glActiveTexture(activeTexture);
+        return activeTexture;
+    }
+
+    private void restoreTextureBindings(int activeTexture) {
+        for (int unit = 0; unit < previousTextureBindings.length; unit++) {
+            Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0 + unit);
+            Gdx.gl.glBindTexture(
+                GL20.GL_TEXTURE_2D, previousTextureBindings[unit]);
+        }
+        Gdx.gl.glActiveTexture(activeTexture);
+    }
+
+    private int getGlInteger(int parameter) {
+        glStateBuffer.clear();
+        Gdx.gl.glGetIntegerv(parameter, glStateBuffer);
+        return glStateBuffer.get(0);
     }
 
     private void synchronizePointLights() {
