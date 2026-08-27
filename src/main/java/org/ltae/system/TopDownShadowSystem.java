@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.IntArray;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
@@ -28,6 +29,7 @@ import org.ltae.component.ZIndex;
 import org.ltae.light.TopDownShadowConfig;
 import org.ltae.light.TopDownShadowLight;
 import org.ltae.light.TopDownSunLight;
+import org.ltae.manager.ShaderManager;
 
 /**
  * 为带有TopDownShadow组件的精灵生成并合成俯视角阴影。
@@ -36,6 +38,7 @@ public class TopDownShadowSystem extends BaseSystem {
     private static final String TAG = TopDownShadowSystem.class.getSimpleName();
     private static final int SHADOW_SEGMENTS = 32;
     private static final int GL_MAX_BLEND_EQUATION = 0x8008;
+    private static final String SHADER_PATH = "shader/topdown/";
 
     private final float worldScale;
     private final TopDownShadowConfig config;
@@ -72,6 +75,7 @@ public class TopDownShadowSystem extends BaseSystem {
     private int bufferWidth;
     private int bufferHeight;
     private float shadowTime;
+    private float sunVisibility = 1f;
 
     public TopDownShadowSystem(float worldScale, TopDownShadowConfig config) {
         if (worldScale <= 0f) {
@@ -108,19 +112,30 @@ public class TopDownShadowSystem extends BaseSystem {
         screenQuad = createScreenQuad();
         projectedShadowMesh = createProjectedShadowMesh();
         ShaderProgram.pedantic = false;
+        ShaderManager shaderManager = ShaderManager.getInstance();
         heightMapShader = compileShader(
-            TopDownShadowShaders.SPRITE_VERTEX_SHADER, TopDownShadowShaders.HEIGHT_MAP_FRAGMENT_SHADER, "Height map");
+            shaderManager.getVertexContext(SHADER_PATH + "sprite"),
+            shaderManager.getFragmentContext(SHADER_PATH + "height_map"),
+            "Height map");
         entityMaskShader = compileShader(
-            TopDownShadowShaders.SPRITE_VERTEX_SHADER, TopDownShadowShaders.ENTITY_MASK_FRAGMENT_SHADER, "Entity mask");
+            shaderManager.getVertexContext(SHADER_PATH + "sprite"),
+            shaderManager.getFragmentContext(SHADER_PATH + "entity_mask"),
+            "Entity mask");
         projectedShadowShader = compileShader(
-            TopDownShadowShaders.PROJECTED_SHADOW_VERTEX_SHADER,
-            TopDownShadowShaders.PROJECTED_SHADOW_FRAGMENT_SHADER, "Projected shadow");
+            shaderManager.getVertexContext(SHADER_PATH + "projected_shadow"),
+            shaderManager.getFragmentContext(SHADER_PATH + "projected_shadow"),
+            "Projected shadow");
         receiverShader = compileShader(
-            TopDownShadowShaders.RECEIVER_VERTEX_SHADER, TopDownShadowShaders.RECEIVER_FRAGMENT_SHADER, "Receiver shadow");
+            shaderManager.getVertexContext(SHADER_PATH + "receiver"),
+            shaderManager.getFragmentContext(SHADER_PATH + "receiver"),
+            "Receiver shadow");
         sunCompositeShader = compileShader(
-            TopDownShadowShaders.SCREEN_VERTEX_SHADER, TopDownShadowShaders.SUN_COMPOSITE_FRAGMENT_SHADER, "Sun composite");
+            shaderManager.getVertexContext(SHADER_PATH + "screen"),
+            shaderManager.getFragmentContext(SHADER_PATH + "sun_composite"),
+            "Sun composite");
         pointCompositeShader = compileShader(
-            TopDownShadowShaders.SCREEN_VERTEX_SHADER, TopDownShadowShaders.POINT_COMPOSITE_FRAGMENT_SHADER,
+            shaderManager.getVertexContext(SHADER_PATH + "screen"),
+            shaderManager.getFragmentContext(SHADER_PATH + "point_composite"),
             "Point composite");
         resizeBuffersIfNeeded();
         Gdx.app.log(TAG, "Top-down shadow system initialized");
@@ -485,7 +500,7 @@ public class TopDownShadowSystem extends BaseSystem {
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         bindCompositeMasks(sunCompositeShader);
         sunCompositeShader.setUniformf(
-            "u_shadowOpacity", config.getSunShadowOpacity());
+            "u_shadowOpacity", config.getSunShadowOpacity() * sunVisibility);
         screenQuad.render(sunCompositeShader, GL20.GL_TRIANGLE_FAN);
         finishComposite();
     }
@@ -608,6 +623,9 @@ public class TopDownShadowSystem extends BaseSystem {
 
     private ShaderProgram compileShader(String vertex, String fragment,
                                         String name) {
+        if (vertex == null || fragment == null) {
+            throw new IllegalStateException(name + " shader source is missing");
+        }
         ShaderProgram shader = new ShaderProgram(vertex, fragment);
         if (!shader.isCompiled()) {
             Gdx.app.error(TAG, name + " shader compile failed: " + shader.getLog());
@@ -619,6 +637,14 @@ public class TopDownShadowSystem extends BaseSystem {
 
     public TopDownSunLight getSunLight() {
         return sunLight;
+    }
+
+    public void setSunVisibility(float sunVisibility) {
+        this.sunVisibility = MathUtils.clamp(sunVisibility, 0f, 1f);
+    }
+
+    public float getSunVisibility() {
+        return sunVisibility;
     }
 
     @Override

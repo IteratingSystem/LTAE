@@ -542,12 +542,15 @@ TopDownShadowConfig shadowConfig = new TopDownShadowConfig()
 WorldConfiguration configuration = new WorldConfigurationBuilder()
     .with(new LtaePlugin())
     // 游戏侧普通优先级系统……
+    .with(new DynamicSunLight(dateTimeSystem))
     .with(new TopDownShadowSystem(
         LtaePluginRule.WORLD_SCALE, shadowConfig))
     .build();
 ```
 
-系统应使用普通优先级，并注册在游戏逻辑系统之后。这样它会在 LTAE 的实体批次完成后合成阴影，并早于最低优先级的 `LightSystem` 和 UI。
+`DynamicSunLight` 默认以 6 点为日出、18 点为日落。太阳在白天扫过 180 度，阴影可见强度在正午达到峰值；夜间太阳对象仍然存在，只把阴影可见强度降为 0。需要其它时间或方向范围时，可以使用完整构造方法。
+
+两个系统都使用普通优先级，并把 `DynamicSunLight` 注册在 `TopDownShadowSystem` 前面。这样太阳参数会先按时间更新，阴影随后在实体批次完成后合成，并早于最低优先级的 `LightSystem` 和 UI。
 
 在 Tiled 的 `propertytypes.json` 中添加并挂载以下组件：
 
@@ -578,6 +581,8 @@ shadows.getSunLight().setDirection(35f);
 ```
 
 `heightRange` 是高度图可表示的最大世界高度；超过它的高度会被截断。`resolutionScale` 控制阴影缓冲区相对窗口的分辨率，默认 `0.5`，提高它会改善边缘精度并增加填充与显存开销。
+
+俯视角光影使用的 GLSL 位于引擎资源目录 `shader/topdown/`。系统通过 `ShaderManager` 按完整 internal/classpath 路径加载，不再把 Shader 字符串写在 Java 类中。`ShaderManager` 仍优先使用游戏 `assets.txt` 中的同名文件，找不到时才回退读取引擎内置资源。
 
 ### 10.5 图层采样
 

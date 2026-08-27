@@ -29,27 +29,32 @@ public class ShaderManager {
         return instance;
     }
     public String getVertexContext(String name) {
-        String vertexFileName = name + VERTEX_EXT;
-        for (String assetPath : assetPathList) {
-            if (!assetPath.endsWith(vertexFileName)) {
-                continue;
-            }
-            assetsHandle = Gdx.files.internal(assetPath);
-            return assetsHandle.readString();
-        }
-        Gdx.app.error(TAG,"Failed to getVertexContext,No shader with this name was found: "+name);
-        return null;
+        return getContext(name, VERTEX_EXT, "vertex");
     }
     public String getFragmentContext(String name) {
-        String fragmentFileName = name + FRAGMENT_EXT;
-        for (String assetPath : assetPathList) {
-            if (!assetPath.endsWith(fragmentFileName)) {
-                continue;
+        return getContext(name, FRAGMENT_EXT, "fragment");
+    }
+
+    private String getContext(String name, String extension, String shaderType) {
+        String shaderFileName = name + extension;
+        if (assetPathList != null) {
+            for (String assetPath : assetPathList) {
+                if (!assetPath.endsWith(shaderFileName)) {
+                    continue;
+                }
+                assetsHandle = Gdx.files.internal(assetPath);
+                return assetsHandle.readString();
             }
-            assetsHandle = Gdx.files.internal(assetPath);
+        }
+
+        // 引擎内置Shader不会出现在游戏项目的assets.txt中，使用完整路径回退读取。
+        assetsHandle = Gdx.files.internal(shaderFileName);
+        if (assetsHandle.exists()) {
             return assetsHandle.readString();
         }
-        Gdx.app.error(TAG,"Failed to getFragmentContext,No shader with this name was found: "+name);
+
+        Gdx.app.error(TAG, "Failed to get " + shaderType
+            + " shader context: " + name);
         return null;
     }
 
