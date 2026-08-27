@@ -59,7 +59,6 @@ public class TopDownShadowSystem extends BaseSystem {
     private M<SoarHeight> mSoarHeight;
     private M<org.ltae.component.TopDownPointLight> mTopDownPointLight;
 
-    private EntitySubscription renderSubscription;
     private EntitySubscription shadowSubscription;
     private EntitySubscription pointLightSubscription;
     private RayHandler pointRayHandler;
@@ -95,8 +94,6 @@ public class TopDownShadowSystem extends BaseSystem {
 
     @Override
     protected void initialize() {
-        renderSubscription = world.getAspectSubscriptionManager().get(
-            Aspect.all(Render.class, Pos.class, ZIndex.class).exclude(Inert.class));
         shadowSubscription = world.getAspectSubscriptionManager().get(
             Aspect.all(Render.class, Pos.class, ZIndex.class, TopDownShadow.class)
                 .exclude(Inert.class));
@@ -279,10 +276,8 @@ public class TopDownShadowSystem extends BaseSystem {
         spriteBatch.setShader(entityMaskShader);
         spriteBatch.begin();
         entityMaskShader.setUniformi("u_texture", 0);
-        IntBag entities = renderSubscription.getEntities();
-        int[] ids = entities.getData();
-        for (int i = 0; i < entities.size(); i++) {
-            drawEntity(ids[i]);
+        for (int i = 0; i < sortedShadowEntities.size; i++) {
+            drawEntity(sortedShadowEntities.get(i));
         }
         spriteBatch.end();
         spriteBatch.setShader(null);
