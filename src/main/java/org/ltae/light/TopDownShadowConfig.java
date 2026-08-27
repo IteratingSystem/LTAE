@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.MathUtils;
 public final class TopDownShadowConfig {
     private float sunDirectionDegree = -49.5f;
     private float sunShadowOpacity = 0.52f;
+    private float sunShadowLengthScale = 1f;
     private float heightRange = 256f;
     private float resolutionScale = 0.5f;
 
@@ -26,6 +27,20 @@ public final class TopDownShadowConfig {
 
     public TopDownShadowConfig setSunShadowOpacity(float sunShadowOpacity) {
         this.sunShadowOpacity = MathUtils.clamp(sunShadowOpacity, 0f, 1f);
+        return this;
+    }
+
+    public float getSunShadowLengthScale() {
+        return sunShadowLengthScale;
+    }
+
+    public TopDownShadowConfig setSunShadowLengthScale(
+        float sunShadowLengthScale) {
+        if (sunShadowLengthScale <= 0f) {
+            throw new IllegalArgumentException(
+                "sunShadowLengthScale must be greater than zero");
+        }
+        this.sunShadowLengthScale = sunShadowLengthScale;
         return this;
     }
 

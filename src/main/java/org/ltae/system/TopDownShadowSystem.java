@@ -374,6 +374,10 @@ public class TopDownShadowSystem extends BaseSystem {
         shader.setUniformf("u_pointMode", light.isDirectional() ? 0f : 1f);
         shader.setUniformf(
             "u_shadowDirection", light.getShadowDirection(lightDirection));
+        if (shader.hasUniform("u_sunShadowLengthScale")) {
+            shader.setUniformf("u_sunShadowLengthScale",
+                config.getSunShadowLengthScale());
+        }
         light.getShadowPosition(lightPosition);
         shader.setUniformf("u_lightPosition", lightPosition);
         shader.setUniformf("u_lightHeight", light.getShadowHeight());

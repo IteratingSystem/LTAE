@@ -536,6 +536,7 @@ WorldConfiguration configuration = new WorldConfigurationBuilder()
 TopDownShadowConfig shadowConfig = new TopDownShadowConfig()
     .setSunDirectionDegree(-49.5f)
     .setSunShadowOpacity(0.52f)
+    .setSunShadowLengthScale(2f)
     .setHeightRange(256f)
     .setResolutionScale(0.5f);
 
@@ -580,7 +581,7 @@ TopDownShadowSystem shadows = world.getSystem(TopDownShadowSystem.class);
 shadows.getSunLight().setDirection(35f);
 ```
 
-`heightRange` 是高度图可表示的最大世界高度；超过它的高度会被截断。`resolutionScale` 控制阴影缓冲区相对窗口的分辨率，默认 `0.5`，提高它会改善边缘精度并增加填充与显存开销。
+`sunShadowLengthScale` 只控制太阳阴影的投影长度，不影响点光源。默认 `1` 表示阴影长度约等于精灵脚点以上的有效纹理高度；设为 `2` 时长度约为两倍。`heightRange` 是高度图可表示的最大世界高度；超过它的高度会被截断。`resolutionScale` 控制阴影缓冲区相对窗口的分辨率，默认 `0.5`，提高它会改善边缘精度并增加填充与显存开销。
 
 俯视角光影使用的 GLSL 位于引擎资源目录 `shader/topdown/`。系统通过 `ShaderManager` 按完整 internal/classpath 路径加载，不再把 Shader 字符串写在 Java 类中。`ShaderManager` 仍优先使用游戏 `assets.txt` 中的同名文件，找不到时才回退读取引擎内置资源。
 
