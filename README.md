@@ -300,6 +300,8 @@ public class Health extends SerializeComponent {
 | `Inert` | 让实体退出多种逻辑和渲染系统的处理 |
 | `LastId` | 保存序列化前的运行时实体 ID，仅用于重建过程中的关联 |
 | `SoarHeight` | 表示实体的视觉悬浮高度 |
+| `TopDownPointLight` | 俯视角点光源参数；运行时光源由 `TopDownShadowSystem` 创建和释放 |
+| `TopDownShadow` | 标记精灵参与俯视角阴影，同时产生阴影并接收其他精灵的阴影 |
 | `Script` | 当前为空的预留组件，尚无执行它的引擎系统 |
 
 `PosFollowBodySystem` 会让 `Pos` 跟随 Box2D Body。直接改 `Pos` 后若实体拥有 Body，应同时调用 `b2dBody.setPos(pos)`。
@@ -524,7 +526,60 @@ WorldConfiguration configuration = new WorldConfigurationBuilder()
 
 `DynamicAmbientLight` 需要由游戏侧显式加入 World，因为时间来源和颜色配置属于具体游戏。应使用普通优先级注册，使它在 LTAE 最低优先级的 `LightSystem` 渲染前完成更新。
 
-### 10.4 图层采样
+### 10.4 俯视角太阳光、点光源与精灵阴影
+
+`TopDownShadowSystem` 使用同一套纹理高度投影处理太阳光和点光源。太阳光只产生阴影；`TopDownPointLight` 使用 box2dlights 生成实际光照，同时使用纹理高度生成阴影。系统逐个渲染并累加点光源，因此不同点光源的阴影不会错误遮挡其他点光源。
+
+在游戏项目中显式注册系统：
+
+```java
+TopDownShadowConfig shadowConfig = new TopDownShadowConfig()
+    .setSunDirectionDegree(-49.5f)
+    .setSunShadowOpacity(0.52f)
+    .setHeightRange(256f)
+    .setResolutionScale(0.5f);
+
+WorldConfiguration configuration = new WorldConfigurationBuilder()
+    .with(new LtaePlugin())
+    // 游戏侧普通优先级系统……
+    .with(new TopDownShadowSystem(
+        LtaePluginRule.WORLD_SCALE, shadowConfig))
+    .build();
+```
+
+系统应使用普通优先级，并注册在游戏逻辑系统之后。这样它会在 LTAE 的实体批次完成后合成阴影，并早于最低优先级的 `LightSystem` 和 UI。
+
+在 Tiled 的 `propertytypes.json` 中添加并挂载以下组件：
+
+- `TopDownShadow`：无字段。挂载它的可见 `Render + Pos + ZIndex` 实体才会产生并接收俯视角阴影。
+- `TopDownPointLight`：需要 `Pos`，可配置 `offsetX`、`offsetY`、`height`、`distance`、`color`、`rays` 和 `onOff`。
+
+点光源的实际世界位置是：
+
+```text
+(Pos.x + offsetX, Pos.y + offsetY) * WORLD_SCALE
+```
+
+阴影高度不需要在组件中填写。系统使用精灵实际绘制位置计算脚点：
+
+```text
+脚点Y = (Pos.y + Render.offsetY + SoarHeight.height + ZIndex.offset)
+         * WORLD_SCALE
+像素高度 = max(0, 像素世界Y - 脚点Y)
+```
+
+因此 `ZIndex.offset` 同时确定排序脚点和阴影高度起点；脚点以下的非透明像素高度按 0 处理，脚点以上逐像素向上累加。系统每帧读取当前 `Render.keyframe`，也支持 `textureSheets`、缩放、翻转、旋转及动画偏移。
+
+运行时可以调整太阳方向：
+
+```java
+TopDownShadowSystem shadows = world.getSystem(TopDownShadowSystem.class);
+shadows.getSunLight().setDirection(35f);
+```
+
+`heightRange` 是高度图可表示的最大世界高度；超过它的高度会被截断。`resolutionScale` 控制阴影缓冲区相对窗口的分辨率，默认 `0.5`，提高它会改善边缘精度并增加填充与显存开销。
+
+### 10.5 图层采样
 
 `SamplingUtils.getInstance().samplingLayer(map, layerName)` 可直接把一个瓦片层渲染到 `TextureRegion`。`LayerSampling` + `LayerSamplingSystem` 则将这项能力绑定到 ECS 实体，并处理动画层的逐帧采样。返回纹理由 FrameBuffer 持有，长期反复创建时应自行规划释放时机。
 
