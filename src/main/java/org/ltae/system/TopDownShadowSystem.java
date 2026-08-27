@@ -140,7 +140,27 @@ public class TopDownShadowSystem extends BaseSystem {
             shaderManager.getFragmentContext(SHADER_PATH + "point_composite"),
             "Point composite");
         resizeBuffersIfNeeded();
+        validateRenderOrder();
         Gdx.app.log(TAG, "Top-down shadow system initialized");
+    }
+
+    /** 检查阴影合成是否位于世界渲染之后。 */
+    private void validateRenderOrder() {
+        int shadowIndex = -1;
+        int renderIndex = -1;
+        for (int i = 0; i < world.getSystems().size(); i++) {
+            BaseSystem system = world.getSystems().get(i);
+            if (system == this) {
+                shadowIndex = i;
+            } else if (system instanceof RenderBatchingSystem) {
+                renderIndex = i;
+            }
+        }
+        if (renderIndex >= 0 && shadowIndex >= 0 && shadowIndex < renderIndex) {
+            Gdx.app.error(TAG,
+                "TopDownShadowSystem must be registered with LOWEST priority "
+                    + "after the world render systems");
+        }
     }
 
     @Override

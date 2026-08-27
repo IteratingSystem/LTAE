@@ -544,14 +544,16 @@ WorldConfiguration configuration = new WorldConfigurationBuilder()
     .with(new LtaePlugin())
     // 游戏侧普通优先级系统……
     .with(new DynamicSunLight(dateTimeSystem))
-    .with(new TopDownShadowSystem(
-        LtaePluginRule.WORLD_SCALE, shadowConfig))
+    .with(
+        WorldConfigurationBuilder.Priority.LOWEST,
+        new TopDownShadowSystem(
+            LtaePluginRule.WORLD_SCALE, shadowConfig))
     .build();
 ```
 
 `DynamicSunLight` 默认以 6 点为日出、18 点为日落。太阳在白天扫过 180 度，阴影可见强度在正午达到峰值；夜间太阳对象仍然存在，只把阴影可见强度降为 0。需要其它时间或方向范围时，可以使用完整构造方法。
 
-两个系统都使用普通优先级，并把 `DynamicSunLight` 注册在 `TopDownShadowSystem` 前面。这样太阳参数会先按时间更新，阴影随后在实体批次完成后合成，并早于最低优先级的 `LightSystem` 和 UI。
+`DynamicSunLight` 使用普通优先级，`TopDownShadowSystem` 必须使用 `LOWEST` 优先级，并把前者注册在后者前面。LTAE 插件会在游戏侧普通优先级系统之后加入世界渲染系统；如果阴影系统也使用普通优先级，它生成的画面会被后续地图清屏覆盖。使用 `LOWEST` 后，太阳参数会先按时间更新，阴影在地图和实体批次完成后合成，并早于 `LightSystem` 和 UI。
 
 在 Tiled 的 `propertytypes.json` 中添加并挂载以下组件：
 
