@@ -85,7 +85,6 @@ public class TopDownShadowSystem extends BaseSystem {
     private int bufferWidth;
     private int bufferHeight;
     private float shadowTime;
-    private float maxShadowDepth;
     public TopDownShadowSystem(float worldScale, TopDownShadowConfig config) {
         this(worldScale, config, new SunLightConfig());
     }
@@ -300,14 +299,11 @@ public class TopDownShadowSystem extends BaseSystem {
 
     private void sortShadowEntities() {
         sortedShadowEntities.clear();
-        maxShadowDepth = 0f;
         IntBag entities = shadowSubscription.getEntities();
         int[] ids = entities.getData();
         for (int i = 0; i < entities.size(); i++) {
             int entityId = ids[i];
             sortedShadowEntities.add(entityId);
-            maxShadowDepth = Math.max(
-                maxShadowDepth, getMaximumShadowDepth(entityId));
         }
         for (int i = 1; i < sortedShadowEntities.size; i++) {
             int entityId = sortedShadowEntities.get(i);
@@ -580,10 +576,11 @@ public class TopDownShadowSystem extends BaseSystem {
         source.getColorBufferTexture().bind(0);
         depthExpandShader.bind();
         depthExpandShader.setUniformi("u_source", 0);
-        depthExpandShader.setUniformf("u_maxDepth", maxShadowDepth);
         depthExpandShader.setUniformf("u_heightRange", config.getHeightRange());
-        depthExpandShader.setUniformf("u_inverseWorldHeight",
-            1f / (cameraSystem.camera.viewportHeight * cameraSystem.camera.zoom));
+        depthExpandShader.setUniformf("u_texelY", 1f / bufferHeight);
+        depthExpandShader.setUniformf("u_worldPerTexelY",
+            cameraSystem.camera.viewportHeight * cameraSystem.camera.zoom
+                / bufferHeight);
         screenQuad.render(depthExpandShader, GL20.GL_TRIANGLE_FAN);
         target.end();
     }
