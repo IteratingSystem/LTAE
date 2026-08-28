@@ -192,6 +192,19 @@ public class TopDownShadowSystem extends BaseSystem {
 
             renderShadowMasks(sunLight);
             compositeSunShadow();
+        } finally {
+            restoreTextureBindings(previousActiveTexture);
+        }
+    }
+
+    /** 在环境光合成完成后绘制点光源，避免环境光再次压暗灯光。 */
+    void renderPointLightsAfterAmbient() {
+        if (pointLightSubscription.getEntities().isEmpty()) {
+            return;
+        }
+
+        int previousActiveTexture = captureTextureBindings();
+        try {
             renderPointLights();
         } finally {
             restoreTextureBindings(previousActiveTexture);

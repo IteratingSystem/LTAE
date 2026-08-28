@@ -33,6 +33,6 @@ void main() {
     float receiver = softShadow(u_receiverShadow, v_texCoords);
     float visibility = 1.0 - max(ground, receiver);
     gl_FragColor = vec4(
-        light.rgb * visibility,
+        light.rgb * light.a * visibility,
         light.a * visibility);
 }

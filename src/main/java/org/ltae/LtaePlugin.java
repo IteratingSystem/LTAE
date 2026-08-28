@@ -143,6 +143,11 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
                 new LightSystem(LtaePluginRule.ENABLE_LIGHT));
+        if (lightTimeSource != null) {
+            worldConfigurationBuilder.with(
+                WorldConfigurationBuilder.Priority.LOWEST,
+                new TopDownPointLightRenderSystem());
+        }
         //绘制UI,放在最后
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
