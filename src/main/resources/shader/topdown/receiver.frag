@@ -8,10 +8,10 @@ varying float v_receiverHeight;
 uniform sampler2D u_texture;
 uniform sampler2D u_heightMap;
 uniform mat4 u_projTrans;
-uniform vec2 u_receiverId;
 uniform float u_heightRange;
 uniform float u_pointMode;
 uniform vec2 u_shadowDirection;
+uniform float u_sunShadowLengthScale;
 uniform vec2 u_lightPosition;
 uniform float u_lightHeight;
 uniform float u_lightRange;
@@ -31,11 +31,14 @@ void main() {
     float shadow = 0.0;
     for (int i = 1; i < 24; i++) {
         float progress = float(i) / 23.0;
-        float rayDistance = u_heightRange * progress;
-        vec2 sunSample = v_world - u_shadowDirection * rayDistance;
+        float sunRayHeightDelta = u_heightRange * progress;
+        float sunRayDistance = sunRayHeightDelta
+            * u_sunShadowLengthScale;
+        vec2 sunSample = v_world
+            - u_shadowDirection * sunRayDistance;
         vec2 pointSample = mix(v_world, u_lightPosition, progress);
         vec2 sampleWorld = mix(sunSample, pointSample, u_pointMode);
-        float sunRayHeight = v_receiverHeight + rayDistance;
+        float sunRayHeight = v_receiverHeight + sunRayHeightDelta;
         float pointRayHeight = mix(
             v_receiverHeight, u_lightHeight, progress);
         float rayHeight = mix(
@@ -49,8 +52,6 @@ void main() {
             * step(sampleUv.y, 1.0);
         vec4 obstacle = texture2D(
             u_heightMap, clamp(sampleUv, 0.0, 1.0));
-        float isSelf = 1.0 - step(
-            0.002, distance(obstacle.gb, u_receiverId));
         float obstacleHeight = obstacle.r * u_heightRange * inside;
         float edgeMotion = sin(u_time * 1.8
             + sampleWorld.x * 0.09
@@ -58,7 +59,7 @@ void main() {
         float occlusion = smoothstep(
             0.3 + edgeMotion, 0.75 + edgeMotion,
             obstacleHeight - rayHeight);
-        shadow = max(shadow, occlusion * (1.0 - isSelf));
+        shadow = max(shadow, occlusion);
     }
     gl_FragColor = vec4(shadow * alpha);
 }

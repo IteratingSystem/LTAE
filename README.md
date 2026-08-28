@@ -585,7 +585,7 @@ shadows.getSunLight().setSunBearingDegree(35f);
 shadows.getSunLight().setElevationDegree(50f);
 ```
 
-太阳阴影长度不提供固定倍率配置，只由太阳高度计算。`heightRange` 是高度图可表示的最大世界高度；超过它的高度会被截断。`resolutionScale` 控制阴影缓冲区相对窗口的分辨率，默认 `0.5`，提高它会改善边缘精度并增加填充与显存开销。
+太阳阴影长度不提供固定倍率配置，只由太阳高度计算。地面投影和精灵接收阴影使用同一个实时倍率；精灵自身与其它精灵也使用同一套高度采样规则，不再排除同一实体。`heightRange` 是高度图可表示的最大世界高度；超过它的高度会被截断。`resolutionScale` 控制阴影缓冲区相对窗口的分辨率，默认 `0.5`，提高它会改善边缘精度并增加填充与显存开销。
 
 俯视角光影使用的 GLSL 位于引擎资源目录 `shader/topdown/`。系统通过 `ShaderManager` 按完整 internal/classpath 路径加载，不再把 Shader 字符串写在 Java 类中。`ShaderManager` 仍优先使用游戏 `assets.txt` 中的同名文件，找不到时才回退读取引擎内置资源。
 

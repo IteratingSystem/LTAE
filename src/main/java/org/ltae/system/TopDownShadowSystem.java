@@ -329,7 +329,6 @@ public class TopDownShadowSystem extends BaseSystem {
         for (int i = 0; i < sortedShadowEntities.size; i++) {
             int entityId = sortedShadowEntities.get(i);
             heightMapShader.setUniformf("u_footY", getFootY(entityId));
-            setReceiverId(heightMapShader, entityId);
             drawEntity(entityId);
             spriteBatch.flush();
         }
@@ -388,7 +387,6 @@ public class TopDownShadowSystem extends BaseSystem {
         for (int i = 0; i < sortedShadowEntities.size; i++) {
             int entityId = sortedShadowEntities.get(i);
             receiverShader.setUniformf("u_footY", getFootY(entityId));
-            setReceiverId(receiverShader, entityId);
             drawEntity(entityId);
             spriteBatch.flush();
         }
@@ -560,13 +558,6 @@ public class TopDownShadowSystem extends BaseSystem {
 
     private float getSoarHeight(int entityId) {
         return mSoarHeight.has(entityId) ? mSoarHeight.get(entityId).height : 0f;
-    }
-
-    private void setReceiverId(ShaderProgram shader, int entityId) {
-        int encodedId = entityId + 1;
-        shader.setUniformf("u_receiverId",
-            (encodedId & 0xff) / 255f,
-            ((encodedId >>> 8) & 0xff) / 255f);
     }
 
     private void compositeSunShadow() {
