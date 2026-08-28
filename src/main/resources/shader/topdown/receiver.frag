@@ -35,9 +35,11 @@ void main() {
         float sunRayDistance = sunRayHeightDelta
             * u_sunShadowLengthScale;
         vec2 sunSample = v_world
-            - u_shadowDirection * sunRayDistance;
+            - u_shadowDirection * sunRayDistance
+            + vec2(0.0, sunRayHeightDelta);
         vec2 pointSample = mix(
-            v_world, u_lightPosition, progress);
+            v_world, u_lightPosition, progress)
+            + vec2(0.0, u_lightHeight * progress);
         vec2 sampleWorld = mix(sunSample, pointSample, u_pointMode);
         float sunRayHeight = v_receiverHeight + sunRayHeightDelta;
         float pointRayHeight = mix(
