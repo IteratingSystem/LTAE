@@ -8,6 +8,7 @@ varying float v_receiverHeight;
 uniform sampler2D u_texture;
 uniform sampler2D u_heightMap;
 uniform mat4 u_projTrans;
+uniform vec2 u_receiverId;
 uniform float u_heightRange;
 uniform float u_pointMode;
 uniform vec2 u_shadowDirection;
@@ -52,6 +53,8 @@ void main() {
             * step(sampleUv.y, 1.0);
         vec4 obstacle = texture2D(
             u_heightMap, clamp(sampleUv, 0.0, 1.0));
+        float isSelf = 1.0 - step(
+            0.002, distance(obstacle.gb, u_receiverId));
         float obstacleHeight = obstacle.r * u_heightRange * inside;
         float edgeMotion = sin(u_time * 1.8
             + sampleWorld.x * 0.09
@@ -59,7 +62,17 @@ void main() {
         float occlusion = smoothstep(
             0.3 + edgeMotion, 0.75 + edgeMotion,
             obstacleHeight - rayHeight);
-        shadow = max(shadow, occlusion);
+        shadow = max(shadow, occlusion * (1.0 - isSelf));
     }
+
+    float directionalBackFace = max(0.0, -u_shadowDirection.y);
+    vec2 receiverBase = vec2(
+        v_world.x, v_world.y - v_receiverHeight);
+    vec2 toPointLight = u_lightPosition - receiverBase;
+    float pointBackFace = max(0.0,
+        toPointLight.y / max(length(toPointLight), 0.0001));
+    float backFaceShadow = mix(
+        directionalBackFace, pointBackFace, u_pointMode);
+    shadow = max(shadow, backFaceShadow);
     gl_FragColor = vec4(shadow * alpha);
 }
