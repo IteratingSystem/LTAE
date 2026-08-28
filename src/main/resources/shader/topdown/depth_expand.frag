@@ -10,7 +10,7 @@ uniform float u_worldPerTexelY;
 void main() {
     float expanded = 0.0;
     for (int i = 0; i < 33; i++) {
-        float texelOffset = (float(i) - 16.0) * 2.0;
+        float texelOffset = float(i) - 16.0;
         float worldOffset = texelOffset * u_worldPerTexelY;
         vec2 sampleUv = v_texCoords
             + vec2(0.0, texelOffset * u_texelY);

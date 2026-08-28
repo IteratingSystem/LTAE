@@ -84,6 +84,7 @@ public class TopDownShadowSystem extends BaseSystem {
     private ShaderProgram depthExpandShader;
     private int bufferWidth;
     private int bufferHeight;
+    private int depthBufferHeight;
     private float shadowTime;
     public TopDownShadowSystem(float worldScale, TopDownShadowConfig config) {
         this(worldScale, config, new SunLightConfig());
@@ -577,10 +578,10 @@ public class TopDownShadowSystem extends BaseSystem {
         depthExpandShader.bind();
         depthExpandShader.setUniformi("u_source", 0);
         depthExpandShader.setUniformf("u_heightRange", config.getHeightRange());
-        depthExpandShader.setUniformf("u_texelY", 1f / bufferHeight);
+        depthExpandShader.setUniformf("u_texelY", 1f / target.getHeight());
         depthExpandShader.setUniformf("u_worldPerTexelY",
             cameraSystem.camera.viewportHeight * cameraSystem.camera.zoom
-                / bufferHeight);
+                / target.getHeight());
         screenQuad.render(depthExpandShader, GL20.GL_TRIANGLE_FAN);
         target.end();
     }
@@ -677,8 +678,7 @@ public class TopDownShadowSystem extends BaseSystem {
 
     private void setCompositeCommonUniforms(ShaderProgram shader) {
         shader.setUniformf("u_shadowTexel",
-            1f / groundShadowMask.getWidth(),
-            1f / groundShadowMask.getHeight());
+            1f / bufferWidth, 1f / bufferHeight);
         shader.setUniformf("u_time", shadowTime);
     }
 
@@ -698,18 +698,27 @@ public class TopDownShadowSystem extends BaseSystem {
         disposeBuffers();
         bufferWidth = width;
         bufferHeight = height;
+        depthBufferHeight = Math.max(1, (height + 1) / 2);
         pointRayHandler.resizeFBO(width, height);
-        heightMapSource = createBuffer(Texture.TextureFilter.Nearest);
-        heightMap = createBuffer(Texture.TextureFilter.Nearest);
+        heightMapSource = createDepthBuffer(Texture.TextureFilter.Nearest);
+        heightMap = createDepthBuffer(Texture.TextureFilter.Linear);
         entityMask = createBuffer(Texture.TextureFilter.Nearest);
-        groundShadowSource = createBuffer(Texture.TextureFilter.Nearest);
-        groundShadowMask = createBuffer(Texture.TextureFilter.Linear);
+        groundShadowSource = createDepthBuffer(Texture.TextureFilter.Nearest);
+        groundShadowMask = createDepthBuffer(Texture.TextureFilter.Linear);
         receiverShadowMask = createBuffer(Texture.TextureFilter.Linear);
     }
 
     private FrameBuffer createBuffer(Texture.TextureFilter filter) {
+        return createBuffer(bufferHeight, filter);
+    }
+
+    private FrameBuffer createDepthBuffer(Texture.TextureFilter filter) {
+        return createBuffer(depthBufferHeight, filter);
+    }
+
+    private FrameBuffer createBuffer(int height, Texture.TextureFilter filter) {
         FrameBuffer buffer = new FrameBuffer(
-            Pixmap.Format.RGBA8888, bufferWidth, bufferHeight, false);
+            Pixmap.Format.RGBA8888, bufferWidth, height, false);
         buffer.getColorBufferTexture().setFilter(filter, filter);
         return buffer;
     }
