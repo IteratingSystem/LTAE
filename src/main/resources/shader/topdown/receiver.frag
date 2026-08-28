@@ -8,7 +8,6 @@ varying float v_receiverHeight;
 uniform sampler2D u_texture;
 uniform sampler2D u_heightMap;
 uniform mat4 u_projTrans;
-uniform vec2 u_receiverId;
 uniform float u_heightRange;
 uniform float u_pointMode;
 uniform vec2 u_shadowDirection;
@@ -23,10 +22,8 @@ void main() {
     if (alpha < 0.01) {
         discard;
     }
-    vec2 receiverBase = vec2(
-        v_world.x, v_world.y - v_receiverHeight);
     if (u_pointMode > 0.5
-        && distance(receiverBase, u_lightPosition) > u_lightRange) {
+        && distance(v_world, u_lightPosition) > u_lightRange) {
         gl_FragColor = vec4(0.0);
         return;
     }
@@ -37,14 +34,14 @@ void main() {
         float sunRayHeightDelta = u_heightRange * progress;
         float sunRayDistance = sunRayHeightDelta
             * u_sunShadowLengthScale;
-        vec2 sunSample = receiverBase
+        vec2 sunSample = v_world
             - u_shadowDirection * sunRayDistance;
         vec2 pointSample = mix(
-            receiverBase, u_lightPosition, progress);
+            v_world, u_lightPosition, progress);
         vec2 sampleWorld = mix(sunSample, pointSample, u_pointMode);
-        float sunRayHeight = sunRayHeightDelta;
+        float sunRayHeight = v_receiverHeight + sunRayHeightDelta;
         float pointRayHeight = mix(
-            0.0, u_lightHeight, progress);
+            v_receiverHeight, u_lightHeight, progress);
         float rayHeight = mix(
             sunRayHeight, pointRayHeight, u_pointMode);
         vec4 sampleClip = u_projTrans
@@ -56,8 +53,6 @@ void main() {
             * step(sampleUv.y, 1.0);
         vec4 obstacle = texture2D(
             u_heightMap, clamp(sampleUv, 0.0, 1.0));
-        float isSelf = 1.0 - step(
-            0.002, distance(obstacle.gb, u_receiverId));
         float obstacleHeight = obstacle.r * u_heightRange * inside;
         float edgeMotion = sin(u_time * 1.8
             + sampleWorld.x * 0.09
@@ -65,15 +60,7 @@ void main() {
         float occlusion = smoothstep(
             0.3 + edgeMotion, 0.75 + edgeMotion,
             obstacleHeight - rayHeight);
-        shadow = max(shadow, occlusion * (1.0 - isSelf));
+        shadow = max(shadow, occlusion);
     }
-
-    float directionalBackFace = max(0.0, -u_shadowDirection.y);
-    vec2 toPointLight = u_lightPosition - receiverBase;
-    float pointBackFace = max(0.0,
-        toPointLight.y / max(length(toPointLight), 0.0001));
-    float backFaceShadow = mix(
-        directionalBackFace, pointBackFace, u_pointMode);
-    shadow = max(shadow, backFaceShadow);
     gl_FragColor = vec4(shadow * alpha);
 }

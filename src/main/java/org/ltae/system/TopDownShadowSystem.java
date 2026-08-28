@@ -388,7 +388,6 @@ public class TopDownShadowSystem extends BaseSystem {
         for (int i = 0; i < sortedShadowEntities.size; i++) {
             int entityId = sortedShadowEntities.get(i);
             receiverShader.setUniformf("u_footY", getFootY(entityId));
-            setReceiverId(receiverShader, entityId);
             drawEntity(entityId);
             spriteBatch.flush();
         }
