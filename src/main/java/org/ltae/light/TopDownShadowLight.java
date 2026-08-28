@@ -12,6 +12,10 @@ public interface TopDownShadowLight {
 
     float getShadowRange();
 
+    default float getShadowLengthScale() {
+        return 1f;
+    }
+
     Vector2 getShadowDirection(Vector2 out);
 
     Vector2 getShadowPosition(Vector2 out);

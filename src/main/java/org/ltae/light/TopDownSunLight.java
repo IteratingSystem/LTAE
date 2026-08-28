@@ -11,8 +11,13 @@ import com.badlogic.gdx.math.Vector2;
  */
 public final class TopDownSunLight extends DirectionalLight
     implements TopDownShadowLight {
+    private static final float MIN_ELEVATION_DEGREE = 1f;
+    private static final float MAX_ELEVATION_DEGREE = 89f;
+
     private final Vector2 shadowDirection = new Vector2();
     private final float shadowHeight;
+    private float sunBearingDegree;
+    private float elevationDegree = 45f;
 
     public TopDownSunLight(RayHandler rayHandler, float directionDegree,
                            float shadowHeight) {
@@ -36,6 +41,27 @@ public final class TopDownSunLight extends DirectionalLight
         }
     }
 
+    /**
+     * 设置太阳所在方位；阴影始终投向相反方向。
+     */
+    public void setSunBearingDegree(float sunBearingDegree) {
+        this.sunBearingDegree = sunBearingDegree;
+        setDirection(sunBearingDegree + 180f);
+    }
+
+    public float getSunBearingDegree() {
+        return sunBearingDegree;
+    }
+
+    public void setElevationDegree(float elevationDegree) {
+        this.elevationDegree = MathUtils.clamp(elevationDegree,
+            MIN_ELEVATION_DEGREE, MAX_ELEVATION_DEGREE);
+    }
+
+    public float getElevationDegree() {
+        return elevationDegree;
+    }
+
     @Override
     public boolean isDirectional() {
         return true;
@@ -49,6 +75,11 @@ public final class TopDownSunLight extends DirectionalLight
     @Override
     public float getShadowRange() {
         return Float.POSITIVE_INFINITY;
+    }
+
+    @Override
+    public float getShadowLengthScale() {
+        return 1f / MathUtils.tanDeg(elevationDegree);
     }
 
     @Override

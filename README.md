@@ -506,15 +506,18 @@ AmbientLightConfig lightConfig = new AmbientLightConfig(worldProfile)
     .setMapProfile("shop", indoorProfile);
 ```
 
-构建 World 时传入同一个时间系统实例：
+构建 World 时，把时间和光照配置交给 `LtaePlugin`：
 
 ```java
 DateTimeSystem dateTimeSystem = new DateTimeSystem();
+TopDownShadowConfig shadowConfig = new TopDownShadowConfig();
+SunLightConfig sunConfig = new SunLightConfig();
+LtaePlugin ltaePlugin = new LtaePlugin().configureLighting(
+    dateTimeSystem, lightConfig, shadowConfig, sunConfig);
 
 WorldConfiguration configuration = new WorldConfigurationBuilder()
-    .with(new LtaePlugin())
+    .with(ltaePlugin)
     .with(dateTimeSystem)
-    .with(new DynamicAmbientLight(dateTimeSystem, lightConfig))
     .build();
 ```
 
@@ -524,36 +527,34 @@ WorldConfiguration configuration = new WorldConfigurationBuilder()
 2. 当前地图没有专用配置时，自动使用 `AmbientLightConfig` 的默认配置。
 3. 地图切换后不需要手动通知动态光照系统，下一帧会根据新的当前地图自动选择配置。
 
-`DynamicAmbientLight` 需要由游戏侧显式加入 World，因为时间来源和颜色配置属于具体游戏。应使用普通优先级注册，使它在 LTAE 最低优先级的 `LightSystem` 渲染前完成更新。
+游戏侧只提供时间来源和配置，不直接注册引擎系统。`LtaePlugin` 会统一安排 `DynamicAmbientLight`、`DynamicSunLight`、`TopDownShadowSystem`、`LightSystem` 与 UI 的顺序。
 
 ### 10.4 俯视角太阳光、点光源与精灵阴影
 
 `TopDownShadowSystem` 使用同一套纹理高度投影处理太阳光和点光源。太阳光只产生阴影；`TopDownPointLight` 使用 box2dlights 生成实际光照，同时使用纹理高度生成阴影。系统逐个渲染并累加点光源，因此不同点光源的阴影不会错误遮挡其他点光源。
 
-在游戏项目中显式注册系统：
+太阳轨迹与阴影渲染使用不同配置：
 
 ```java
 TopDownShadowConfig shadowConfig = new TopDownShadowConfig()
-    .setSunDirectionDegree(-49.5f)
     .setSunShadowOpacity(0.52f)
-    .setSunShadowLengthScale(2f)
     .setHeightRange(256f)
     .setResolutionScale(0.5f);
 
-WorldConfiguration configuration = new WorldConfigurationBuilder()
-    .with(new LtaePlugin())
-    // 游戏侧普通优先级系统……
-    .with(new DynamicSunLight(dateTimeSystem))
-    .with(
-        WorldConfigurationBuilder.Priority.LOWEST,
-        new TopDownShadowSystem(
-            LtaePluginRule.WORLD_SCALE, shadowConfig))
-    .build();
+SunLightConfig sunConfig = new SunLightConfig()
+    .setReference(6f, 0f)
+    .setDailyBearingSweepDegree(-360f)
+    .setElevationRange(26.56505f, 51.34019f);
+
+LtaePlugin ltaePlugin = new LtaePlugin().configureLighting(
+    dateTimeSystem, lightConfig, shadowConfig, sunConfig);
 ```
 
-`DynamicSunLight` 默认以 6 点为日出、18 点为日落。太阳在白天扫过 180 度，阴影可见强度在正午达到峰值；夜间太阳对象仍然存在，只把阴影可见强度降为 0。需要其它时间或方向范围时，可以使用完整构造方法。
+`SunLightConfig` 描述太阳本身，不描述角色阴影。默认以 6 点、屏幕 3 点方向为轨迹参考点，并在 24 小时内顺时针旋转完整一圈。太阳在 6、12、18、24 点依次位于钟表的 3、6、9、12 点方向。`TopDownSunLight` 自动把太阳方位增加 180 度得到光线传播和阴影方向，因此阴影始终位于物体背向太阳的一侧。
 
-`DynamicSunLight` 使用普通优先级，`TopDownShadowSystem` 必须使用 `LOWEST` 优先级，并把前者注册在后者前面。LTAE 插件会在游戏侧普通优先级系统之后加入世界渲染系统；如果阴影系统也使用普通优先级，它生成的画面会被后续地图清屏覆盖。使用 `LOWEST` 后，太阳参数会先按时间更新，阴影在地图和实体批次完成后合成，并早于 `LightSystem` 和 UI。
+太阳高度每 12 小时完成一次最低点到最高点再回到最低点的变化。默认最低高度为 `26.56505` 度，最高高度为 `51.34019` 度。阴影投影比例由 `1 / tan(太阳高度)` 实时计算，因此在 6、12、18、24 点依次形成约 `2.0 -> 0.8 -> 2.0 -> 0.8` 倍。太阳阴影不会在夜间被代码关闭；夜间是否容易观察由环境光亮度决定。
+
+系统顺序由 `LtaePlugin` 内部固定：先更新时间和太阳，再绘制地图与实体，随后合成俯视角阴影，最后执行 box2dlights 与 UI。游戏项目不应直接把这些引擎系统加入 `WorldConfigurationBuilder`。
 
 在 Tiled 的 `propertytypes.json` 中添加并挂载以下组件：
 
@@ -576,14 +577,15 @@ WorldConfiguration configuration = new WorldConfigurationBuilder()
 
 因此 `ZIndex.offset` 同时确定排序脚点和阴影高度起点；脚点以下的非透明像素高度按 0 处理，脚点以上逐像素向上累加。系统每帧读取当前 `Render.keyframe`，也支持 `textureSheets`、缩放、翻转、旋转及动画偏移。
 
-运行时可以调整太阳方向：
+运行时可以调整太阳方位和高度：
 
 ```java
 TopDownShadowSystem shadows = world.getSystem(TopDownShadowSystem.class);
-shadows.getSunLight().setDirection(35f);
+shadows.getSunLight().setSunBearingDegree(35f);
+shadows.getSunLight().setElevationDegree(50f);
 ```
 
-`sunShadowLengthScale` 只控制太阳阴影的投影长度，不影响点光源。默认 `1` 表示阴影长度约等于精灵脚点以上的有效纹理高度；设为 `2` 时长度约为两倍。`heightRange` 是高度图可表示的最大世界高度；超过它的高度会被截断。`resolutionScale` 控制阴影缓冲区相对窗口的分辨率，默认 `0.5`，提高它会改善边缘精度并增加填充与显存开销。
+太阳阴影长度不提供固定倍率配置，只由太阳高度计算。`heightRange` 是高度图可表示的最大世界高度；超过它的高度会被截断。`resolutionScale` 控制阴影缓冲区相对窗口的分辨率，默认 `0.5`，提高它会改善边缘精度并增加填充与显存开销。
 
 俯视角光影使用的 GLSL 位于引擎资源目录 `shader/topdown/`。系统通过 `ShaderManager` 按完整 internal/classpath 路径加载，不再把 Shader 字符串写在 Java 类中。`ShaderManager` 仍优先使用游戏 `assets.txt` 中的同名文件，找不到时才回退读取引擎内置资源。
 

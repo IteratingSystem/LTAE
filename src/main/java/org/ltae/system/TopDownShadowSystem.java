@@ -27,6 +27,7 @@ import org.ltae.component.Render;
 import org.ltae.component.SoarHeight;
 import org.ltae.component.TopDownShadow;
 import org.ltae.component.ZIndex;
+import org.ltae.light.SunLightConfig;
 import org.ltae.light.TopDownShadowConfig;
 import org.ltae.light.TopDownShadowLight;
 import org.ltae.light.TopDownSunLight;
@@ -45,6 +46,7 @@ public class TopDownShadowSystem extends BaseSystem {
 
     private final float worldScale;
     private final TopDownShadowConfig config;
+    private final SunLightConfig sunConfig;
     private final IntArray sortedShadowEntities = new IntArray();
     private final Vector2 lightDirection = new Vector2();
     private final Vector2 lightPosition = new Vector2();
@@ -79,17 +81,24 @@ public class TopDownShadowSystem extends BaseSystem {
     private int bufferWidth;
     private int bufferHeight;
     private float shadowTime;
-    private float sunVisibility = 1f;
-
     public TopDownShadowSystem(float worldScale, TopDownShadowConfig config) {
+        this(worldScale, config, new SunLightConfig());
+    }
+
+    public TopDownShadowSystem(float worldScale, TopDownShadowConfig config,
+                               SunLightConfig sunConfig) {
         if (worldScale <= 0f) {
             throw new IllegalArgumentException("worldScale must be greater than zero");
         }
         if (config == null) {
             throw new IllegalArgumentException("config cannot be null");
         }
+        if (sunConfig == null) {
+            throw new IllegalArgumentException("sunConfig cannot be null");
+        }
         this.worldScale = worldScale;
         this.config = config;
+        this.sunConfig = sunConfig;
     }
 
     @Override
@@ -107,8 +116,10 @@ public class TopDownShadowSystem extends BaseSystem {
         pointRayHandler.setBlur(true);
         pointRayHandler.setBlurNum(1);
         pointRayHandler.setLightMapRendering(false);
-        sunLight = new TopDownSunLight(pointRayHandler,
-            config.getSunDirectionDegree(), config.getHeightRange());
+        sunLight = new TopDownSunLight(pointRayHandler, 0f,
+            config.getHeightRange());
+        sunLight.setSunBearingDegree(sunConfig.getReferenceBearingDegree());
+        sunLight.setElevationDegree(sunConfig.getMinimumElevationDegree());
 
         spriteBatch = new SpriteBatch();
         screenQuad = createScreenQuad();
@@ -396,7 +407,7 @@ public class TopDownShadowSystem extends BaseSystem {
             "u_shadowDirection", light.getShadowDirection(lightDirection));
         if (shader.hasUniform("u_sunShadowLengthScale")) {
             shader.setUniformf("u_sunShadowLengthScale",
-                config.getSunShadowLengthScale());
+                light.getShadowLengthScale());
         }
         light.getShadowPosition(lightPosition);
         shader.setUniformf("u_lightPosition", lightPosition);
@@ -563,7 +574,7 @@ public class TopDownShadowSystem extends BaseSystem {
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         bindCompositeMasks(sunCompositeShader);
         sunCompositeShader.setUniformf(
-            "u_shadowOpacity", config.getSunShadowOpacity() * sunVisibility);
+            "u_shadowOpacity", config.getSunShadowOpacity());
         screenQuad.render(sunCompositeShader, GL20.GL_TRIANGLE_FAN);
         finishComposite();
     }
@@ -700,14 +711,6 @@ public class TopDownShadowSystem extends BaseSystem {
 
     public TopDownSunLight getSunLight() {
         return sunLight;
-    }
-
-    public void setSunVisibility(float sunVisibility) {
-        this.sunVisibility = MathUtils.clamp(sunVisibility, 0f, 1f);
-    }
-
-    public float getSunVisibility() {
-        return sunVisibility;
     }
 
     @Override

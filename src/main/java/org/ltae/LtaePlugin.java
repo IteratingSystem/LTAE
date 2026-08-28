@@ -11,6 +11,10 @@ import net.mostlyoriginal.api.event.common.SubscribeAnnotationFinder;
 import net.mostlyoriginal.api.event.dispatcher.FastEventDispatcher;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.ExtendedComponentMapperPlugin;
 import net.mostlyoriginal.plugin.ProfilerPlugin;
+import org.ltae.light.AmbientLightConfig;
+import org.ltae.light.AmbientLightTimeSource;
+import org.ltae.light.SunLightConfig;
+import org.ltae.light.TopDownShadowConfig;
 import org.ltae.manager.map.GameSnapshotManager;
 import org.ltae.system.*;
 
@@ -21,9 +25,42 @@ import org.ltae.system.*;
  **/
 public class LtaePlugin implements ArtemisPlugin {
     private CameraSystem cameraSystem;
+    private AmbientLightTimeSource lightTimeSource;
+    private AmbientLightConfig ambientLightConfig;
+    private TopDownShadowConfig topDownShadowConfig;
+    private SunLightConfig sunLightConfig;
 
 
     public LtaePlugin(){}
+
+    /**
+     * 配置由引擎统一排序和注册的动态环境光与俯视角光影系统。
+     */
+    public LtaePlugin configureLighting(
+        AmbientLightTimeSource lightTimeSource,
+        AmbientLightConfig ambientLightConfig,
+        TopDownShadowConfig topDownShadowConfig) {
+        return configureLighting(lightTimeSource, ambientLightConfig,
+            topDownShadowConfig, new SunLightConfig());
+    }
+
+    public LtaePlugin configureLighting(
+        AmbientLightTimeSource lightTimeSource,
+        AmbientLightConfig ambientLightConfig,
+        TopDownShadowConfig topDownShadowConfig,
+        SunLightConfig sunLightConfig) {
+        if (lightTimeSource == null || ambientLightConfig == null
+            || topDownShadowConfig == null || sunLightConfig == null) {
+            throw new IllegalArgumentException(
+                "lighting time source and configs cannot be null");
+        }
+        this.lightTimeSource = lightTimeSource;
+        this.ambientLightConfig = ambientLightConfig;
+        this.topDownShadowConfig = topDownShadowConfig;
+        this.sunLightConfig = sunLightConfig;
+        return this;
+    }
+
     @Override
     public void setup(WorldConfigurationBuilder worldConfigurationBuilder) {
         RenderBatchingSystem renderBatchingSystem = new RenderBatchingSystem();
@@ -68,6 +105,12 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(new TileAnimSystem());//动画系统
         worldConfigurationBuilder.with(new LayerSamplingSystem());//图层采样
         worldConfigurationBuilder.with(new ZIndexSystem());//渲染顺序
+        if (lightTimeSource != null) {
+            worldConfigurationBuilder.with(new DynamicAmbientLight(
+                lightTimeSource, ambientLightConfig));
+            worldConfigurationBuilder.with(new DynamicSunLight(
+                lightTimeSource, sunLightConfig));
+        }
 
         //渲染
         worldConfigurationBuilder.with(new RenderTiledSystem(LtaePluginRule.WORLD_SCALE));//渲染瓦片地图
@@ -78,6 +121,14 @@ public class LtaePlugin implements ArtemisPlugin {
                 LtaePluginRule.WORLD_SCALE));
         //渲染物理效果系统(debug)
         worldConfigurationBuilder.with(new RenderPhysicsSystem());
+
+        if (lightTimeSource != null) {
+            worldConfigurationBuilder.with(
+                WorldConfigurationBuilder.Priority.LOWEST,
+                new TopDownShadowSystem(
+                    LtaePluginRule.WORLD_SCALE, topDownShadowConfig,
+                    sunLightConfig));
+        }
 
         //自动还原系统属性
         worldConfigurationBuilder.with(
