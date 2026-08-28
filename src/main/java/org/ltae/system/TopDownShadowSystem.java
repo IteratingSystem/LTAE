@@ -59,6 +59,7 @@ public class TopDownShadowSystem extends BaseSystem {
     private M<Render> mRender;
     private M<ZIndex> mZIndex;
     private M<SoarHeight> mSoarHeight;
+    private M<TopDownShadow> mTopDownShadow;
     private M<org.ltae.component.TopDownPointLight> mTopDownPointLight;
 
     private EntitySubscription shadowSubscription;
@@ -68,8 +69,10 @@ public class TopDownShadowSystem extends BaseSystem {
     private SpriteBatch spriteBatch;
     private Mesh screenQuad;
     private Mesh projectedShadowMesh;
+    private FrameBuffer heightMapSource;
     private FrameBuffer heightMap;
     private FrameBuffer entityMask;
+    private FrameBuffer groundShadowSource;
     private FrameBuffer groundShadowMask;
     private FrameBuffer receiverShadowMask;
     private ShaderProgram heightMapShader;
@@ -78,9 +81,11 @@ public class TopDownShadowSystem extends BaseSystem {
     private ShaderProgram receiverShader;
     private ShaderProgram sunCompositeShader;
     private ShaderProgram pointCompositeShader;
+    private ShaderProgram depthExpandShader;
     private int bufferWidth;
     private int bufferHeight;
     private float shadowTime;
+    private float maxShadowDepth;
     public TopDownShadowSystem(float worldScale, TopDownShadowConfig config) {
         this(worldScale, config, new SunLightConfig());
     }
@@ -150,6 +155,10 @@ public class TopDownShadowSystem extends BaseSystem {
             shaderManager.getVertexContext(SHADER_PATH + "screen"),
             shaderManager.getFragmentContext(SHADER_PATH + "point_composite"),
             "Point composite");
+        depthExpandShader = compileShader(
+            shaderManager.getVertexContext(SHADER_PATH + "screen"),
+            shaderManager.getFragmentContext(SHADER_PATH + "depth_expand"),
+            "Shadow depth expansion");
         resizeBuffersIfNeeded();
         validateRenderOrder();
         Gdx.app.log(TAG, "Top-down shadow system initialized");
@@ -291,10 +300,14 @@ public class TopDownShadowSystem extends BaseSystem {
 
     private void sortShadowEntities() {
         sortedShadowEntities.clear();
+        maxShadowDepth = 0f;
         IntBag entities = shadowSubscription.getEntities();
         int[] ids = entities.getData();
         for (int i = 0; i < entities.size(); i++) {
-            sortedShadowEntities.add(ids[i]);
+            int entityId = ids[i];
+            sortedShadowEntities.add(entityId);
+            maxShadowDepth = Math.max(
+                maxShadowDepth, getMaximumShadowDepth(entityId));
         }
         for (int i = 1; i < sortedShadowEntities.size; i++) {
             int entityId = sortedShadowEntities.get(i);
@@ -331,7 +344,7 @@ public class TopDownShadowSystem extends BaseSystem {
     }
 
     private void renderHeightMap() {
-        heightMap.begin();
+        heightMapSource.begin();
         clearBuffer();
         spriteBatch.setProjectionMatrix(cameraSystem.camera.combined);
         spriteBatch.setShader(heightMapShader);
@@ -342,14 +355,16 @@ public class TopDownShadowSystem extends BaseSystem {
         for (int i = 0; i < sortedShadowEntities.size; i++) {
             int entityId = sortedShadowEntities.get(i);
             heightMapShader.setUniformf("u_footY", getFootY(entityId));
-            setReceiverId(heightMapShader, entityId);
+            heightMapShader.setUniformf(
+                "u_shadowDepth", getMaximumShadowDepth(entityId));
             drawEntity(entityId);
             spriteBatch.flush();
         }
         spriteBatch.end();
         spriteBatch.enableBlending();
         spriteBatch.setShader(null);
-        heightMap.end();
+        heightMapSource.end();
+        expandDepth(heightMapSource, heightMap);
     }
 
     private void renderShadowMasks(TopDownShadowLight light) {
@@ -358,7 +373,7 @@ public class TopDownShadowSystem extends BaseSystem {
     }
 
     private void renderGroundShadowMask(TopDownShadowLight light) {
-        groundShadowMask.begin();
+        groundShadowSource.begin();
         clearBuffer();
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendEquation(GL_MAX_BLEND_EQUATION);
@@ -367,6 +382,8 @@ public class TopDownShadowSystem extends BaseSystem {
         projectedShadowShader.setUniformi("u_texture", 0);
         projectedShadowShader.setUniformMatrix(
             "u_projTrans", cameraSystem.camera.combined);
+        projectedShadowShader.setUniformf(
+            "u_heightRange", config.getHeightRange());
         setLightUniforms(projectedShadowShader, light);
         for (int i = 0; i < sortedShadowEntities.size; i++) {
             int entityId = sortedShadowEntities.get(i);
@@ -377,7 +394,8 @@ public class TopDownShadowSystem extends BaseSystem {
         }
         Gdx.gl.glBlendEquation(GL20.GL_FUNC_ADD);
         Gdx.gl.glDisable(GL20.GL_BLEND);
-        groundShadowMask.end();
+        groundShadowSource.end();
+        expandDepth(groundShadowSource, groundShadowMask);
     }
 
     private void renderReceiverShadowMask(TopDownShadowLight light) {
@@ -440,17 +458,17 @@ public class TopDownShadowSystem extends BaseSystem {
             for (int i = 0; i < render.textureSheets.size; i++) {
                 TextureRegion region = render.textureSheets.get(i);
                 if (region != null) {
-                    renderProjectedRegion(render, pos, region,
+                    renderProjectedRegion(entityId, render, pos, region,
                         soarHeight + i * render.sheetOffset, getFootY(entityId));
                 }
             }
             return;
         }
         renderProjectedRegion(
-            render, pos, render.keyframe, soarHeight, getFootY(entityId));
+            entityId, render, pos, render.keyframe, soarHeight, getFootY(entityId));
     }
 
-    private void renderProjectedRegion(Render render, Pos pos,
+    private void renderProjectedRegion(int entityId, Render render, Pos pos,
                                        TextureRegion region, float extraY,
                                        float footY) {
         Texture texture = region.getTexture();
@@ -466,6 +484,8 @@ public class TopDownShadowSystem extends BaseSystem {
         projectedShadowShader.setUniformf("u_scale", scaleX, scaleY);
         projectedShadowShader.setUniformf("u_rotation", render.rotation);
         projectedShadowShader.setUniformf("u_footY", footY);
+        projectedShadowShader.setUniformf(
+            "u_shadowDepth", getShadowDepth(entityId, region));
         setTextureCoordinates(projectedShadowShader, render, region);
         texture.bind(0);
         projectedShadowMesh.render(
@@ -522,6 +542,52 @@ public class TopDownShadowSystem extends BaseSystem {
         return Math.max(0f, drawBottom + drawHeight - getFootY(entityId));
     }
 
+    private float getMaximumShadowDepth(int entityId) {
+        Render render = mRender.get(entityId);
+        if (!isRenderable(render)) {
+            return 0f;
+        }
+        TopDownShadow shadow = mTopDownShadow.get(entityId);
+        if (shadow.depth > 0f) {
+            return shadow.depth * worldScale;
+        }
+
+        float maximumWidth = render.keyframe.getRegionWidth();
+        if (render.textureSheets != null) {
+            for (int i = 0; i < render.textureSheets.size; i++) {
+                TextureRegion region = render.textureSheets.get(i);
+                if (region != null) {
+                    maximumWidth = Math.max(maximumWidth, region.getRegionWidth());
+                }
+            }
+        }
+        return maximumWidth * Math.abs(worldScale * render.scaleWidth) / 5f;
+    }
+
+    private float getShadowDepth(int entityId, TextureRegion region) {
+        TopDownShadow shadow = mTopDownShadow.get(entityId);
+        if (shadow.depth > 0f) {
+            return shadow.depth * worldScale;
+        }
+        return region.getRegionWidth()
+            * Math.abs(worldScale * mRender.get(entityId).scaleWidth) / 5f;
+    }
+
+    private void expandDepth(FrameBuffer source, FrameBuffer target) {
+        target.begin();
+        clearBuffer();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+        source.getColorBufferTexture().bind(0);
+        depthExpandShader.bind();
+        depthExpandShader.setUniformi("u_source", 0);
+        depthExpandShader.setUniformf("u_maxDepth", maxShadowDepth);
+        depthExpandShader.setUniformf("u_heightRange", config.getHeightRange());
+        depthExpandShader.setUniformf("u_inverseWorldHeight",
+            1f / (cameraSystem.camera.viewportHeight * cameraSystem.camera.zoom));
+        screenQuad.render(depthExpandShader, GL20.GL_TRIANGLE_FAN);
+        target.end();
+    }
+
     private void drawEntity(int entityId) {
         Render render = mRender.get(entityId);
         if (!isRenderable(render)) {
@@ -572,13 +638,6 @@ public class TopDownShadowSystem extends BaseSystem {
 
     private float getSoarHeight(int entityId) {
         return mSoarHeight.has(entityId) ? mSoarHeight.get(entityId).height : 0f;
-    }
-
-    private void setReceiverId(ShaderProgram shader, int entityId) {
-        int encodedId = entityId + 1;
-        shader.setUniformf("u_receiverId",
-            (encodedId & 0xff) / 255f,
-            ((encodedId >>> 8) & 0xff) / 255f);
     }
 
     private void compositeSunShadow() {
@@ -643,8 +702,10 @@ public class TopDownShadowSystem extends BaseSystem {
         bufferWidth = width;
         bufferHeight = height;
         pointRayHandler.resizeFBO(width, height);
+        heightMapSource = createBuffer(Texture.TextureFilter.Nearest);
         heightMap = createBuffer(Texture.TextureFilter.Nearest);
         entityMask = createBuffer(Texture.TextureFilter.Nearest);
+        groundShadowSource = createBuffer(Texture.TextureFilter.Nearest);
         groundShadowMask = createBuffer(Texture.TextureFilter.Linear);
         receiverShadowMask = createBuffer(Texture.TextureFilter.Linear);
     }
@@ -658,8 +719,10 @@ public class TopDownShadowSystem extends BaseSystem {
 
     private void disposeBuffers() {
         if (heightMap != null) {
+            heightMapSource.dispose();
             heightMap.dispose();
             entityMask.dispose();
+            groundShadowSource.dispose();
             groundShadowMask.dispose();
             receiverShadowMask.dispose();
         }
@@ -741,6 +804,7 @@ public class TopDownShadowSystem extends BaseSystem {
             receiverShader.dispose();
             sunCompositeShader.dispose();
             pointCompositeShader.dispose();
+            depthExpandShader.dispose();
         }
     }
 }
