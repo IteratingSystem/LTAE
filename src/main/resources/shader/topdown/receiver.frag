@@ -23,8 +23,10 @@ void main() {
     if (alpha < 0.01) {
         discard;
     }
+    vec2 receiverBase = vec2(
+        v_world.x, v_world.y - v_receiverHeight);
     if (u_pointMode > 0.5
-        && distance(v_world, u_lightPosition) > u_lightRange) {
+        && distance(receiverBase, u_lightPosition) > u_lightRange) {
         gl_FragColor = vec4(0.0);
         return;
     }
@@ -35,13 +37,14 @@ void main() {
         float sunRayHeightDelta = u_heightRange * progress;
         float sunRayDistance = sunRayHeightDelta
             * u_sunShadowLengthScale;
-        vec2 sunSample = v_world
+        vec2 sunSample = receiverBase
             - u_shadowDirection * sunRayDistance;
-        vec2 pointSample = mix(v_world, u_lightPosition, progress);
+        vec2 pointSample = mix(
+            receiverBase, u_lightPosition, progress);
         vec2 sampleWorld = mix(sunSample, pointSample, u_pointMode);
-        float sunRayHeight = v_receiverHeight + sunRayHeightDelta;
+        float sunRayHeight = sunRayHeightDelta;
         float pointRayHeight = mix(
-            v_receiverHeight, u_lightHeight, progress);
+            0.0, u_lightHeight, progress);
         float rayHeight = mix(
             sunRayHeight, pointRayHeight, u_pointMode);
         vec4 sampleClip = u_projTrans
@@ -66,8 +69,6 @@ void main() {
     }
 
     float directionalBackFace = max(0.0, -u_shadowDirection.y);
-    vec2 receiverBase = vec2(
-        v_world.x, v_world.y - v_receiverHeight);
     vec2 toPointLight = u_lightPosition - receiverBase;
     float pointBackFace = max(0.0,
         toPointLight.y / max(length(toPointLight), 0.0001));
