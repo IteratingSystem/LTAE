@@ -4,7 +4,7 @@ LTAE（LibGDX Tiled Artemis Engine）是一个面向 2D 游戏的 Artemis-ODB �
 
 LTAE 不是一个独立运行的游戏，也不接管 LibGDX 的 `ApplicationListener` 或 `Screen` 生命周期。游戏项目负责配置规则、加载资源、创建 Artemis `World` 和驱动每帧更新；LTAE 负责解释地图数据并安装通用 ECS 系统。
 
-当前版本：`3.8.0.8`
+当前版本：`3.8.2.33`
 
 ## 1. 环境与依赖
 
@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    api "com.github.IteratingSystem:LTAE:3.8.0.8"
+    api "com.github.IteratingSystem:LTAE:3.8.2.33"
 }
 ```
 
@@ -422,7 +422,7 @@ Box2D 传感器通常只可靠触发 `beginContact` / `endContact`，不要依�
 
 ## 10. 渲染、相机、光照与 Shader
 
-渲染顺序：地图 -> 实体批次 -> 物理调试 -> UI。实体按 `ZIndex` 排序，`Render.visible` 控制是否绘制，`Inert` 实体会被多个渲染/更新系统排除。
+渲染顺序：普通地图层 -> Shader 瓦片层 -> 实体批次 -> 物理调试 -> UI。实体按 `ZIndex` 排序，`Render.visible` 控制是否绘制，`Inert` 实体会被多个渲染/更新系统排除。
 
 ### 10.1 相机跟随
 
@@ -468,7 +468,34 @@ public class HurtUniforms extends ShaderUniforms {
 
 然后把 `ShaderComp.uniformSimpleName` 设为 `HurtUniforms`。该类必须位于 `ReflectionManager` 配置的游戏根包下。
 
-### 10.3 光照
+### 10.3 Shader 瓦片层
+
+需要用自定义 Shader 绘制海洋等完整瓦片层时，不要先把图层采样为全地图纹理。实现 `TileLayerShaderUniforms`，并在每次绘制前显式绑定辅助纹理和 Uniform：
+
+```java
+public final class WaterUniforms implements TileLayerShaderUniforms {
+    @Override
+    public void apply(TiledMap map, ShaderProgram shader, float delta) {
+        noiseTexture.bind(1);
+        Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
+        shader.setUniformi("u_noise", 1);
+    }
+}
+```
+
+创建 `World` 前把图层交给同一个 `LtaePlugin`：
+
+```java
+LtaePlugin plugin = new LtaePlugin()
+    .addShaderTileLayer(new TileLayerShaderConfig(
+        "WATER", "water_layer", "water", new WaterUniforms()));
+```
+
+对应 Tiled 图层可以保持隐藏，`ShaderTileLayerRenderSystem` 会直接绘制摄像机范围内的瓦片，并保留 Tiled 动画。系统由插件固定安排在普通地图与实体批次之间；游戏项目不应再次注册该系统。`TileLayerShaderUniforms.initialize` 适合缓存资源，`dispose` 用于释放实现类自行创建的资源。辅助纹理由 AssetManager 持有时不要重复释放。
+
+瓦片层顶点 Shader 应从 `a_position.xy` 传出世界坐标，不能用单块瓦片的 `v_texCoords` 推导整张地图坐标。
+
+### 10.4 光照
 
 创建 `World` 前设置 `LtaePluginRule.ENABLE_LIGHT = true`。`LightSystem` 与引擎 Box2D World 和相机协同更新；关闭时保留系统但不启用实际光照流程。
 

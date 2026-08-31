@@ -16,7 +16,10 @@ import org.ltae.light.AmbientLightTimeSource;
 import org.ltae.light.SunLightConfig;
 import org.ltae.light.TopDownShadowConfig;
 import org.ltae.manager.map.GameSnapshotManager;
+import org.ltae.shader.TileLayerShaderConfig;
 import org.ltae.system.*;
+
+import com.badlogic.gdx.utils.Array;
 
 /**
  * @Auther WenLong
@@ -29,6 +32,8 @@ public class LtaePlugin implements ArtemisPlugin {
     private AmbientLightConfig ambientLightConfig;
     private TopDownShadowConfig topDownShadowConfig;
     private SunLightConfig sunLightConfig;
+    private final Array<TileLayerShaderConfig> tileLayerShaderConfigs =
+        new Array<>();
 
 
     public LtaePlugin(){}
@@ -58,6 +63,17 @@ public class LtaePlugin implements ArtemisPlugin {
         this.ambientLightConfig = ambientLightConfig;
         this.topDownShadowConfig = topDownShadowConfig;
         this.sunLightConfig = sunLightConfig;
+        return this;
+    }
+
+    /**
+     * 注册由引擎统一排序的Shader瓦片层。
+     */
+    public LtaePlugin addShaderTileLayer(TileLayerShaderConfig config) {
+        if (config == null) {
+            throw new IllegalArgumentException("config cannot be null");
+        }
+        tileLayerShaderConfigs.add(config);
         return this;
     }
 
@@ -114,6 +130,10 @@ public class LtaePlugin implements ArtemisPlugin {
 
         //渲染
         worldConfigurationBuilder.with(new RenderTiledSystem(LtaePluginRule.WORLD_SCALE));//渲染瓦片地图
+        for (TileLayerShaderConfig config : tileLayerShaderConfigs) {
+            worldConfigurationBuilder.with(
+                new ShaderTileLayerRenderSystem(config));
+        }
         worldConfigurationBuilder.with(renderBatchingSystem);//渲染管线
         //渲染Region帧系统
         worldConfigurationBuilder.with(new RenderFrameSystem(
