@@ -1,6 +1,7 @@
 package org.ltae;
 
 import com.artemis.ArtemisPlugin;
+import com.artemis.BaseSystem;
 import com.artemis.WorldConfigurationBuilder;
 import com.artemis.link.EntityLinkManager;
 import com.artemis.managers.PlayerManager;
@@ -11,8 +12,6 @@ import net.mostlyoriginal.api.event.common.SubscribeAnnotationFinder;
 import net.mostlyoriginal.api.event.dispatcher.FastEventDispatcher;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.ExtendedComponentMapperPlugin;
 import net.mostlyoriginal.plugin.ProfilerPlugin;
-import org.ltae.environment.CloudShadowConfig;
-import org.ltae.environment.WindConfig;
 import org.ltae.light.AmbientLightConfig;
 import org.ltae.light.AmbientLightTimeSource;
 import org.ltae.light.SunLightConfig;
@@ -34,10 +33,9 @@ public class LtaePlugin implements ArtemisPlugin {
     private AmbientLightConfig ambientLightConfig;
     private TopDownShadowConfig topDownShadowConfig;
     private SunLightConfig sunLightConfig;
-    private WindConfig windConfig;
-    private CloudShadowConfig cloudShadowConfig;
     private final Array<TileLayerShaderConfig> tileLayerShaderConfigs =
         new Array<>();
+    private final Array<BaseSystem> postAmbientSystems = new Array<>();
 
 
     public LtaePlugin(){}
@@ -82,16 +80,13 @@ public class LtaePlugin implements ArtemisPlugin {
     }
 
     /**
-     * 配置由海流、云影等环境效果共享的风，以及云影外观。
+     * 注册环境光之后、俯视角点光源和UI之前运行的游戏侧系统。
      */
-    public LtaePlugin configureWind(WindConfig windConfig,
-                                    CloudShadowConfig cloudShadowConfig) {
-        if (windConfig == null || cloudShadowConfig == null) {
-            throw new IllegalArgumentException(
-                "wind and cloud shadow configs cannot be null");
+    public LtaePlugin addPostAmbientSystem(BaseSystem system) {
+        if (system == null) {
+            throw new IllegalArgumentException("system cannot be null");
         }
-        this.windConfig = windConfig;
-        this.cloudShadowConfig = cloudShadowConfig;
+        postAmbientSystems.add(system);
         return this;
     }
 
@@ -127,9 +122,6 @@ public class LtaePlugin implements ArtemisPlugin {
                 LtaePluginRule.B2D_SLEEP,
                 LtaePluginRule.WORLD_SCALE,
                 LtaePluginRule.COMB_TILE));//物理世界初始化
-        if (windConfig != null) {
-            worldConfigurationBuilder.with(new WindSystem(windConfig));
-        }
         //渲染前更新
         worldConfigurationBuilder.with(new InputProcessSystem()); // 输入处理
         worldConfigurationBuilder.with(new OnInteractSystem()); // 实体被交互处理系统
@@ -184,10 +176,10 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
                 new LightSystem(LtaePluginRule.ENABLE_LIGHT));
-        if (windConfig != null) {
+        for (BaseSystem system : postAmbientSystems) {
             worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
-                new CloudShadowSystem(cloudShadowConfig));
+                system);
         }
         if (lightTimeSource != null) {
             worldConfigurationBuilder.with(

@@ -4,7 +4,7 @@ LTAE（LibGDX Tiled Artemis Engine）是一个面向 2D 游戏的 Artemis-ODB �
 
 LTAE 不是一个独立运行的游戏，也不接管 LibGDX 的 `ApplicationListener` 或 `Screen` 生命周期。游戏项目负责配置规则、加载资源、创建 Artemis `World` 和驱动每帧更新；LTAE 负责解释地图数据并安装通用 ECS 系统。
 
-当前版本：`3.8.2.35`
+当前版本：`3.8.2.36`
 
 ## 1. 环境与依赖
 
@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    api "com.github.IteratingSystem:LTAE:3.8.2.35"
+    api "com.github.IteratingSystem:LTAE:3.8.2.36"
 }
 ```
 
@@ -495,38 +495,16 @@ LtaePlugin plugin = new LtaePlugin()
 
 瓦片层顶点 Shader 应从 `a_position.xy` 传出世界坐标，不能用单块瓦片的 `v_texCoords` 推导整张地图坐标。
 
-### 10.4 风与云影
+### 10.4 环境光后的游戏系统
 
-`WindSystem` 维护连续的风位移，供海流、云影等多个效果共享。使用同一份 `LtaePlugin` 配置初始风和云影：
-
-```java
-WindConfig wind = new WindConfig()
-    .setDirection(1f, 1f)
-    .setSpeed(1.41421356f);
-
-CloudShadowConfig clouds = new CloudShadowConfig()
-    .setEnabledMaps("island")
-    .setNoiseName("cloud")
-    .setOpacity(0.18f)
-    .setCoverageThreshold(0.37f)
-    .setEdgeSoftness(0.045f)
-    .setWorldSize(2200f)
-    .setDriftMultiplier(14f);
-
-LtaePlugin plugin = new LtaePlugin().configureWind(wind, clouds);
-```
-
-`noiseName` 对应 `AssetSystem.noiseData` 中的名称。空的启用地图集合表示所有地图；调用 `setEnabledMaps` 后只在列出的地图绘制，适合让室内地图不出现云影。
-
-运行时改变风向和风速：
+天气、云影、海洋等具体视觉效果属于游戏项目。游戏侧系统需要在环境光之后、俯视角点光源和 UI 之前合成时，通过插件注册其顺序：
 
 ```java
-WindSystem windSystem = world.getSystem(WindSystem.class);
-windSystem.setDirection(-1f, 0.25f);
-windSystem.setSpeed(2f);
+LtaePlugin plugin = new LtaePlugin()
+    .addPostAmbientSystem(gameCloudShadowSystem);
 ```
 
-风位移由系统逐帧积分。Shader 应读取 `getDisplacement`，不要重新使用 `time * direction`，否则风向变化时纹理相位会瞬间跳变。云影系统位于环境光之后、点光源与 UI 之前，环境光不会洗掉云影，同时路灯仍能照亮云影区域；它不绘制可见云层，也不会覆盖 UI。
+`addPostAmbientSystem` 只提供通用渲染阶段，不依赖任何天气类型或 Shader。游戏侧仍拥有系统的配置、资源和生命周期；LTAE 负责保证环境光不会覆盖该效果，后续点光源仍可照亮它，并且效果不会覆盖 UI。
 
 ### 10.5 光照
 
