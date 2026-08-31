@@ -15,6 +15,7 @@ uniform sampler2D u_sunShadowMap;
 uniform mat4 u_projTrans;
 uniform vec2 u_entityId;
 uniform float u_heightRange;
+uniform float u_footY;
 uniform float u_pointMode;
 uniform vec2 u_shadowDirection;
 uniform float u_sunShadowLengthScale;
