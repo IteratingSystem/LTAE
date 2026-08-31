@@ -12,7 +12,6 @@ uniform vec2 u_uvTopRight;
 uniform float u_pointMode;
 uniform vec2 u_shadowDirection;
 uniform float u_sunShadowLengthScale;
-uniform float u_sunProjectionSeedThickness;
 uniform vec2 u_lightPosition;
 uniform float u_lightHeight;
 varying vec2 v_texCoords;
@@ -31,8 +30,6 @@ void main() {
     vec2 ground = vec2(spriteWorld.x, u_footY);
     vec2 sunProjection = ground
         + u_shadowDirection * pixelHeight * u_sunShadowLengthScale;
-    sunProjection.y += (a_position.x - 0.5)
-        * u_sunProjectionSeedThickness;
     float pointScale = pixelHeight
         / max(u_lightHeight - pixelHeight, 1.0);
     vec2 pointProjection = ground

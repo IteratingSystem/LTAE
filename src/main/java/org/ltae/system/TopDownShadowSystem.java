@@ -72,6 +72,7 @@ public class TopDownShadowSystem extends BaseSystem {
     private Mesh projectedShadowMesh;
     private FrameBuffer heightMapSource;
     private FrameBuffer heightMap;
+    private FrameBuffer depthDownsampleBuffer;
     private FrameBuffer entityMask;
     private FrameBuffer groundShadowSource;
     private FrameBuffer groundShadowMask;
@@ -82,6 +83,7 @@ public class TopDownShadowSystem extends BaseSystem {
     private ShaderProgram receiverShader;
     private ShaderProgram sunCompositeShader;
     private ShaderProgram pointCompositeShader;
+    private ShaderProgram depthDownsampleShader;
     private ShaderProgram depthExpandShader;
     private int bufferWidth;
     private int bufferHeight;
@@ -157,6 +159,10 @@ public class TopDownShadowSystem extends BaseSystem {
             shaderManager.getVertexContext(SHADER_PATH + "screen"),
             shaderManager.getFragmentContext(SHADER_PATH + "point_composite"),
             "Point composite");
+        depthDownsampleShader = compileShader(
+            shaderManager.getVertexContext(SHADER_PATH + "screen"),
+            shaderManager.getFragmentContext(SHADER_PATH + "depth_downsample"),
+            "Shadow depth downsample");
         depthExpandShader = compileShader(
             shaderManager.getVertexContext(SHADER_PATH + "screen"),
             shaderManager.getFragmentContext(SHADER_PATH + "depth_expand"),
@@ -384,18 +390,7 @@ public class TopDownShadowSystem extends BaseSystem {
         projectedShadowShader.setUniformf(
             "u_heightRange", config.getHeightRange());
         setLightUniforms(projectedShadowShader, light);
-        float parallelFactor = getSunParallelFactor(light);
-        projectedShadowShader.setUniformf(
-            "u_sunParallelFill", parallelFactor);
-        float seedThickness = getSunProjectionSeedThickness(parallelFactor);
-        projectedShadowShader.setUniformf(
-            "u_sunProjectionSeedThickness", seedThickness);
         renderProjectedCasters(light);
-        if (seedThickness > 0f) {
-            projectedShadowShader.setUniformf(
-                "u_sunProjectionSeedThickness", -seedThickness);
-            renderProjectedCasters(light);
-        }
         Gdx.gl.glBlendEquation(GL20.GL_FUNC_ADD);
         Gdx.gl.glDisable(GL20.GL_BLEND);
         groundShadowSource.end();
@@ -410,23 +405,6 @@ public class TopDownShadowSystem extends BaseSystem {
             }
             renderProjectedEntity(entityId, light.isDirectional());
         }
-    }
-
-    private float getSunParallelFactor(TopDownShadowLight light) {
-        if (!light.isDirectional()) {
-            return 0f;
-        }
-        float vertical = Math.abs(
-            light.getShadowDirection(lightDirection).y);
-        float progress = MathUtils.clamp(vertical / 0.15f, 0f, 1f);
-        float smoothProgress = progress * progress * (3f - 2f * progress);
-        return 1f - smoothProgress;
-    }
-
-    private float getSunProjectionSeedThickness(float parallelFactor) {
-        float worldPerTexel = cameraSystem.camera.viewportHeight
-            * cameraSystem.camera.zoom / depthBufferHeight;
-        return worldPerTexel * 2f * parallelFactor;
     }
 
     private void renderReceiverShadowMask(TopDownShadowLight light) {
@@ -608,10 +586,11 @@ public class TopDownShadowSystem extends BaseSystem {
     }
 
     private void expandDepth(FrameBuffer source, FrameBuffer target) {
+        downsampleDepth(source);
         target.begin();
         clearBuffer();
         Gdx.gl.glDisable(GL20.GL_BLEND);
-        source.getColorBufferTexture().bind(0);
+        depthDownsampleBuffer.getColorBufferTexture().bind(0);
         depthExpandShader.bind();
         depthExpandShader.setUniformi("u_source", 0);
         depthExpandShader.setUniformf("u_heightRange", config.getHeightRange());
@@ -621,6 +600,19 @@ public class TopDownShadowSystem extends BaseSystem {
                 / target.getHeight());
         screenQuad.render(depthExpandShader, GL20.GL_TRIANGLE_FAN);
         target.end();
+    }
+
+    private void downsampleDepth(FrameBuffer source) {
+        depthDownsampleBuffer.begin();
+        clearBuffer();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+        source.getColorBufferTexture().bind(0);
+        depthDownsampleShader.bind();
+        depthDownsampleShader.setUniformi("u_source", 0);
+        depthDownsampleShader.setUniformf(
+            "u_sourceTexelY", 1f / source.getHeight());
+        screenQuad.render(depthDownsampleShader, GL20.GL_TRIANGLE_FAN);
+        depthDownsampleBuffer.end();
     }
 
     private void drawEntity(int entityId) {
@@ -737,10 +729,11 @@ public class TopDownShadowSystem extends BaseSystem {
         bufferHeight = height;
         depthBufferHeight = Math.max(1, (height + 1) / 2);
         pointRayHandler.resizeFBO(width, height);
-        heightMapSource = createDepthBuffer(Texture.TextureFilter.Nearest);
+        heightMapSource = createBuffer(Texture.TextureFilter.Nearest);
         heightMap = createDepthBuffer(Texture.TextureFilter.Linear);
+        depthDownsampleBuffer = createDepthBuffer(Texture.TextureFilter.Nearest);
         entityMask = createBuffer(Texture.TextureFilter.Nearest);
-        groundShadowSource = createDepthBuffer(Texture.TextureFilter.Nearest);
+        groundShadowSource = createBuffer(Texture.TextureFilter.Nearest);
         groundShadowMask = createDepthBuffer(Texture.TextureFilter.Linear);
         receiverShadowMask = createBuffer(Texture.TextureFilter.Linear);
     }
@@ -764,6 +757,7 @@ public class TopDownShadowSystem extends BaseSystem {
         if (heightMap != null) {
             heightMapSource.dispose();
             heightMap.dispose();
+            depthDownsampleBuffer.dispose();
             entityMask.dispose();
             groundShadowSource.dispose();
             groundShadowMask.dispose();
@@ -848,6 +842,7 @@ public class TopDownShadowSystem extends BaseSystem {
             receiverShader.dispose();
             sunCompositeShader.dispose();
             pointCompositeShader.dispose();
+            depthDownsampleShader.dispose();
             depthExpandShader.dispose();
         }
     }
