@@ -28,6 +28,7 @@ public final class CloudShadowSystem extends BaseSystem {
     private Texture cloudNoise;
     private Mesh screenQuad;
     private ShaderProgram shaderProgram;
+    private boolean renderLogged;
 
     public CloudShadowSystem(CloudShadowConfig config) {
         if (config == null) {
@@ -64,6 +65,12 @@ public final class CloudShadowSystem extends BaseSystem {
         if (!config.isEnabled(tiledMapSystem.getCurrent())
             || config.getOpacity() <= 0f) {
             return;
+        }
+
+        if (!renderLogged) {
+            renderLogged = true;
+            Gdx.app.log(TAG, "Cloud shadows active on map: "
+                + tiledMapSystem.getCurrent());
         }
 
         Gdx.gl.glEnable(GL20.GL_BLEND);

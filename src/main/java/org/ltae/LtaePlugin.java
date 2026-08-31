@@ -163,12 +163,6 @@ public class LtaePlugin implements ArtemisPlugin {
         //渲染物理效果系统(debug)
         worldConfigurationBuilder.with(new RenderPhysicsSystem());
 
-        if (windConfig != null) {
-            worldConfigurationBuilder.with(
-                WorldConfigurationBuilder.Priority.LOWEST,
-                new CloudShadowSystem(cloudShadowConfig));
-        }
-
         if (lightTimeSource != null) {
             worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
@@ -190,6 +184,11 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
                 new LightSystem(LtaePluginRule.ENABLE_LIGHT));
+        if (windConfig != null) {
+            worldConfigurationBuilder.with(
+                WorldConfigurationBuilder.Priority.LOWEST,
+                new CloudShadowSystem(cloudShadowConfig));
+        }
         if (lightTimeSource != null) {
             worldConfigurationBuilder.with(
                 WorldConfigurationBuilder.Priority.LOWEST,
