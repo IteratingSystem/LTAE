@@ -19,7 +19,7 @@ varying vec2 v_texCoords;
 varying float v_lightDepth;
 
 void main() {
-    vec2 local = a_position * u_size;
+    vec2 local = a_position.xy * u_size;
     vec2 relative = (local - u_origin) * u_scale;
     float angle = radians(u_rotation);
     float cosine = cos(angle);
