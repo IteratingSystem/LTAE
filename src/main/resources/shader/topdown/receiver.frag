@@ -61,10 +61,9 @@ void main() {
     if (alpha < 0.01) {
         discard;
     }
+    float shadow = 0.0;
     if (u_pointMode < 0.5) {
-        float shadow = traceSunShadow();
-        gl_FragColor = vec4(shadow * alpha);
-        return;
+        shadow = traceSunShadow();
     }
     if (u_pointMode > 0.5
         && distance(v_world, u_lightPosition) > u_lightRange) {
@@ -72,7 +71,6 @@ void main() {
         return;
     }
 
-    float shadow = 0.0;
     for (int i = 1; i < 24; i++) {
         float progress = float(i) / 23.0;
         float sunRayHeightDelta = u_heightRange * progress;
