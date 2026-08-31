@@ -16,6 +16,7 @@ uniform vec2 u_lightPosition;
 uniform float u_lightHeight;
 uniform float u_shadowDepth;
 varying vec2 v_texCoords;
+varying float v_casterHeight;
 
 void main() {
     vec2 local = a_position * u_size;
@@ -47,5 +48,6 @@ void main() {
         * u_shadowDepth * 0.5;
     projected += depthOffset;
     v_texCoords = mix(u_uvBottomLeft, u_uvTopRight, a_texCoord);
+    v_casterHeight = pixelHeight;
     gl_Position = u_projTrans * vec4(projected, 0.0, 1.0);
 }
