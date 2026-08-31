@@ -11,6 +11,8 @@ import net.mostlyoriginal.api.event.common.SubscribeAnnotationFinder;
 import net.mostlyoriginal.api.event.dispatcher.FastEventDispatcher;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.ExtendedComponentMapperPlugin;
 import net.mostlyoriginal.plugin.ProfilerPlugin;
+import org.ltae.environment.CloudShadowConfig;
+import org.ltae.environment.WindConfig;
 import org.ltae.light.AmbientLightConfig;
 import org.ltae.light.AmbientLightTimeSource;
 import org.ltae.light.SunLightConfig;
@@ -32,6 +34,8 @@ public class LtaePlugin implements ArtemisPlugin {
     private AmbientLightConfig ambientLightConfig;
     private TopDownShadowConfig topDownShadowConfig;
     private SunLightConfig sunLightConfig;
+    private WindConfig windConfig;
+    private CloudShadowConfig cloudShadowConfig;
     private final Array<TileLayerShaderConfig> tileLayerShaderConfigs =
         new Array<>();
 
@@ -77,6 +81,20 @@ public class LtaePlugin implements ArtemisPlugin {
         return this;
     }
 
+    /**
+     * 配置由海流、云影等环境效果共享的风，以及云影外观。
+     */
+    public LtaePlugin configureWind(WindConfig windConfig,
+                                    CloudShadowConfig cloudShadowConfig) {
+        if (windConfig == null || cloudShadowConfig == null) {
+            throw new IllegalArgumentException(
+                "wind and cloud shadow configs cannot be null");
+        }
+        this.windConfig = windConfig;
+        this.cloudShadowConfig = cloudShadowConfig;
+        return this;
+    }
+
     @Override
     public void setup(WorldConfigurationBuilder worldConfigurationBuilder) {
         RenderBatchingSystem renderBatchingSystem = new RenderBatchingSystem();
@@ -109,6 +127,9 @@ public class LtaePlugin implements ArtemisPlugin {
                 LtaePluginRule.B2D_SLEEP,
                 LtaePluginRule.WORLD_SCALE,
                 LtaePluginRule.COMB_TILE));//物理世界初始化
+        if (windConfig != null) {
+            worldConfigurationBuilder.with(new WindSystem(windConfig));
+        }
         //渲染前更新
         worldConfigurationBuilder.with(new InputProcessSystem()); // 输入处理
         worldConfigurationBuilder.with(new OnInteractSystem()); // 实体被交互处理系统
@@ -141,6 +162,12 @@ public class LtaePlugin implements ArtemisPlugin {
                 LtaePluginRule.WORLD_SCALE));
         //渲染物理效果系统(debug)
         worldConfigurationBuilder.with(new RenderPhysicsSystem());
+
+        if (windConfig != null) {
+            worldConfigurationBuilder.with(
+                WorldConfigurationBuilder.Priority.LOWEST,
+                new CloudShadowSystem(cloudShadowConfig));
+        }
 
         if (lightTimeSource != null) {
             worldConfigurationBuilder.with(
