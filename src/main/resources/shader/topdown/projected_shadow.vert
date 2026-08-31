@@ -14,6 +14,7 @@ uniform vec2 u_shadowDirection;
 uniform float u_sunShadowLengthScale;
 uniform vec2 u_lightPosition;
 uniform float u_lightHeight;
+uniform float u_shadowDepth;
 varying vec2 v_texCoords;
 
 void main() {
@@ -35,6 +36,16 @@ void main() {
     vec2 pointProjection = ground
         + (ground - u_lightPosition) * pointScale;
     vec2 projected = mix(sunProjection, pointProjection, u_pointMode);
+    // 将投影锚点向光源移动半个纵深，让阴影在脚点前后都有分布。
+    vec2 pointShadowDirection = ground - u_lightPosition;
+    float pointDirectionLength = length(pointShadowDirection);
+    pointShadowDirection = pointDirectionLength > 0.0001
+        ? pointShadowDirection / pointDirectionLength
+        : u_shadowDirection;
+    vec2 depthOffset = -mix(
+        u_shadowDirection, pointShadowDirection, u_pointMode)
+        * u_shadowDepth * 0.5;
+    projected += depthOffset;
     v_texCoords = mix(u_uvBottomLeft, u_uvTopRight, a_texCoord);
     gl_Position = u_projTrans * vec4(projected, 0.0, 1.0);
 }

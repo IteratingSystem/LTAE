@@ -641,6 +641,9 @@ public class TopDownShadowSystem extends BaseSystem {
                 + lightDirection.x * pixelHeight * shadowLengthScale;
             float projectedY = footY
                 + lightDirection.y * pixelHeight * shadowLengthScale;
+            // 凸阴影带与普通投影使用相同锚点，向太阳移动半个纵深。
+            projectedX -= lightDirection.x * halfDepth;
+            projectedY -= lightDirection.y * halfDepth;
             if (halfDepth <= 0f) {
                 ribbonCandidates[i * 2] = projectedX;
                 ribbonCandidates[i * 2 + 1] = projectedY;
