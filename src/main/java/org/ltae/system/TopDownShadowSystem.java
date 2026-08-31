@@ -68,6 +68,7 @@ public class TopDownShadowSystem extends BaseSystem {
     private TopDownSunLight sunLight;
     private SpriteBatch spriteBatch;
     private Mesh screenQuad;
+    private Mesh sunProjectedShadowMesh;
     private Mesh projectedShadowMesh;
     private FrameBuffer heightMapSource;
     private FrameBuffer heightMap;
@@ -128,7 +129,8 @@ public class TopDownShadowSystem extends BaseSystem {
 
         spriteBatch = new SpriteBatch();
         screenQuad = createScreenQuad();
-        projectedShadowMesh = createProjectedShadowMesh();
+        sunProjectedShadowMesh = createProjectedShadowMesh(1);
+        projectedShadowMesh = createProjectedShadowMesh(SHADOW_SEGMENTS);
         ShaderProgram.pedantic = false;
         ShaderManager shaderManager = ShaderManager.getInstance();
         heightMapShader = compileShader(
@@ -382,17 +384,42 @@ public class TopDownShadowSystem extends BaseSystem {
         projectedShadowShader.setUniformf(
             "u_heightRange", config.getHeightRange());
         setLightUniforms(projectedShadowShader, light);
-        for (int i = 0; i < sortedShadowEntities.size; i++) {
-            int entityId = sortedShadowEntities.get(i);
-            if (!isCasterInRange(entityId, light)) {
-                continue;
-            }
-            renderProjectedEntity(entityId);
+        float seedThickness = getSunProjectionSeedThickness(light);
+        projectedShadowShader.setUniformf(
+            "u_sunProjectionSeedThickness", seedThickness);
+        renderProjectedCasters(light);
+        if (seedThickness > 0f) {
+            projectedShadowShader.setUniformf(
+                "u_sunProjectionSeedThickness", -seedThickness);
+            renderProjectedCasters(light);
         }
         Gdx.gl.glBlendEquation(GL20.GL_FUNC_ADD);
         Gdx.gl.glDisable(GL20.GL_BLEND);
         groundShadowSource.end();
         expandDepth(groundShadowSource, groundShadowMask);
+    }
+
+    private void renderProjectedCasters(TopDownShadowLight light) {
+        for (int i = 0; i < sortedShadowEntities.size; i++) {
+            int entityId = sortedShadowEntities.get(i);
+            if (!isCasterInRange(entityId, light)) {
+                continue;
+            }
+            renderProjectedEntity(entityId, light.isDirectional());
+        }
+    }
+
+    private float getSunProjectionSeedThickness(TopDownShadowLight light) {
+        if (!light.isDirectional()) {
+            return 0f;
+        }
+        float vertical = Math.abs(
+            light.getShadowDirection(lightDirection).y);
+        float progress = MathUtils.clamp(vertical / 0.15f, 0f, 1f);
+        float smoothProgress = progress * progress * (3f - 2f * progress);
+        float worldPerTexel = cameraSystem.camera.viewportHeight
+            * cameraSystem.camera.zoom / depthBufferHeight;
+        return worldPerTexel * 2f * (1f - smoothProgress);
     }
 
     private void renderReceiverShadowMask(TopDownShadowLight light) {
@@ -444,7 +471,7 @@ public class TopDownShadowSystem extends BaseSystem {
         }
     }
 
-    private void renderProjectedEntity(int entityId) {
+    private void renderProjectedEntity(int entityId, boolean directional) {
         Render render = mRender.get(entityId);
         Pos pos = mPos.get(entityId);
         if (!isRenderable(render)) {
@@ -456,18 +483,20 @@ public class TopDownShadowSystem extends BaseSystem {
                 TextureRegion region = render.textureSheets.get(i);
                 if (region != null) {
                     renderProjectedRegion(entityId, render, pos, region,
-                        soarHeight + i * render.sheetOffset, getFootY(entityId));
+                        soarHeight + i * render.sheetOffset, getFootY(entityId),
+                        directional);
                 }
             }
             return;
         }
         renderProjectedRegion(
-            entityId, render, pos, render.keyframe, soarHeight, getFootY(entityId));
+            entityId, render, pos, render.keyframe, soarHeight, getFootY(entityId),
+            directional);
     }
 
     private void renderProjectedRegion(int entityId, Render render, Pos pos,
                                        TextureRegion region, float extraY,
-                                       float footY) {
+                                       float footY, boolean directional) {
         Texture texture = region.getTexture();
         float drawX = worldScale * (pos.x + render.offsetX);
         float drawY = worldScale * (pos.y + render.offsetY + extraY);
@@ -485,7 +514,8 @@ public class TopDownShadowSystem extends BaseSystem {
             "u_shadowDepth", getShadowDepth(entityId, region));
         setTextureCoordinates(projectedShadowShader, render, region);
         texture.bind(0);
-        projectedShadowMesh.render(
+        Mesh mesh = directional ? sunProjectedShadowMesh : projectedShadowMesh;
+        mesh.render(
             projectedShadowShader, GL20.GL_TRIANGLE_STRIP);
     }
 
@@ -753,16 +783,16 @@ public class TopDownShadowSystem extends BaseSystem {
         return mesh;
     }
 
-    private Mesh createProjectedShadowMesh() {
-        int vertexCount = (SHADOW_SEGMENTS + 1) * 2;
+    private Mesh createProjectedShadowMesh(int segments) {
+        int vertexCount = (segments + 1) * 2;
         Mesh mesh = new Mesh(true, vertexCount, 0,
             new VertexAttribute(VertexAttributes.Usage.Position, 2, "a_position"),
             new VertexAttribute(
                 VertexAttributes.Usage.TextureCoordinates, 2, "a_texCoord"));
         float[] vertices = new float[vertexCount * 4];
         int offset = 0;
-        for (int i = 0; i <= SHADOW_SEGMENTS; i++) {
-            float vertical = i / (float) SHADOW_SEGMENTS;
+        for (int i = 0; i <= segments; i++) {
+            float vertical = i / (float) segments;
             vertices[offset++] = 0f;
             vertices[offset++] = vertical;
             vertices[offset++] = 0f;
@@ -803,6 +833,7 @@ public class TopDownShadowSystem extends BaseSystem {
         if (spriteBatch != null) {
             spriteBatch.dispose();
             screenQuad.dispose();
+            sunProjectedShadowMesh.dispose();
             projectedShadowMesh.dispose();
             heightMapShader.dispose();
             entityMaskShader.dispose();
