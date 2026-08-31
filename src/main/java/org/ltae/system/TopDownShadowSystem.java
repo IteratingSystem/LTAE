@@ -46,7 +46,6 @@ public class TopDownShadowSystem extends BaseSystem {
     private static final String TAG = TopDownShadowSystem.class.getSimpleName();
     private static final int SHADOW_SEGMENTS = 32;
     private static final int SUN_RIBBON_MAX_VERTICES = 8;
-    private static final int SUN_RIBBON_VERTEX_SIZE = 3;
     private static final float SUN_RIBBON_CHECK_TEXELS = 6f;
     private static final float SUN_RIBBON_SWITCH_TEXELS = 2.5f;
     private static final float OPAQUE_ALPHA_THRESHOLD = 0.01f;
@@ -65,10 +64,8 @@ public class TopDownShadowSystem extends BaseSystem {
         new ObjectMap<>();
     private final ObjectSet<Texture> unreadableOpaqueTextures = new ObjectSet<>();
     private final float[] ribbonLocal = new float[8];
-    private final float[] ribbonCandidates =
-        new float[SUN_RIBBON_MAX_VERTICES * SUN_RIBBON_VERTEX_SIZE];
-    private final float[] ribbonHull =
-        new float[SUN_RIBBON_MAX_VERTICES * 2 * SUN_RIBBON_VERTEX_SIZE];
+    private final float[] ribbonCandidates = new float[16];
+    private final float[] ribbonHull = new float[32];
 
     private B2dSystem b2dSystem;
     private CameraSystem cameraSystem;
@@ -88,11 +85,14 @@ public class TopDownShadowSystem extends BaseSystem {
     private Mesh sunProjectedShadowMesh;
     private Mesh projectedShadowMesh;
     private Mesh sunShadowRibbonMesh;
+    private FrameBuffer heightMapSource;
+    private FrameBuffer heightMap;
     private FrameBuffer depthDownsampleBuffer;
     private FrameBuffer entityMask;
     private FrameBuffer groundShadowSource;
     private FrameBuffer groundShadowMask;
     private FrameBuffer receiverShadowMask;
+    private ShaderProgram heightMapShader;
     private ShaderProgram entityMaskShader;
     private ShaderProgram projectedShadowShader;
     private ShaderProgram sunShadowRibbonShader;
@@ -152,6 +152,10 @@ public class TopDownShadowSystem extends BaseSystem {
         sunShadowRibbonMesh = createSunShadowRibbonMesh();
         ShaderProgram.pedantic = false;
         ShaderManager shaderManager = ShaderManager.getInstance();
+        heightMapShader = compileShader(
+            shaderManager.getVertexContext(SHADER_PATH + "sprite"),
+            shaderManager.getFragmentContext(SHADER_PATH + "height_map"),
+            "Height map");
         entityMaskShader = compileShader(
             shaderManager.getVertexContext(SHADER_PATH + "sprite"),
             shaderManager.getFragmentContext(SHADER_PATH + "entity_mask"),
@@ -222,6 +226,7 @@ public class TopDownShadowSystem extends BaseSystem {
         try {
             sortShadowEntities();
             renderEntityMask();
+            renderHeightMap();
 
             renderShadowMasks(sunLight);
             compositeSunShadow();
@@ -364,6 +369,30 @@ public class TopDownShadowSystem extends BaseSystem {
         entityMask.end();
     }
 
+    private void renderHeightMap() {
+        heightMapSource.begin();
+        clearBuffer();
+        spriteBatch.setProjectionMatrix(cameraSystem.camera.combined);
+        spriteBatch.setShader(heightMapShader);
+        spriteBatch.disableBlending();
+        spriteBatch.begin();
+        heightMapShader.setUniformi("u_texture", 0);
+        heightMapShader.setUniformf("u_heightRange", config.getHeightRange());
+        for (int i = 0; i < sortedShadowEntities.size; i++) {
+            int entityId = sortedShadowEntities.get(i);
+            heightMapShader.setUniformf("u_footY", getFootY(entityId));
+            heightMapShader.setUniformf(
+                "u_shadowDepth", getMaximumShadowDepth(entityId));
+            drawEntity(entityId);
+            spriteBatch.flush();
+        }
+        spriteBatch.end();
+        spriteBatch.enableBlending();
+        spriteBatch.setShader(null);
+        heightMapSource.end();
+        expandDepth(heightMapSource, heightMap);
+    }
+
     private void renderShadowMasks(TopDownShadowLight light) {
         renderGroundShadowMask(light);
         renderReceiverShadowMask(light);
@@ -409,18 +438,19 @@ public class TopDownShadowSystem extends BaseSystem {
         spriteBatch.setShader(receiverShader);
         spriteBatch.begin();
         receiverShader.setUniformi("u_texture", 0);
-        receiverShader.setUniformi("u_groundShadow", 1);
+        receiverShader.setUniformi("u_heightMap", 1);
         receiverShader.setUniformMatrix(
             "u_projTrans", cameraSystem.camera.combined);
         receiverShader.setUniformf("u_heightRange", config.getHeightRange());
         receiverShader.setUniformf("u_time", shadowTime);
         setLightUniforms(receiverShader, light);
-        groundShadowMask.getColorBufferTexture().bind(1);
+        heightMap.getColorBufferTexture().bind(1);
         Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
         for (int i = 0; i < sortedShadowEntities.size; i++) {
             int entityId = sortedShadowEntities.get(i);
             receiverShader.setUniformf("u_footY", getFootY(entityId));
-            drawReceiverEntity(entityId);
+            drawEntity(entityId);
+            spriteBatch.flush();
         }
         spriteBatch.end();
         spriteBatch.setShader(null);
@@ -531,13 +561,10 @@ public class TopDownShadowSystem extends BaseSystem {
         if (hullSize < 3) {
             return false;
         }
-        sunShadowRibbonMesh.setVertices(
-            ribbonHull, 0, hullSize * SUN_RIBBON_VERTEX_SIZE);
+        sunShadowRibbonMesh.setVertices(ribbonHull, 0, hullSize * 2);
         sunShadowRibbonShader.bind();
         sunShadowRibbonShader.setUniformMatrix(
             "u_projTrans", cameraSystem.camera.combined);
-        sunShadowRibbonShader.setUniformf(
-            "u_heightRange", config.getHeightRange());
         sunShadowRibbonMesh.render(
             sunShadowRibbonShader, GL20.GL_TRIANGLE_FAN, 0, hullSize);
         return true;
@@ -550,10 +577,9 @@ public class TopDownShadowSystem extends BaseSystem {
             left, right, bottom, top, 0f);
         float minimumY = Float.POSITIVE_INFINITY;
         float maximumY = Float.NEGATIVE_INFINITY;
-        for (int i = 0; i < 4; i++) {
-            int offset = i * SUN_RIBBON_VERTEX_SIZE;
-            minimumY = Math.min(minimumY, ribbonCandidates[offset + 1]);
-            maximumY = Math.max(maximumY, ribbonCandidates[offset + 1]);
+        for (int i = 1; i < 8; i += 2) {
+            minimumY = Math.min(minimumY, ribbonCandidates[i]);
+            maximumY = Math.max(maximumY, ribbonCandidates[i]);
         }
         float visibleWorldHeight = cameraSystem.camera.viewportHeight
             * cameraSystem.camera.zoom;
@@ -619,46 +645,34 @@ public class TopDownShadowSystem extends BaseSystem {
             projectedX -= lightDirection.x * halfDepth;
             projectedY -= lightDirection.y * halfDepth;
             if (halfDepth <= 0f) {
-                int candidate = i * SUN_RIBBON_VERTEX_SIZE;
-                ribbonCandidates[candidate] = projectedX;
-                ribbonCandidates[candidate + 1] = projectedY;
-                ribbonCandidates[candidate + 2] = pixelHeight;
+                ribbonCandidates[i * 2] = projectedX;
+                ribbonCandidates[i * 2 + 1] = projectedY;
             } else {
-                int lower = i * 2 * SUN_RIBBON_VERTEX_SIZE;
+                int lower = i * 4;
                 ribbonCandidates[lower] = projectedX;
                 ribbonCandidates[lower + 1] = projectedY - halfDepth;
-                ribbonCandidates[lower + 2] = pixelHeight;
-                ribbonCandidates[lower + 3] = projectedX;
-                ribbonCandidates[lower + 4] = projectedY + halfDepth;
-                ribbonCandidates[lower + 5] = pixelHeight;
+                ribbonCandidates[lower + 2] = projectedX;
+                ribbonCandidates[lower + 3] = projectedY + halfDepth;
             }
         }
     }
 
     private void sortRibbonCandidates() {
         for (int i = 1; i < 8; i++) {
-            int candidate = i * SUN_RIBBON_VERTEX_SIZE;
-            float x = ribbonCandidates[candidate];
-            float y = ribbonCandidates[candidate + 1];
-            float height = ribbonCandidates[candidate + 2];
+            float x = ribbonCandidates[i * 2];
+            float y = ribbonCandidates[i * 2 + 1];
             int insertion = i;
             while (insertion > 0 && isPointAfter(
-                ribbonCandidates[(insertion - 1) * SUN_RIBBON_VERTEX_SIZE],
-                ribbonCandidates[(insertion - 1) * SUN_RIBBON_VERTEX_SIZE + 1],
-                x, y)) {
-                int destination = insertion * SUN_RIBBON_VERTEX_SIZE;
-                int source = (insertion - 1) * SUN_RIBBON_VERTEX_SIZE;
-                ribbonCandidates[destination] = ribbonCandidates[source];
-                ribbonCandidates[destination + 1] =
-                    ribbonCandidates[source + 1];
-                ribbonCandidates[destination + 2] =
-                    ribbonCandidates[source + 2];
+                ribbonCandidates[(insertion - 1) * 2],
+                ribbonCandidates[(insertion - 1) * 2 + 1], x, y)) {
+                ribbonCandidates[insertion * 2] =
+                    ribbonCandidates[(insertion - 1) * 2];
+                ribbonCandidates[insertion * 2 + 1] =
+                    ribbonCandidates[(insertion - 1) * 2 + 1];
                 insertion--;
             }
-            int destination = insertion * SUN_RIBBON_VERTEX_SIZE;
-            ribbonCandidates[destination] = x;
-            ribbonCandidates[destination + 1] = y;
-            ribbonCandidates[destination + 2] = height;
+            ribbonCandidates[insertion * 2] = x;
+            ribbonCandidates[insertion * 2 + 1] = y;
         }
     }
 
@@ -672,51 +686,37 @@ public class TopDownShadowSystem extends BaseSystem {
         for (int i = 0; i < 8; i++) {
             while (hullSize >= 2 && crossHullPoint(
                 hullSize - 2, hullSize - 1,
-                candidateX(i), candidateY(i)) <= 0f) {
+                ribbonCandidates[i * 2], ribbonCandidates[i * 2 + 1]) <= 0f) {
                 hullSize--;
             }
-            setHullPoint(hullSize++, candidateX(i), candidateY(i),
-                candidateHeight(i));
+            setHullPoint(hullSize++, ribbonCandidates[i * 2],
+                ribbonCandidates[i * 2 + 1]);
         }
         int lowerSize = hullSize;
         for (int i = 6; i >= 0; i--) {
             while (hullSize > lowerSize && crossHullPoint(
                 hullSize - 2, hullSize - 1,
-                candidateX(i), candidateY(i)) <= 0f) {
+                ribbonCandidates[i * 2], ribbonCandidates[i * 2 + 1]) <= 0f) {
                 hullSize--;
             }
-            setHullPoint(hullSize++, candidateX(i), candidateY(i),
-                candidateHeight(i));
+            setHullPoint(hullSize++, ribbonCandidates[i * 2],
+                ribbonCandidates[i * 2 + 1]);
         }
         return Math.max(0, hullSize - 1);
     }
 
     private float crossHullPoint(int first, int second, float x, float y) {
-        float firstX = ribbonHull[first * SUN_RIBBON_VERTEX_SIZE];
-        float firstY = ribbonHull[first * SUN_RIBBON_VERTEX_SIZE + 1];
-        float secondX = ribbonHull[second * SUN_RIBBON_VERTEX_SIZE];
-        float secondY = ribbonHull[second * SUN_RIBBON_VERTEX_SIZE + 1];
+        float firstX = ribbonHull[first * 2];
+        float firstY = ribbonHull[first * 2 + 1];
+        float secondX = ribbonHull[second * 2];
+        float secondY = ribbonHull[second * 2 + 1];
         return (secondX - firstX) * (y - firstY)
             - (secondY - firstY) * (x - firstX);
     }
 
-    private float candidateX(int index) {
-        return ribbonCandidates[index * SUN_RIBBON_VERTEX_SIZE];
-    }
-
-    private float candidateY(int index) {
-        return ribbonCandidates[index * SUN_RIBBON_VERTEX_SIZE + 1];
-    }
-
-    private float candidateHeight(int index) {
-        return ribbonCandidates[index * SUN_RIBBON_VERTEX_SIZE + 2];
-    }
-
-    private void setHullPoint(int index, float x, float y, float height) {
-        int offset = index * SUN_RIBBON_VERTEX_SIZE;
-        ribbonHull[offset] = x;
-        ribbonHull[offset + 1] = y;
-        ribbonHull[offset + 2] = height;
+    private void setHullPoint(int index, float x, float y) {
+        ribbonHull[index * 2] = x;
+        ribbonHull[index * 2 + 1] = y;
     }
 
     private OpaqueBounds getOpaqueBounds(TextureRegion region) {
@@ -854,6 +854,28 @@ public class TopDownShadowSystem extends BaseSystem {
         return Math.max(0f, drawBottom + drawHeight - getFootY(entityId));
     }
 
+    private float getMaximumShadowDepth(int entityId) {
+        Render render = mRender.get(entityId);
+        if (!isRenderable(render)) {
+            return 0f;
+        }
+        TopDownShadow shadow = mTopDownShadow.get(entityId);
+        if (shadow.depth > 0f) {
+            return shadow.depth * worldScale;
+        }
+
+        float maximumWidth = render.keyframe.getRegionWidth();
+        if (render.textureSheets != null) {
+            for (int i = 0; i < render.textureSheets.size; i++) {
+                TextureRegion region = render.textureSheets.get(i);
+                if (region != null) {
+                    maximumWidth = Math.max(maximumWidth, region.getRegionWidth());
+                }
+            }
+        }
+        return maximumWidth * Math.abs(worldScale * render.scaleWidth) / 5f;
+    }
+
     private float getShadowDepth(int entityId, TextureRegion region) {
         TopDownShadow shadow = mTopDownShadow.get(entityId);
         if (shadow.depth > 0f) {
@@ -911,33 +933,6 @@ public class TopDownShadowSystem extends BaseSystem {
             return;
         }
         drawRegion(render, pos, render.keyframe, soarHeight);
-    }
-
-    /** 使用与各层投影相同的纵深绘制接收遮罩。 */
-    private void drawReceiverEntity(int entityId) {
-        Render render = mRender.get(entityId);
-        if (!isRenderable(render)) {
-            return;
-        }
-        Pos pos = mPos.get(entityId);
-        float soarHeight = getSoarHeight(entityId);
-        if (render.textureSheets != null && !render.textureSheets.isEmpty()) {
-            for (int i = 0; i < render.textureSheets.size; i++) {
-                TextureRegion region = render.textureSheets.get(i);
-                if (region != null) {
-                    receiverShader.setUniformf(
-                        "u_receiverDepth", getShadowDepth(entityId, region));
-                    drawRegion(render, pos, region,
-                        soarHeight + i * render.sheetOffset);
-                    spriteBatch.flush();
-                }
-            }
-            return;
-        }
-        receiverShader.setUniformf(
-            "u_receiverDepth", getShadowDepth(entityId, render.keyframe));
-        drawRegion(render, pos, render.keyframe, soarHeight);
-        spriteBatch.flush();
     }
 
     private void drawRegion(Render render, Pos pos, TextureRegion region,
@@ -1034,6 +1029,8 @@ public class TopDownShadowSystem extends BaseSystem {
         bufferHeight = height;
         depthBufferHeight = Math.max(1, (height + 1) / 2);
         pointRayHandler.resizeFBO(width, height);
+        heightMapSource = createBuffer(Texture.TextureFilter.Nearest);
+        heightMap = createDepthBuffer(Texture.TextureFilter.Linear);
         depthDownsampleBuffer = createDepthBuffer(Texture.TextureFilter.Nearest);
         entityMask = createBuffer(Texture.TextureFilter.Nearest);
         groundShadowSource = createBuffer(Texture.TextureFilter.Nearest);
@@ -1057,7 +1054,9 @@ public class TopDownShadowSystem extends BaseSystem {
     }
 
     private void disposeBuffers() {
-        if (entityMask != null) {
+        if (heightMap != null) {
+            heightMapSource.dispose();
+            heightMap.dispose();
             depthDownsampleBuffer.dispose();
             entityMask.dispose();
             groundShadowSource.dispose();
@@ -1110,9 +1109,7 @@ public class TopDownShadowSystem extends BaseSystem {
 
     private Mesh createSunShadowRibbonMesh() {
         return new Mesh(false, SUN_RIBBON_MAX_VERTICES, 0,
-            new VertexAttribute(VertexAttributes.Usage.Position, 2, "a_position"),
-            new VertexAttribute(VertexAttributes.Usage.Generic, 1,
-                "a_casterHeight"));
+            new VertexAttribute(VertexAttributes.Usage.Position, 2, "a_position"));
     }
 
     private ShaderProgram compileShader(String vertex, String fragment,
@@ -1145,6 +1142,7 @@ public class TopDownShadowSystem extends BaseSystem {
             sunProjectedShadowMesh.dispose();
             projectedShadowMesh.dispose();
             sunShadowRibbonMesh.dispose();
+            heightMapShader.dispose();
             entityMaskShader.dispose();
             projectedShadowShader.dispose();
             sunShadowRibbonShader.dispose();
