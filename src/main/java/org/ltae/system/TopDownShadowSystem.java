@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.TextureData;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -20,6 +21,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.IntArray;
+import com.badlogic.gdx.utils.LongMap;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
 import org.ltae.component.Inert;
 import org.ltae.component.Pos;
@@ -41,6 +45,10 @@ import java.nio.IntBuffer;
 public class TopDownShadowSystem extends BaseSystem {
     private static final String TAG = TopDownShadowSystem.class.getSimpleName();
     private static final int SHADOW_SEGMENTS = 32;
+    private static final int SUN_RIBBON_MAX_VERTICES = 8;
+    private static final float SUN_RIBBON_CHECK_TEXELS = 6f;
+    private static final float SUN_RIBBON_SWITCH_TEXELS = 2.5f;
+    private static final float OPAQUE_ALPHA_THRESHOLD = 0.01f;
     private static final int GL_MAX_BLEND_EQUATION = 0x8008;
     private static final String SHADER_PATH = "shader/topdown/";
 
@@ -52,6 +60,12 @@ public class TopDownShadowSystem extends BaseSystem {
     private final Vector2 lightPosition = new Vector2();
     private final IntBuffer glStateBuffer = BufferUtils.newIntBuffer(1);
     private final int[] previousTextureBindings = new int[4];
+    private final ObjectMap<Texture, LongMap<OpaqueBounds>> opaqueBoundsCache =
+        new ObjectMap<>();
+    private final ObjectSet<Texture> unreadableOpaqueTextures = new ObjectSet<>();
+    private final float[] ribbonLocal = new float[8];
+    private final float[] ribbonCandidates = new float[16];
+    private final float[] ribbonHull = new float[32];
 
     private B2dSystem b2dSystem;
     private CameraSystem cameraSystem;
@@ -70,6 +84,7 @@ public class TopDownShadowSystem extends BaseSystem {
     private Mesh screenQuad;
     private Mesh sunProjectedShadowMesh;
     private Mesh projectedShadowMesh;
+    private Mesh sunShadowRibbonMesh;
     private FrameBuffer heightMapSource;
     private FrameBuffer heightMap;
     private FrameBuffer depthDownsampleBuffer;
@@ -80,6 +95,7 @@ public class TopDownShadowSystem extends BaseSystem {
     private ShaderProgram heightMapShader;
     private ShaderProgram entityMaskShader;
     private ShaderProgram projectedShadowShader;
+    private ShaderProgram sunShadowRibbonShader;
     private ShaderProgram receiverShader;
     private ShaderProgram sunCompositeShader;
     private ShaderProgram pointCompositeShader;
@@ -133,6 +149,7 @@ public class TopDownShadowSystem extends BaseSystem {
         screenQuad = createScreenQuad();
         sunProjectedShadowMesh = createProjectedShadowMesh(1);
         projectedShadowMesh = createProjectedShadowMesh(SHADOW_SEGMENTS);
+        sunShadowRibbonMesh = createSunShadowRibbonMesh();
         ShaderProgram.pedantic = false;
         ShaderManager shaderManager = ShaderManager.getInstance();
         heightMapShader = compileShader(
@@ -147,6 +164,10 @@ public class TopDownShadowSystem extends BaseSystem {
             shaderManager.getVertexContext(SHADER_PATH + "projected_shadow"),
             shaderManager.getFragmentContext(SHADER_PATH + "projected_shadow"),
             "Projected shadow");
+        sunShadowRibbonShader = compileShader(
+            shaderManager.getVertexContext(SHADER_PATH + "shadow_ribbon"),
+            shaderManager.getFragmentContext(SHADER_PATH + "shadow_ribbon"),
+            "Sun shadow ribbon");
         receiverShader = compileShader(
             shaderManager.getVertexContext(SHADER_PATH + "receiver"),
             shaderManager.getFragmentContext(SHADER_PATH + "receiver"),
@@ -482,6 +503,11 @@ public class TopDownShadowSystem extends BaseSystem {
     private void renderProjectedRegion(int entityId, Render render, Pos pos,
                                        TextureRegion region, float extraY,
                                        float footY, boolean directional) {
+        if (directional && renderSunShadowRibbonIfNeeded(
+            entityId, render, pos, region, extraY, footY)) {
+            return;
+        }
+        projectedShadowShader.bind();
         Texture texture = region.getTexture();
         float drawX = worldScale * (pos.x + render.offsetX);
         float drawY = worldScale * (pos.y + render.offsetY + extraY);
@@ -502,6 +528,277 @@ public class TopDownShadowSystem extends BaseSystem {
         Mesh mesh = directional ? sunProjectedShadowMesh : projectedShadowMesh;
         mesh.render(
             projectedShadowShader, GL20.GL_TRIANGLE_STRIP);
+    }
+
+    /**
+     * 太阳接近平行于地面时，普通纹理投影会退化为低于一个像素的线。
+     * 此时用真实不透明边界生成连续凸阴影带，避免光栅化后的分段与消失。
+     */
+    private boolean renderSunShadowRibbonIfNeeded(
+        int entityId, Render render, Pos pos, TextureRegion region,
+        float extraY, float footY) {
+        float fullSpan = getProjectedVerticalSpanTexels(
+            render, pos, region, extraY, footY,
+            0f, region.getRegionWidth(), 0f, region.getRegionHeight());
+        if (fullSpan >= SUN_RIBBON_CHECK_TEXELS) {
+            return false;
+        }
+
+        OpaqueBounds opaqueBounds = getOpaqueBounds(region);
+        float opaqueSpan = getProjectedVerticalSpanTexels(
+            render, pos, region, extraY, footY,
+            opaqueBounds.left, opaqueBounds.right,
+            opaqueBounds.bottom, opaqueBounds.top);
+        if (opaqueSpan >= SUN_RIBBON_SWITCH_TEXELS) {
+            return false;
+        }
+
+        int hullSize = buildSunShadowRibbon(
+            render, pos, region, extraY, footY,
+            opaqueBounds.left, opaqueBounds.right,
+            opaqueBounds.bottom, opaqueBounds.top,
+            getShadowDepth(entityId, region));
+        if (hullSize < 3) {
+            return false;
+        }
+        sunShadowRibbonMesh.setVertices(ribbonHull, 0, hullSize * 2);
+        sunShadowRibbonShader.bind();
+        sunShadowRibbonShader.setUniformMatrix(
+            "u_projTrans", cameraSystem.camera.combined);
+        sunShadowRibbonMesh.render(
+            sunShadowRibbonShader, GL20.GL_TRIANGLE_FAN, 0, hullSize);
+        return true;
+    }
+
+    private float getProjectedVerticalSpanTexels(
+        Render render, Pos pos, TextureRegion region, float extraY,
+        float footY, float left, float right, float bottom, float top) {
+        projectBounds(render, pos, region, extraY, footY,
+            left, right, bottom, top, 0f);
+        float minimumY = Float.POSITIVE_INFINITY;
+        float maximumY = Float.NEGATIVE_INFINITY;
+        for (int i = 1; i < 8; i += 2) {
+            minimumY = Math.min(minimumY, ribbonCandidates[i]);
+            maximumY = Math.max(maximumY, ribbonCandidates[i]);
+        }
+        float visibleWorldHeight = cameraSystem.camera.viewportHeight
+            * cameraSystem.camera.zoom;
+        float worldPerTexel = visibleWorldHeight / groundShadowSource.getHeight();
+        return (maximumY - minimumY) / Math.max(worldPerTexel, 0.0001f);
+    }
+
+    private int buildSunShadowRibbon(
+        Render render, Pos pos, TextureRegion region, float extraY,
+        float footY, float left, float right, float bottom, float top,
+        float depth) {
+        projectBounds(render, pos, region, extraY, footY,
+            left, right, bottom, top,
+            Math.max(depth, 0.0001f) * 0.5f);
+        sortRibbonCandidates();
+        return buildRibbonConvexHull();
+    }
+
+    private void projectBounds(
+        Render render, Pos pos, TextureRegion region, float extraY,
+        float footY, float left, float right, float bottom, float top,
+        float halfDepth) {
+        if (render.flipX) {
+            float originalLeft = left;
+            left = region.getRegionWidth() - right;
+            right = region.getRegionWidth() - originalLeft;
+        }
+        if (render.flipY) {
+            float originalBottom = bottom;
+            bottom = region.getRegionHeight() - top;
+            top = region.getRegionHeight() - originalBottom;
+        }
+
+        ribbonLocal[0] = left;
+        ribbonLocal[1] = bottom;
+        ribbonLocal[2] = right;
+        ribbonLocal[3] = bottom;
+        ribbonLocal[4] = right;
+        ribbonLocal[5] = top;
+        ribbonLocal[6] = left;
+        ribbonLocal[7] = top;
+        float drawX = worldScale * (pos.x + render.offsetX);
+        float drawY = worldScale * (pos.y + render.offsetY + extraY);
+        float scaleX = worldScale * render.scaleWidth;
+        float scaleY = worldScale * render.scaleHeight;
+        float cosine = MathUtils.cosDeg(render.rotation);
+        float sine = MathUtils.sinDeg(render.rotation);
+        sunLight.getShadowDirection(lightDirection);
+        float shadowLengthScale = sunLight.getShadowLengthScale();
+        for (int i = 0; i < 4; i++) {
+            float relativeX = (ribbonLocal[i * 2] - render.originX) * scaleX;
+            float relativeY = (ribbonLocal[i * 2 + 1] - render.originY) * scaleY;
+            float spriteX = drawX + render.originX
+                + relativeX * cosine - relativeY * sine;
+            float spriteY = drawY + render.originY
+                + relativeX * sine + relativeY * cosine;
+            float pixelHeight = Math.max(0f, spriteY - footY);
+            float projectedX = spriteX
+                + lightDirection.x * pixelHeight * shadowLengthScale;
+            float projectedY = footY
+                + lightDirection.y * pixelHeight * shadowLengthScale;
+            if (halfDepth <= 0f) {
+                ribbonCandidates[i * 2] = projectedX;
+                ribbonCandidates[i * 2 + 1] = projectedY;
+            } else {
+                int lower = i * 4;
+                ribbonCandidates[lower] = projectedX;
+                ribbonCandidates[lower + 1] = projectedY - halfDepth;
+                ribbonCandidates[lower + 2] = projectedX;
+                ribbonCandidates[lower + 3] = projectedY + halfDepth;
+            }
+        }
+    }
+
+    private void sortRibbonCandidates() {
+        for (int i = 1; i < 8; i++) {
+            float x = ribbonCandidates[i * 2];
+            float y = ribbonCandidates[i * 2 + 1];
+            int insertion = i;
+            while (insertion > 0 && isPointAfter(
+                ribbonCandidates[(insertion - 1) * 2],
+                ribbonCandidates[(insertion - 1) * 2 + 1], x, y)) {
+                ribbonCandidates[insertion * 2] =
+                    ribbonCandidates[(insertion - 1) * 2];
+                ribbonCandidates[insertion * 2 + 1] =
+                    ribbonCandidates[(insertion - 1) * 2 + 1];
+                insertion--;
+            }
+            ribbonCandidates[insertion * 2] = x;
+            ribbonCandidates[insertion * 2 + 1] = y;
+        }
+    }
+
+    private boolean isPointAfter(float firstX, float firstY,
+                                 float secondX, float secondY) {
+        return firstX > secondX || (firstX == secondX && firstY > secondY);
+    }
+
+    private int buildRibbonConvexHull() {
+        int hullSize = 0;
+        for (int i = 0; i < 8; i++) {
+            while (hullSize >= 2 && crossHullPoint(
+                hullSize - 2, hullSize - 1,
+                ribbonCandidates[i * 2], ribbonCandidates[i * 2 + 1]) <= 0f) {
+                hullSize--;
+            }
+            setHullPoint(hullSize++, ribbonCandidates[i * 2],
+                ribbonCandidates[i * 2 + 1]);
+        }
+        int lowerSize = hullSize;
+        for (int i = 6; i >= 0; i--) {
+            while (hullSize > lowerSize && crossHullPoint(
+                hullSize - 2, hullSize - 1,
+                ribbonCandidates[i * 2], ribbonCandidates[i * 2 + 1]) <= 0f) {
+                hullSize--;
+            }
+            setHullPoint(hullSize++, ribbonCandidates[i * 2],
+                ribbonCandidates[i * 2 + 1]);
+        }
+        return Math.max(0, hullSize - 1);
+    }
+
+    private float crossHullPoint(int first, int second, float x, float y) {
+        float firstX = ribbonHull[first * 2];
+        float firstY = ribbonHull[first * 2 + 1];
+        float secondX = ribbonHull[second * 2];
+        float secondY = ribbonHull[second * 2 + 1];
+        return (secondX - firstX) * (y - firstY)
+            - (secondY - firstY) * (x - firstX);
+    }
+
+    private void setHullPoint(int index, float x, float y) {
+        ribbonHull[index * 2] = x;
+        ribbonHull[index * 2 + 1] = y;
+    }
+
+    private OpaqueBounds getOpaqueBounds(TextureRegion region) {
+        Texture texture = region.getTexture();
+        long key = getRegionKey(region);
+        LongMap<OpaqueBounds> textureBounds = opaqueBoundsCache.get(texture);
+        if (textureBounds != null) {
+            OpaqueBounds cached = textureBounds.get(key);
+            if (cached != null) {
+                return cached;
+            }
+        } else {
+            textureBounds = new LongMap<>();
+            opaqueBoundsCache.put(texture, textureBounds);
+        }
+
+        OpaqueBounds bounds = readOpaqueBounds(region);
+        textureBounds.put(key, bounds);
+        return bounds;
+    }
+
+    private OpaqueBounds readOpaqueBounds(TextureRegion region) {
+        Texture texture = region.getTexture();
+        if (unreadableOpaqueTextures.contains(texture)) {
+            return OpaqueBounds.full(region);
+        }
+        TextureData data = texture.getTextureData();
+        if (data == null || data.getType() != TextureData.TextureDataType.Pixmap) {
+            logUnreadableTexture(texture, "Texture data is not pixmap-backed");
+            return OpaqueBounds.full(region);
+        }
+
+        Pixmap pixmap = null;
+        try {
+            if (!data.isPrepared()) {
+                data.prepare();
+            }
+            pixmap = data.consumePixmap();
+            int minimumX = region.getRegionWidth();
+            int minimumY = region.getRegionHeight();
+            int maximumX = -1;
+            int maximumY = -1;
+            int startX = region.getRegionX();
+            int startY = region.getRegionY();
+            for (int y = 0; y < region.getRegionHeight(); y++) {
+                for (int x = 0; x < region.getRegionWidth(); x++) {
+                    int alpha = pixmap.getPixel(startX + x, startY + y) & 0xff;
+                    if (alpha / 255f < OPAQUE_ALPHA_THRESHOLD) {
+                        continue;
+                    }
+                    minimumX = Math.min(minimumX, x);
+                    minimumY = Math.min(minimumY, y);
+                    maximumX = Math.max(maximumX, x);
+                    maximumY = Math.max(maximumY, y);
+                }
+            }
+            if (maximumX < minimumX || maximumY < minimumY) {
+                return OpaqueBounds.full(region);
+            }
+            return new OpaqueBounds(
+                minimumX, maximumX + 1f,
+                region.getRegionHeight() - maximumY - 1f,
+                region.getRegionHeight() - minimumY);
+        } catch (RuntimeException exception) {
+            logUnreadableTexture(texture,
+                "Unable to read texture alpha: " + exception.getMessage());
+            return OpaqueBounds.full(region);
+        } finally {
+            if (pixmap != null && data.disposePixmap()) {
+                pixmap.dispose();
+            }
+        }
+    }
+
+    private void logUnreadableTexture(Texture texture, String message) {
+        if (unreadableOpaqueTextures.add(texture)) {
+            Gdx.app.log(TAG, message + "; using the full texture region");
+        }
+    }
+
+    private long getRegionKey(TextureRegion region) {
+        return ((long) region.getRegionX() & 0xffffL) << 48
+            | ((long) region.getRegionY() & 0xffffL) << 32
+            | ((long) region.getRegionWidth() & 0xffffL) << 16
+            | ((long) region.getRegionHeight() & 0xffffL);
     }
 
     private void setTextureCoordinates(ShaderProgram shader, Render render,
@@ -807,6 +1104,11 @@ public class TopDownShadowSystem extends BaseSystem {
         return mesh;
     }
 
+    private Mesh createSunShadowRibbonMesh() {
+        return new Mesh(false, SUN_RIBBON_MAX_VERTICES, 0,
+            new VertexAttribute(VertexAttributes.Usage.Position, 2, "a_position"));
+    }
+
     private ShaderProgram compileShader(String vertex, String fragment,
                                         String name) {
         if (vertex == null || fragment == null) {
@@ -836,14 +1138,35 @@ public class TopDownShadowSystem extends BaseSystem {
             screenQuad.dispose();
             sunProjectedShadowMesh.dispose();
             projectedShadowMesh.dispose();
+            sunShadowRibbonMesh.dispose();
             heightMapShader.dispose();
             entityMaskShader.dispose();
             projectedShadowShader.dispose();
+            sunShadowRibbonShader.dispose();
             receiverShader.dispose();
             sunCompositeShader.dispose();
             pointCompositeShader.dispose();
             depthDownsampleShader.dispose();
             depthExpandShader.dispose();
+        }
+    }
+
+    private static final class OpaqueBounds {
+        private final float left;
+        private final float right;
+        private final float bottom;
+        private final float top;
+
+        private OpaqueBounds(float left, float right, float bottom, float top) {
+            this.left = left;
+            this.right = right;
+            this.bottom = bottom;
+            this.top = top;
+        }
+
+        private static OpaqueBounds full(TextureRegion region) {
+            return new OpaqueBounds(0f, region.getRegionWidth(), 0f,
+                region.getRegionHeight());
         }
     }
 }
