@@ -5,9 +5,12 @@ varying vec2 v_texCoords;
 uniform sampler2D u_texture;
 uniform float u_shadowDepth;
 uniform float u_heightRange;
+uniform float u_sunParallelFill;
 
 void main() {
-    float alpha = texture2D(u_texture, v_texCoords).a;
+    float alpha = max(
+        texture2D(u_texture, v_texCoords).a,
+        u_sunParallelFill);
     if (alpha < 0.01) {
         discard;
     }

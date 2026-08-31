@@ -384,7 +384,10 @@ public class TopDownShadowSystem extends BaseSystem {
         projectedShadowShader.setUniformf(
             "u_heightRange", config.getHeightRange());
         setLightUniforms(projectedShadowShader, light);
-        float seedThickness = getSunProjectionSeedThickness(light);
+        float parallelFactor = getSunParallelFactor(light);
+        projectedShadowShader.setUniformf(
+            "u_sunParallelFill", parallelFactor);
+        float seedThickness = getSunProjectionSeedThickness(parallelFactor);
         projectedShadowShader.setUniformf(
             "u_sunProjectionSeedThickness", seedThickness);
         renderProjectedCasters(light);
@@ -409,7 +412,7 @@ public class TopDownShadowSystem extends BaseSystem {
         }
     }
 
-    private float getSunProjectionSeedThickness(TopDownShadowLight light) {
+    private float getSunParallelFactor(TopDownShadowLight light) {
         if (!light.isDirectional()) {
             return 0f;
         }
@@ -417,9 +420,13 @@ public class TopDownShadowSystem extends BaseSystem {
             light.getShadowDirection(lightDirection).y);
         float progress = MathUtils.clamp(vertical / 0.15f, 0f, 1f);
         float smoothProgress = progress * progress * (3f - 2f * progress);
+        return 1f - smoothProgress;
+    }
+
+    private float getSunProjectionSeedThickness(float parallelFactor) {
         float worldPerTexel = cameraSystem.camera.viewportHeight
             * cameraSystem.camera.zoom / depthBufferHeight;
-        return worldPerTexel * 2f * (1f - smoothProgress);
+        return worldPerTexel * 2f * parallelFactor;
     }
 
     private void renderReceiverShadowMask(TopDownShadowLight light) {
