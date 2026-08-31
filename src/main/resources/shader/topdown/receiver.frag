@@ -1,5 +1,9 @@
 #ifdef GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 #endif
 varying vec4 v_color;
 varying vec2 v_texCoords;
@@ -7,7 +11,9 @@ varying vec2 v_world;
 varying float v_receiverHeight;
 uniform sampler2D u_texture;
 uniform sampler2D u_heightMap;
+uniform sampler2D u_sunShadowMap;
 uniform mat4 u_projTrans;
+uniform vec2 u_entityId;
 uniform float u_heightRange;
 uniform float u_pointMode;
 uniform vec2 u_shadowDirection;
@@ -16,11 +22,48 @@ uniform vec2 u_lightPosition;
 uniform float u_lightHeight;
 uniform float u_lightRange;
 uniform float u_time;
+uniform vec3 u_lightAxisU;
+uniform vec3 u_lightAxisV;
+uniform vec3 u_lightAxisDepth;
+uniform vec2 u_lightUvMin;
+uniform vec2 u_lightUvSize;
+uniform vec2 u_lightDepthRange;
+uniform float u_depthBias;
+
+float decodeDepth(vec2 encoded) {
+    return encoded.x + encoded.y / 255.0;
+}
+
+float traceSunShadow() {
+    vec3 receiver = vec3(v_world.x, u_footY, v_receiverHeight);
+    vec2 lightUv = vec2(
+        dot(receiver, u_lightAxisU),
+        dot(receiver, u_lightAxisV));
+    vec2 shadowUv = (lightUv - u_lightUvMin) / u_lightUvSize;
+    float inside = step(0.0, shadowUv.x) * step(shadowUv.x, 1.0)
+        * step(0.0, shadowUv.y) * step(shadowUv.y, 1.0);
+    vec4 stored = texture2D(
+        u_sunShadowMap, clamp(shadowUv, 0.0, 1.0));
+    float occupied = step(0.5 / 255.0, max(stored.b, stored.a));
+    float sameEntity = 1.0 - step(
+        0.5 / 255.0, distance(stored.ba, u_entityId));
+    float storedDepth = decodeDepth(stored.rg);
+    float receiverDepth = (dot(receiver, u_lightAxisDepth)
+        - u_lightDepthRange.x)
+        / (u_lightDepthRange.y - u_lightDepthRange.x);
+    return step(storedDepth + u_depthBias, receiverDepth)
+        * occupied * (1.0 - sameEntity) * inside;
+}
 
 void main() {
     float alpha = texture2D(u_texture, v_texCoords).a * v_color.a;
     if (alpha < 0.01) {
         discard;
+    }
+    if (u_pointMode < 0.5) {
+        float shadow = traceSunShadow();
+        gl_FragColor = vec4(shadow * alpha);
+        return;
     }
     if (u_pointMode > 0.5
         && distance(v_world, u_lightPosition) > u_lightRange) {

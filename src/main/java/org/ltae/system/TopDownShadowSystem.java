@@ -19,6 +19,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.LongMap;
@@ -45,6 +46,7 @@ import java.nio.IntBuffer;
 public class TopDownShadowSystem extends BaseSystem {
     private static final String TAG = TopDownShadowSystem.class.getSimpleName();
     private static final int SHADOW_SEGMENTS = 32;
+    private static final int MAX_VOLUME_LAYERS = 16;
     private static final int SUN_RIBBON_MAX_VERTICES = 8;
     private static final float SUN_RIBBON_CHECK_TEXELS = 6f;
     private static final float SUN_RIBBON_SWITCH_TEXELS = 2.5f;
@@ -58,6 +60,9 @@ public class TopDownShadowSystem extends BaseSystem {
     private final IntArray sortedShadowEntities = new IntArray();
     private final Vector2 lightDirection = new Vector2();
     private final Vector2 lightPosition = new Vector2();
+    private final Vector3 lightAxisU = new Vector3();
+    private final Vector3 lightAxisV = new Vector3();
+    private final Vector3 lightAxisDepth = new Vector3();
     private final IntBuffer glStateBuffer = BufferUtils.newIntBuffer(1);
     private final int[] previousTextureBindings = new int[4];
     private final ObjectMap<Texture, LongMap<OpaqueBounds>> opaqueBoundsCache =
@@ -84,6 +89,7 @@ public class TopDownShadowSystem extends BaseSystem {
     private Mesh screenQuad;
     private Mesh sunProjectedShadowMesh;
     private Mesh projectedShadowMesh;
+    private final Mesh[] volumeSliceMeshes = new Mesh[MAX_VOLUME_LAYERS + 1];
     private Mesh sunShadowRibbonMesh;
     private FrameBuffer heightMapSource;
     private FrameBuffer heightMap;
@@ -92,11 +98,14 @@ public class TopDownShadowSystem extends BaseSystem {
     private FrameBuffer groundShadowSource;
     private FrameBuffer groundShadowMask;
     private FrameBuffer receiverShadowMask;
+    private FrameBuffer sunShadowMap;
     private ShaderProgram heightMapShader;
     private ShaderProgram entityMaskShader;
     private ShaderProgram projectedShadowShader;
     private ShaderProgram sunShadowRibbonShader;
     private ShaderProgram receiverShader;
+    private ShaderProgram lightSpaceCasterShader;
+    private ShaderProgram lightSpaceGroundShader;
     private ShaderProgram sunCompositeShader;
     private ShaderProgram pointCompositeShader;
     private ShaderProgram depthDownsampleShader;
@@ -105,6 +114,13 @@ public class TopDownShadowSystem extends BaseSystem {
     private int bufferHeight;
     private int depthBufferHeight;
     private float shadowTime;
+    private float lightUvMinX;
+    private float lightUvMinY;
+    private float lightUvSizeX;
+    private float lightUvSizeY;
+    private float lightDepthMin;
+    private float lightDepthMax;
+    private float lightDepthBias;
     public TopDownShadowSystem(float worldScale, TopDownShadowConfig config) {
         this(worldScale, config, new SunLightConfig());
     }
@@ -149,6 +165,9 @@ public class TopDownShadowSystem extends BaseSystem {
         screenQuad = createScreenQuad();
         sunProjectedShadowMesh = createProjectedShadowMesh(1);
         projectedShadowMesh = createProjectedShadowMesh(SHADOW_SEGMENTS);
+        for (int layers = 2; layers <= MAX_VOLUME_LAYERS; layers++) {
+            volumeSliceMeshes[layers] = createVolumeSliceMesh(layers);
+        }
         sunShadowRibbonMesh = createSunShadowRibbonMesh();
         ShaderProgram.pedantic = false;
         ShaderManager shaderManager = ShaderManager.getInstance();
@@ -172,6 +191,14 @@ public class TopDownShadowSystem extends BaseSystem {
             shaderManager.getVertexContext(SHADER_PATH + "receiver"),
             shaderManager.getFragmentContext(SHADER_PATH + "receiver"),
             "Receiver shadow");
+        lightSpaceCasterShader = compileShader(
+            shaderManager.getVertexContext(SHADER_PATH + "light_space_caster"),
+            shaderManager.getFragmentContext(SHADER_PATH + "light_space_caster"),
+            "Light-space caster");
+        lightSpaceGroundShader = compileShader(
+            shaderManager.getVertexContext(SHADER_PATH + "screen"),
+            shaderManager.getFragmentContext(SHADER_PATH + "light_space_ground"),
+            "Light-space ground");
         sunCompositeShader = compileShader(
             shaderManager.getVertexContext(SHADER_PATH + "screen"),
             shaderManager.getFragmentContext(SHADER_PATH + "sun_composite"),
@@ -228,6 +255,7 @@ public class TopDownShadowSystem extends BaseSystem {
             renderEntityMask();
             renderHeightMap();
 
+            renderSunShadowMap();
             renderShadowMasks(sunLight);
             compositeSunShadow();
         } finally {
@@ -393,12 +421,172 @@ public class TopDownShadowSystem extends BaseSystem {
         expandDepth(heightMapSource, heightMap);
     }
 
+    /** 从太阳视角渲染带深度和实体ID的立体剪影。 */
+    private void renderSunShadowMap() {
+        updateSunLightSpace();
+        sunShadowMap.begin();
+        Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
+        Gdx.gl.glClearDepthf(1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+        Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+        Gdx.gl.glDepthFunc(GL20.GL_LESS);
+        Gdx.gl.glDepthMask(true);
+        lightSpaceCasterShader.bind();
+        lightSpaceCasterShader.setUniformi("u_texture", 0);
+        setLightSpaceUniforms(lightSpaceCasterShader);
+        for (int i = 0; i < sortedShadowEntities.size; i++) {
+            renderVolumeEntity(sortedShadowEntities.get(i));
+        }
+        Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+        sunShadowMap.end();
+    }
+
+    /**
+     * 建立太阳的正交坐标系。U/V用于阴影图坐标，Depth用于比较遮挡先后。
+     */
+    private void updateSunLightSpace() {
+        sunLight.getShadowDirection(lightDirection).nor();
+        float sine = MathUtils.sinDeg(sunLight.getElevationDegree());
+        float cosine = MathUtils.cosDeg(sunLight.getElevationDegree());
+        lightAxisU.set(-lightDirection.y, lightDirection.x, 0f).nor();
+        lightAxisV.set(lightDirection.x * sine,
+            lightDirection.y * sine, cosine).nor();
+        lightAxisDepth.set(lightDirection.x * cosine,
+            lightDirection.y * cosine, -sine).nor();
+
+        float halfWidth = cameraSystem.camera.viewportWidth
+            * cameraSystem.camera.zoom * 0.5f;
+        float halfHeight = cameraSystem.camera.viewportHeight
+            * cameraSystem.camera.zoom * 0.5f;
+        float centerX = cameraSystem.camera.position.x;
+        float centerY = cameraSystem.camera.position.y;
+        float minimumU = Float.POSITIVE_INFINITY;
+        float maximumU = Float.NEGATIVE_INFINITY;
+        float minimumV = Float.POSITIVE_INFINITY;
+        float maximumV = Float.NEGATIVE_INFINITY;
+        float minimumDepth = Float.POSITIVE_INFINITY;
+        float maximumDepth = Float.NEGATIVE_INFINITY;
+        for (int xIndex = 0; xIndex < 2; xIndex++) {
+            float x = centerX + (xIndex == 0 ? -halfWidth : halfWidth);
+            for (int yIndex = 0; yIndex < 2; yIndex++) {
+                float y = centerY + (yIndex == 0 ? -halfHeight : halfHeight);
+                for (int zIndex = 0; zIndex < 2; zIndex++) {
+                    float z = zIndex == 0 ? 0f : config.getHeightRange();
+                    float u = x * lightAxisU.x + y * lightAxisU.y;
+                    float v = x * lightAxisV.x + y * lightAxisV.y
+                        + z * lightAxisV.z;
+                    float depth = x * lightAxisDepth.x
+                        + y * lightAxisDepth.y + z * lightAxisDepth.z;
+                    minimumU = Math.min(minimumU, u);
+                    maximumU = Math.max(maximumU, u);
+                    minimumV = Math.min(minimumV, v);
+                    maximumV = Math.max(maximumV, v);
+                    minimumDepth = Math.min(minimumDepth, depth);
+                    maximumDepth = Math.max(maximumDepth, depth);
+                }
+            }
+        }
+        float worldPerTexel = Math.max(
+            cameraSystem.camera.viewportWidth * cameraSystem.camera.zoom
+                / Math.max(1, bufferWidth),
+            cameraSystem.camera.viewportHeight * cameraSystem.camera.zoom
+                / Math.max(1, bufferHeight));
+        float uvPadding = Math.max(2f, worldPerTexel * 2f);
+        lightUvMinX = minimumU - uvPadding;
+        lightUvMinY = minimumV - uvPadding;
+        lightUvSizeX = Math.max(1f, maximumU - minimumU + uvPadding * 2f);
+        lightUvSizeY = Math.max(1f, maximumV - minimumV + uvPadding * 2f);
+        float rayReach = config.getHeightRange() / Math.max(sine, 0.05f);
+        lightDepthMin = minimumDepth - rayReach - uvPadding;
+        lightDepthMax = maximumDepth + rayReach + uvPadding;
+        lightDepthBias = Math.max(0.35f, worldPerTexel * 0.75f)
+            / (lightDepthMax - lightDepthMin);
+    }
+
+    private void renderVolumeEntity(int entityId) {
+        Render render = mRender.get(entityId);
+        Pos pos = mPos.get(entityId);
+        if (!isRenderable(render)) {
+            return;
+        }
+        float soarHeight = getSoarHeight(entityId);
+        if (render.textureSheets != null && !render.textureSheets.isEmpty()) {
+            for (int i = 0; i < render.textureSheets.size; i++) {
+                TextureRegion region = render.textureSheets.get(i);
+                if (region != null) {
+                    renderVolumeRegion(entityId, render, pos, region,
+                        soarHeight + i * render.sheetOffset, getFootY(entityId));
+                }
+            }
+            return;
+        }
+        renderVolumeRegion(entityId, render, pos, render.keyframe,
+            soarHeight, getFootY(entityId));
+    }
+
+    private void renderVolumeRegion(int entityId, Render render, Pos pos,
+                                    TextureRegion region, float extraY,
+                                    float footY) {
+        float drawX = worldScale * (pos.x + render.offsetX);
+        float drawY = worldScale * (pos.y + render.offsetY + extraY);
+        float depth = getShadowDepth(entityId, region);
+        float worldPerTexel = cameraSystem.camera.viewportHeight
+            * cameraSystem.camera.zoom / Math.max(1, bufferHeight);
+        int layers = MathUtils.clamp(
+            MathUtils.ceil(depth / Math.max(worldPerTexel, 0.0001f)) + 1,
+            2, MAX_VOLUME_LAYERS);
+        lightSpaceCasterShader.setUniformf("u_drawPosition", drawX, drawY);
+        lightSpaceCasterShader.setUniformf(
+            "u_origin", render.originX, render.originY);
+        lightSpaceCasterShader.setUniformf(
+            "u_size", region.getRegionWidth(), region.getRegionHeight());
+        lightSpaceCasterShader.setUniformf("u_scale",
+            worldScale * render.scaleWidth, worldScale * render.scaleHeight);
+        lightSpaceCasterShader.setUniformf("u_rotation", render.rotation);
+        lightSpaceCasterShader.setUniformf("u_footY", footY);
+        setTextureCoordinates(lightSpaceCasterShader, render, region);
+        setEntityIdUniform(lightSpaceCasterShader, entityId);
+        lightSpaceCasterShader.setUniformf("u_shadowDepth", depth);
+        region.getTexture().bind(0);
+        volumeSliceMeshes[layers].render(
+            lightSpaceCasterShader, GL20.GL_TRIANGLES);
+    }
+
+    private void setLightSpaceUniforms(ShaderProgram shader) {
+        shader.setUniformf("u_lightAxisU", lightAxisU);
+        shader.setUniformf("u_lightAxisV", lightAxisV);
+        shader.setUniformf("u_lightAxisDepth", lightAxisDepth);
+        shader.setUniformf("u_lightUvMin", lightUvMinX, lightUvMinY);
+        shader.setUniformf("u_lightUvSize", lightUvSizeX, lightUvSizeY);
+        shader.setUniformf(
+            "u_lightDepthRange", lightDepthMin, lightDepthMax);
+        if (shader.hasUniform("u_depthBias")) {
+            shader.setUniformf("u_depthBias", lightDepthBias);
+        }
+    }
+
+    /** 两个8位通道共同保存实体ID，零值保留给空像素。 */
+    private void setEntityIdUniform(ShaderProgram shader, int entityId) {
+        int encoded = (entityId + 1) & 0xffff;
+        if (encoded == 0) {
+            encoded = 1;
+        }
+        shader.setUniformf("u_entityId",
+            (encoded & 0xff) / 255f,
+            ((encoded >>> 8) & 0xff) / 255f);
+    }
+
     private void renderShadowMasks(TopDownShadowLight light) {
         renderGroundShadowMask(light);
         renderReceiverShadowMask(light);
     }
 
     private void renderGroundShadowMask(TopDownShadowLight light) {
+        if (light.isDirectional()) {
+            renderSunGroundShadowMask();
+            return;
+        }
         groundShadowSource.begin();
         clearBuffer();
         Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -416,6 +604,20 @@ public class TopDownShadowSystem extends BaseSystem {
         Gdx.gl.glDisable(GL20.GL_BLEND);
         groundShadowSource.end();
         expandDepth(groundShadowSource, groundShadowMask);
+    }
+
+    private void renderSunGroundShadowMask() {
+        groundShadowMask.begin();
+        clearBuffer();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+        sunShadowMap.getColorBufferTexture().bind(0);
+        lightSpaceGroundShader.bind();
+        lightSpaceGroundShader.setUniformi("u_shadowMap", 0);
+        lightSpaceGroundShader.setUniformMatrix(
+            "u_invProjTrans", cameraSystem.camera.invProjectionView);
+        setLightSpaceUniforms(lightSpaceGroundShader);
+        screenQuad.render(lightSpaceGroundShader, GL20.GL_TRIANGLE_FAN);
+        groundShadowMask.end();
     }
 
     private void renderProjectedCasters(TopDownShadowLight light) {
@@ -439,16 +641,20 @@ public class TopDownShadowSystem extends BaseSystem {
         spriteBatch.begin();
         receiverShader.setUniformi("u_texture", 0);
         receiverShader.setUniformi("u_heightMap", 1);
+        receiverShader.setUniformi("u_sunShadowMap", 2);
         receiverShader.setUniformMatrix(
             "u_projTrans", cameraSystem.camera.combined);
         receiverShader.setUniformf("u_heightRange", config.getHeightRange());
         receiverShader.setUniformf("u_time", shadowTime);
         setLightUniforms(receiverShader, light);
+        setLightSpaceUniforms(receiverShader);
         heightMap.getColorBufferTexture().bind(1);
+        sunShadowMap.getColorBufferTexture().bind(2);
         Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
         for (int i = 0; i < sortedShadowEntities.size; i++) {
             int entityId = sortedShadowEntities.get(i);
             receiverShader.setUniformf("u_footY", getFootY(entityId));
+            setEntityIdUniform(receiverShader, entityId);
             drawEntity(entityId);
             spriteBatch.flush();
         }
@@ -1036,6 +1242,10 @@ public class TopDownShadowSystem extends BaseSystem {
         groundShadowSource = createBuffer(Texture.TextureFilter.Nearest);
         groundShadowMask = createDepthBuffer(Texture.TextureFilter.Linear);
         receiverShadowMask = createBuffer(Texture.TextureFilter.Linear);
+        sunShadowMap = new FrameBuffer(
+            Pixmap.Format.RGBA8888, bufferWidth, bufferHeight, true);
+        sunShadowMap.getColorBufferTexture().setFilter(
+            Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     }
 
     private FrameBuffer createBuffer(Texture.TextureFilter filter) {
@@ -1062,6 +1272,7 @@ public class TopDownShadowSystem extends BaseSystem {
             groundShadowSource.dispose();
             groundShadowMask.dispose();
             receiverShadowMask.dispose();
+            sunShadowMap.dispose();
         }
     }
 
@@ -1107,6 +1318,44 @@ public class TopDownShadowSystem extends BaseSystem {
         return mesh;
     }
 
+    private Mesh createVolumeSliceMesh(int layers) {
+        int vertexCount = layers * 6;
+        Mesh mesh = new Mesh(true, vertexCount, 0,
+            new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position"),
+            new VertexAttribute(
+                VertexAttributes.Usage.TextureCoordinates, 2, "a_texCoord"));
+        float[] vertices = new float[vertexCount * 5];
+        int offset = 0;
+        for (int layer = 0; layer < layers; layer++) {
+            float depthRatio = layer / (float) (layers - 1);
+            offset = setVolumeVertex(
+                vertices, offset, 0f, 0f, depthRatio, 0f, 0f);
+            offset = setVolumeVertex(
+                vertices, offset, 1f, 0f, depthRatio, 1f, 0f);
+            offset = setVolumeVertex(
+                vertices, offset, 1f, 1f, depthRatio, 1f, 1f);
+            offset = setVolumeVertex(
+                vertices, offset, 0f, 0f, depthRatio, 0f, 0f);
+            offset = setVolumeVertex(
+                vertices, offset, 1f, 1f, depthRatio, 1f, 1f);
+            offset = setVolumeVertex(
+                vertices, offset, 0f, 1f, depthRatio, 0f, 1f);
+        }
+        mesh.setVertices(vertices);
+        return mesh;
+    }
+
+    private int setVolumeVertex(float[] vertices, int offset,
+                                float x, float y, float depth,
+                                float u, float v) {
+        vertices[offset++] = x;
+        vertices[offset++] = y;
+        vertices[offset++] = depth;
+        vertices[offset++] = u;
+        vertices[offset++] = v;
+        return offset;
+    }
+
     private Mesh createSunShadowRibbonMesh() {
         return new Mesh(false, SUN_RIBBON_MAX_VERTICES, 0,
             new VertexAttribute(VertexAttributes.Usage.Position, 2, "a_position"));
@@ -1141,12 +1390,17 @@ public class TopDownShadowSystem extends BaseSystem {
             screenQuad.dispose();
             sunProjectedShadowMesh.dispose();
             projectedShadowMesh.dispose();
+            for (int layers = 2; layers <= MAX_VOLUME_LAYERS; layers++) {
+                volumeSliceMeshes[layers].dispose();
+            }
             sunShadowRibbonMesh.dispose();
             heightMapShader.dispose();
             entityMaskShader.dispose();
             projectedShadowShader.dispose();
             sunShadowRibbonShader.dispose();
             receiverShader.dispose();
+            lightSpaceCasterShader.dispose();
+            lightSpaceGroundShader.dispose();
             sunCompositeShader.dispose();
             pointCompositeShader.dispose();
             depthDownsampleShader.dispose();
