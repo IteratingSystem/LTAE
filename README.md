@@ -4,7 +4,7 @@ Worldloom 是基于 LibGDX、Artemis-ODB 和 Tiled 的嵌入式 2D ECS 游戏引
 
 Worldloom 不接管 LibGDX 的 `ApplicationListener` 或 `Screen`。游戏项目仍然拥有平台启动、页面和业务内容；引擎通过 `WorldloomEngine` 统一管理 ECS World 的创建、系统顺序、每帧更新、窗口变化和释放。
 
-当前版本：`4.0.1`。版本号的选择与发布步骤见 [VERSIONING.md](VERSIONING.md)。
+当前版本：`4.1.0`。版本号的选择与发布步骤见 [VERSIONING.md](VERSIONING.md)。
 
 ## 1. 环境与依赖
 
@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    api "com.github.IteratingSystem:worldloom:4.0.1"
+    api "com.github.IteratingSystem:worldloom:4.1.0"
 }
 ```
 
@@ -142,7 +142,7 @@ public final class GameModule implements WorldloomGameModule {
     public void registerSystems(WorldloomSystemRegistry systems) {
         systems.add(EnginePhase.INPUT, new KeyboardSystem());
         systems.add(EnginePhase.UPDATE, new WeatherSystem());
-        systems.add(EnginePhase.PRE_RENDER, new CharacterSliceSystem());
+        systems.add(EnginePhase.UPDATE, new CropGrowthSystem());
     }
 }
 
@@ -241,7 +241,14 @@ ObjectMap<String, TiledMap> maps = assets.getObjects(".tmx", TiledMap.class);
 
 Worldloom 使用 `fromMap + mapObjectId` 重新关联实体和原始 Tiled `MapObject`。Artemis 运行时 `entityId` 在重建后可能改变，不应作为跨存档的业务主键。
 
-仓库内的基础 `src/main/resources/propertytypes.json` 可作为起点，但游戏项目应维护与当前组件类一致的版本。当前基础文件仍含历史名称 `OnInteractive`（Java 中实际为 `Interactive`）和 `TileAnimation.playModeName`（Java 中实际为 `playMode`），并缺少若干较新的组件；不要未经核对直接照搬。
+Worldloom 仓库中的 `src/main/resources/propertytypes.json` 是纯引擎类型源，只声明 Worldloom 组件及其依赖类型，不包含任何游戏业务组件。游戏项目供 Tiled 导入的文件应是“Worldloom 类型 + 游戏类型”的并集：升级引擎时先同步引擎类型，再保留或追加游戏自己的类型。Tiled 项目只导入游戏侧这一个完整文件。
+
+合并时遵守以下规则：
+
+- 同名 Worldloom 类型以当前引擎文件为准，字段、默认值和依赖枚举必须一致。
+- 游戏类型不得写回 Worldloom 的类型源。
+- `id` 在合并后的文件中必须唯一；类型运行时按 `name` 对应 Java 组件简单类名。
+- 已废弃的 `OnInteractive` 和 `Prefabricated` 不应继续使用，当前名称是 `Interactive`。
 
 ### 6.2 自动组件
 
@@ -303,6 +310,10 @@ public class Health extends SerializeComponent {
 | `Direction` | 保存水平、垂直和正交方向 |
 | `InputProcess` | 反射创建游戏侧 `InputProcessing`，`enabled` 控制是否更新 |
 | `Interactive` | 反射创建游戏侧 `OnInteractListener`，支持独占交互标记 |
+| `Owner` | 保存归属者实体 ID，适合装备、建筑或其他实体归属关系 |
+| `User` | 保存当前使用者实体 ID，适合载具、座位或临时占用关系 |
+| `Slice` | 标记动画帧采用逐层切片渲染，由 `SliceSystem` 构建伪 3D 精灵 |
+| `PointLight` | 传统 box2dlights 点光源参数，由 `PointLightSystem` 创建、更新和释放 |
 | `Player` | 无字段的玩家标识组件 |
 | `Inert` | 让实体退出多种逻辑和渲染系统的处理 |
 | `LastId` | 保存序列化前的运行时实体 ID，仅用于重建过程中的关联 |
@@ -312,6 +323,8 @@ public class Health extends SerializeComponent {
 | `Script` | 当前为空的预留组件，尚无执行它的引擎系统 |
 
 `PosFollowBodySystem` 会让 `Pos` 跟随 Box2D Body。直接改 `Pos` 后若实体拥有 Body，应同时调用 `b2dBody.setPos(pos)`。
+
+`Slice` 需要同时挂载 `Render` 和 `TileAnimation`。引擎会暂停该动画的普通逐帧播放，把动画帧反转后写入 `Render.textureSheets`，并按 `0.75` 世界单位逐层偏移。游戏项目不需要再注册切片系统。
 
 ### 7.1 动画切换
 
@@ -515,7 +528,7 @@ systems.add(EnginePhase.POST_AMBIENT, gameCloudShadowSystem);
 
 ### 10.5 光照
 
-需要原 box2dlights 管线时，在 `WorldloomConfig` 中设置 `.legacyBox2dLights(true)`。`LightSystem` 与引擎 Box2D World 和相机协同更新；关闭时保留系统，但不启用实际光照流程。
+需要原 box2dlights 管线时，在 `WorldloomConfig` 中设置 `.legacyBox2dLights(true)`。`LightSystem` 与引擎 Box2D World 和相机协同更新；关闭时保留系统，但不启用实际光照流程。实体挂载 `PointLight + Pos` 后，`PointLightSystem` 会自动创建光源并同步位置，游戏项目不应重复注册该系统。
 
 #### 动态环境光与地图配置
 
@@ -933,8 +946,8 @@ portal.teleport(carried, playerId, true);
 | 阶段 | 系统 |
 | --- | --- |
 | 基础设施 | `EventSystem`, `AssetSystem`, `TiledMapSystem`, `B2dSystem` |
-| 游戏逻辑 | `InputProcessSystem`, `OnInteractSystem`, `MapTransitionSystem`, `PosFollowBodySystem`, `BTreeSystem`, `StateSystem`, `CameraSystem`, `AudioSystem`, `KeyframeShapeSystem`, `TileAnimSystem`, `LayerSamplingSystem`, `ZIndexSystem` |
-| 光影 | `DynamicAmbientLight`, `DynamicSunLight`, `TopDownShadowSystem`, `LightSystem`, `TopDownPointLightRenderSystem` |
+| 游戏逻辑 | `InputProcessSystem`, `OnInteractSystem`, `MapTransitionSystem`, `PosFollowBodySystem`, `BTreeSystem`, `StateSystem`, `CameraSystem`, `AudioSystem`, `KeyframeShapeSystem`, `TileAnimSystem`, `SliceSystem`, `LayerSamplingSystem`, `ZIndexSystem` |
+| 光影 | `DynamicAmbientLight`, `DynamicSunLight`, `TopDownShadowSystem`, `PointLightSystem`, `LightSystem`, `TopDownPointLightRenderSystem` |
 | 渲染 | `RenderTiledSystem`, `ShaderTileLayerRenderSystem`, `RenderBatchingSystem`, `RenderFrameSystem`, `RenderPhysicsSystem` |
 | 恢复与 UI | `SysRestoreSystem`, `EntityFactory`, `RenderUISystem` |
 

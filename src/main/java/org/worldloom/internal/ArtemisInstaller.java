@@ -37,6 +37,7 @@ import org.worldloom.system.LayerSamplingSystem;
 import org.worldloom.system.LightSystem;
 import org.worldloom.system.MapTransitionSystem;
 import org.worldloom.system.OnInteractSystem;
+import org.worldloom.system.PointLightSystem;
 import org.worldloom.system.PosFollowBodySystem;
 import org.worldloom.system.RenderBatchingSystem;
 import org.worldloom.system.RenderFrameSystem;
@@ -44,6 +45,7 @@ import org.worldloom.system.RenderPhysicsSystem;
 import org.worldloom.system.RenderTiledSystem;
 import org.worldloom.system.RenderUISystem;
 import org.worldloom.system.ShaderTileLayerRenderSystem;
+import org.worldloom.system.SliceSystem;
 import org.worldloom.system.StateSystem;
 import org.worldloom.system.SysRestoreSystem;
 import org.worldloom.system.TileAnimSystem;
@@ -112,6 +114,7 @@ public final class ArtemisInstaller {
         builder.with(new AudioSystem(audioConfig));
         builder.with(new KeyframeShapeSystem());
         builder.with(new TileAnimSystem());
+        builder.with(new SliceSystem());
         builder.with(new LayerSamplingSystem());
         builder.with(new ZIndexSystem());
         add(builder, gameSystems.systemsFor(EnginePhase.POST_UPDATE));
@@ -143,6 +146,9 @@ public final class ArtemisInstaller {
         builder.with(
             WorldConfigurationBuilder.Priority.LOWEST,
             new EntityFactory());
+        builder.with(
+            WorldConfigurationBuilder.Priority.LOWEST,
+            new PointLightSystem());
         builder.with(
             WorldConfigurationBuilder.Priority.LOWEST,
             new LightSystem(config.isLegacyBox2dLightsEnabled()));

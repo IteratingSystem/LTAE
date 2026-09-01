@@ -94,19 +94,19 @@
                 "name": "horizontalDir",
                 "propertyType": "HorizontalDir",
                 "type": "string",
-                "value": "NULL"
+                "value": "NONE"
             },
             {
                 "name": "orthogonalDir",
                 "propertyType": "OrthogonalDir",
                 "type": "string",
-                "value": "NULL"
+                "value": "NONE"
             },
             {
                 "name": "verticalDir",
                 "propertyType": "VerticalDir",
                 "type": "string",
-                "value": "NULL"
+                "value": "NONE"
             }
         ],
         "name": "Direction",
@@ -179,7 +179,7 @@
         "storageType": "string",
         "type": "enum",
         "values": [
-            "NULL",
+            "NONE",
             "LEFT",
             "RIGHT"
         ],
@@ -211,31 +211,12 @@
         "valuesAsFlags": true
     },
     {
-        "color": "#ffa0a0a4",
-        "drawFill": true,
-        "id": 19,
-        "members": [
-            {
-                "name": "simpleName",
-                "type": "string",
-                "value": ""
-            }
-        ],
-        "name": "OnInteractive",
-        "type": "class",
-        "useAs": [
-            "property",
-            "object",
-            "project"
-        ]
-    },
-    {
         "id": 9,
         "name": "OrthogonalDir",
         "storageType": "string",
         "type": "enum",
         "values": [
-            "NULL",
+            "NONE",
             "LEFT",
             "RIGHT",
             "UP",
@@ -257,44 +238,6 @@
             "LOOP_RANDOM"
         ],
         "valuesAsFlags": false
-    },
-    {
-        "color": "#ffa0a0a4",
-        "drawFill": true,
-        "id": 11,
-        "members": [
-        ],
-        "name": "Prefabricated",
-        "type": "class",
-        "useAs": [
-            "property",
-            "object",
-            "project"
-        ]
-    },
-    {
-        "color": "#ffa0a0a4",
-        "drawFill": true,
-        "id": 18,
-        "members": [
-            {
-                "name": "moveSpeed",
-                "type": "float",
-                "value": 0
-            },
-            {
-                "name": "runSpeedInRate",
-                "type": "float",
-                "value": 0
-            }
-        ],
-        "name": "RPGProp",
-        "type": "class",
-        "useAs": [
-            "property",
-            "object",
-            "project"
-        ]
     },
     {
         "color": "#ffa0a0a4",
@@ -341,7 +284,7 @@
                 "value": 0
             },
             {
-                "name": "playModeName",
+                "name": "playMode",
                 "propertyType": "PlayMode",
                 "type": "string",
                 "value": "NORMAL"
@@ -380,7 +323,7 @@
         "storageType": "string",
         "type": "enum",
         "values": [
-            "NULL",
+            "NONE",
             "UP",
             "DOWN"
         ],
@@ -391,6 +334,11 @@
         "drawFill": true,
         "id": 17,
         "members": [
+            {
+                "name": "followY",
+                "type": "bool",
+                "value": true
+            },
             {
                 "name": "index",
                 "type": "float",
@@ -403,6 +351,303 @@
             }
         ],
         "name": "ZIndex",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 19,
+        "members": [
+            {
+                "name": "simpleName",
+                "type": "string",
+                "value": ""
+            }
+        ],
+        "name": "Interactive",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 20,
+        "members": [
+            {
+                "name": "targetMap",
+                "type": "string",
+                "value": ""
+            },
+            {
+                "name": "targetPosEntity",
+                "type": "string",
+                "value": ""
+            }
+        ],
+        "name": "Portal",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 21,
+        "members": [
+            {
+                "name": "layerName",
+                "type": "string",
+                "value": "TEST"
+            }
+        ],
+        "name": "LayerSampling",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 22,
+        "members": [
+            {
+                "name": "fragmentName",
+                "type": "string",
+                "value": "str"
+            },
+            {
+                "name": "uniformSimpleName",
+                "type": "string",
+                "value": "str"
+            },
+            {
+                "name": "vertexName",
+                "type": "string",
+                "value": "str"
+            }
+        ],
+        "name": "ShaderComp",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 32,
+        "members": [
+            {
+                "name": "id",
+                "type": "int",
+                "value": -1
+            }
+        ],
+        "name": "Owner",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 34,
+        "members": [
+            {
+                "name": "id",
+                "type": "int",
+                "value": -1
+            }
+        ],
+        "name": "LastId",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 37,
+        "members": [
+            {
+                "name": "color",
+                "type": "color",
+                "value": "#ffffffff"
+            },
+            {
+                "name": "distance",
+                "type": "float",
+                "value": 32
+            },
+            {
+                "name": "offsetX",
+                "type": "float",
+                "value": 0
+            },
+            {
+                "name": "offsetY",
+                "type": "float",
+                "value": 0
+            },
+            {
+                "name": "onOff",
+                "type": "bool",
+                "value": true
+            },
+            {
+                "name": "rays",
+                "type": "int",
+                "value": 10
+            }
+        ],
+        "name": "PointLight",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 39,
+        "members": [],
+        "name": "Slice",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 40,
+        "members": [
+            {
+                "name": "id",
+                "type": "int",
+                "value": -1
+            }
+        ],
+        "name": "User",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 42,
+        "members": [
+            {
+                "name": "enabled",
+                "type": "bool",
+                "value": false
+            },
+            {
+                "name": "simpleName",
+                "type": "string",
+                "value": "str"
+            }
+        ],
+        "name": "InputProcess",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 45,
+        "members": [
+            {
+                "name": "color",
+                "type": "color",
+                "value": "#ffffbf73"
+            },
+            {
+                "name": "distance",
+                "type": "float",
+                "value": 128
+            },
+            {
+                "name": "height",
+                "type": "float",
+                "value": 64
+            },
+            {
+                "name": "offsetX",
+                "type": "float",
+                "value": 0
+            },
+            {
+                "name": "offsetY",
+                "type": "float",
+                "value": 0
+            },
+            {
+                "name": "onOff",
+                "type": "bool",
+                "value": true
+            },
+            {
+                "name": "rays",
+                "type": "int",
+                "value": 64
+            }
+        ],
+        "name": "TopDownPointLight",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
+        "id": 46,
+        "members": [
+            {
+                "name": "depth",
+                "type": "float",
+                "value": 0
+            }
+        ],
+        "name": "TopDownShadow",
         "type": "class",
         "useAs": [
             "property",
