@@ -1,0 +1,41 @@
+package org.worldloom.system;
+
+import com.artemis.BaseSystem;
+import com.badlogic.gdx.ai.btree.BehaviorTree;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.ObjectMap;
+import org.worldloom.manager.AssetManager;
+import org.worldloom.manager.SkinManager;
+
+/**
+ * @Author: WenLong
+ * @Date: 2024-09-09-16:36
+ * @Description: 资源管理系统,将各种资源载入为对象
+ */
+public class AssetSystem extends BaseSystem {
+    private final static String TAG = AssetSystem.class.getSimpleName();
+    private String skinPath;
+    //行为树数据
+    public ObjectMap<String, BehaviorTree> bTreeData;
+    public ObjectMap<String, Texture> noiseData;
+    public Skin skin;
+    public AssetSystem (String skinPath){
+        this.skinPath = skinPath;
+    }
+
+    @Override
+    protected void initialize() {
+        //加载skin
+        skin = SkinManager.getSkin(skinPath);
+        //行为树
+        bTreeData = AssetManager.getInstance().getObjects(AssetManager.TREE_EXT,BehaviorTree.class);
+        //噪声图
+        noiseData = AssetManager.getInstance().getObjects(AssetManager.NOISE_EXT,Texture.class);
+    }
+
+    @Override
+    protected void processSystem() {
+
+    }
+}

@@ -1,0 +1,35 @@
+package org.worldloom.system;
+
+import com.artemis.annotations.All;
+import com.artemis.annotations.Exclude;
+import com.artemis.systems.IteratingSystem;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import net.mostlyoriginal.api.plugin.extendedcomponentmapper.M;
+import org.worldloom.component.Inert;
+import org.worldloom.component.Pos;
+import org.worldloom.component.ZIndex;
+
+/**
+ * @Auther WenLong
+ * @Date 2025/6/25 10:26
+ * @Description ZIndex跟随角色坐标就行改变
+ **/
+@All({ZIndex.class, Pos.class})
+@Exclude(Inert.class)
+public class ZIndexSystem extends IteratingSystem {
+    private M<Pos> mPos;
+    private M<ZIndex> mZIndex;
+    private TiledMapSystem tiledMapSystem;
+    @Override
+    protected void process(int entityId) {
+        ZIndex zIndex = mZIndex.get(entityId);
+        if (!zIndex.followY) {
+            return;
+        }
+        TiledMapTileLayer mapLayer = (TiledMapTileLayer)tiledMapSystem.getTiledMap().getLayers().get(0);
+        int height = mapLayer.getTileHeight() * mapLayer.getHeight();
+
+        Pos pos = mPos.get(entityId);
+        zIndex.index = height - (pos.y+zIndex.offset);
+    }
+}

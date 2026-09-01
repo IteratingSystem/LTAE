@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
 java {
@@ -8,8 +9,8 @@ java {
     }
 }
 
-group = 'org.ltae'
-version = '$projectVersion'
+group = 'org.worldloom'
+version = providers.gradleProperty('worldloomVersion').get()
 
 repositories {
     //国内源
@@ -57,4 +58,14 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        worldloom(MavenPublication) {
+            from components.java
+            groupId = 'com.github.IteratingSystem'
+            artifactId = 'worldloom'
+        }
+    }
 }

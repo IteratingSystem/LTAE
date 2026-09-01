@@ -1,10 +1,10 @@
-# LTAE
+# Worldloom
 
-LTAE（LibGDX Tiled Artemis Engine）是一个面向 2D 游戏的 Artemis-ODB 插件。它把 Tiled 地图中的对象转换为 ECS 实体，并在此基础上提供渲染、Box2D、输入、交互、状态机、行为树、Scene2D UI、Ink 剧情以及多地图存档/读档能力。
+Worldloom 是基于 LibGDX、Artemis-ODB 和 Tiled 的嵌入式 2D ECS 游戏引擎。它负责建立并驱动 Artemis `World`，把 Tiled 对象转换为实体，并提供地图切换、存档、渲染、Box2D、输入、交互、状态机、行为树、Scene2D UI、光影和音频等通用能力。
 
-LTAE 不是一个独立运行的游戏，也不接管 LibGDX 的 `ApplicationListener` 或 `Screen` 生命周期。游戏项目负责配置规则、加载资源、创建 Artemis `World` 和驱动每帧更新；LTAE 负责解释地图数据并安装通用 ECS 系统。
+Worldloom 不接管 LibGDX 的 `ApplicationListener` 或 `Screen`。游戏项目仍然拥有平台启动、页面和业务内容；引擎通过 `WorldloomEngine` 统一管理 ECS World 的创建、系统顺序、每帧更新、窗口变化和释放。
 
-当前版本：`3.8.2.37`
+当前版本：`4.0.0`
 
 ## 1. 环境与依赖
 
@@ -23,11 +23,11 @@ repositories {
 }
 
 dependencies {
-    api "com.github.IteratingSystem:LTAE:3.8.2.37"
+    api "com.github.IteratingSystem:worldloom:4.0.0"
 }
 ```
 
-LTAE 还集成了 box2dlights、gdx-ai、blade-ink、Artemis contrib event bus、extended component mapper 和 profiler 等依赖。
+Worldloom 还集成了 box2dlights、gdx-ai、blade-ink、Artemis contrib event bus、extended component mapper 和 profiler 等依赖。
 
 ## 2. 总体架构
 
@@ -35,10 +35,10 @@ LTAE 还集成了 box2dlights、gdx-ai、blade-ink、Artemis contrib event bus�
 flowchart LR
     Tiled["Tiled .tmx / propertytypes.json"] --> Asset["AssetManager"]
     Asset --> Map["MapManager"]
-    Map --> State["WorldStateManager"]
+    Map --> State["GameSnapshotManager"]
     State --> Factory["EntityFactory"]
     Factory --> ECS["Artemis World"]
-    Plugin["LtaePlugin"] --> ECS
+    Runtime["WorldloomEngine"] --> ECS
     ECS --> Physics["Box2D / Light"]
     ECS --> Render["地图 / 实体 / UI 渲染"]
     ECS --> Logic["输入 / 交互 / AI / 状态机"]
@@ -51,56 +51,54 @@ flowchart LR
 | --- | --- |
 | `AssetManager` | 根据 `assets.txt` 批量加载地图、纹理、行为树、Ink、噪声纹理和音频 |
 | `MapManager` | 解析全部地图的实体层与物理层，保存不可变的初始实体数据 |
-| `WorldStateManager` | 管理一次游戏会话的当前地图、各地图实体快照和系统属性 |
+| `GameSnapshotManager` | 管理一次游戏会话的当前地图、各地图实体快照和系统属性 |
 | `EntityBuilder` / `EntitySerializer` | 在 Tiled 数据、存档数据和运行时实体之间转换 |
-| `LtaePlugin` | 向 Artemis `World` 安装引擎系统和第三方插件 |
+| `WorldloomEngine` | 创建并持有 Artemis `World`，统一驱动生命周期 |
+| `WorldloomGameModule` | 把游戏业务系统注册到稳定的执行阶段 |
 | `EventSystem` | 在游戏代码与引擎系统之间传递实体、地图、相机、UI 等命令 |
 
 ## 3. 最小接入流程
 
-初始化顺序是引擎契约的一部分。尤其要保证：资源加载完成后才能初始化 `MapManager`，创建 `World` 前必须先建立或载入 `WorldState`。
+初始化顺序是引擎契约的一部分：先配置 Worldloom，再加载资源并初始化地图，随后选择新游戏或存档会话，最后创建 `WorldloomEngine`。
 
-### 3.1 配置规则
+### 3.1 创建应用配置
 
-在加载资源和创建世界之前设置 `LtaePluginRule`：
+在创建任何 `UIStage` 或加载引擎资源前完成配置：
 
 ```java
-LtaePluginRule.GAME_WIDTH = 640;
-LtaePluginRule.GAME_HEIGHT = 360;
-LtaePluginRule.UI_WIDTH = 640;
-LtaePluginRule.UI_HEIGHT = 360;
-LtaePluginRule.UI_ZOOM = 1f;
+WorldloomConfig config = WorldloomConfig.builder()
+    .ui(640, 360, 1f)
+    .game(640, 360)
+    .cameraZoom(1f)
+    .worldScale(1f / 16f)
+    .gravity(0f, -9.8f)
+    .allowPhysicsSleep(false)
+    .combineTileShapes(true)
+    .legacyBox2dLights(false)
+    .initialMap("island")
+    .skin("skin/main.json")
+    .entityLayer("island", "entities")
+    .physicsLayers("island", "ground", "wall")
+    .build();
 
-LtaePluginRule.CAMERA_ZOOM = 1f;
-LtaePluginRule.WORLD_SCALE = 1f / 16f;
-LtaePluginRule.G_X = 0f;
-LtaePluginRule.G_Y = -9.8f;
-LtaePluginRule.B2D_SLEEP = false;
-LtaePluginRule.COMB_TILE = true;
-
-LtaePluginRule.MAP_NAME = "island";
-LtaePluginRule.SKIN_PATH = "skin/main.json";
-LtaePluginRule.ENABLE_LIGHT = true;
-
-LtaePluginRule.ENTITY_LAYERS.put("island", "entities");
-LtaePluginRule.PHY_LAYERS.put("island", new String[]{"ground", "wall"});
+Worldloom.configure(config);
 ```
 
-每张需要参与游戏的地图都应在 `ENTITY_LAYERS` 中配置实体对象层，在 `PHY_LAYERS` 中配置零个或多个静态碰撞层。
+`WorldloomConfig` 构建后不可修改。相机缩放等运行时状态应通过 `CameraEvent` 修改，不要把运行状态写回配置。
 
 ### 3.2 注册反射根包
 
-LTAE 通过类的简单名称寻找游戏项目中的状态、输入处理器、交互监听器、碰撞监听器和 Shader uniform 类：
+Worldloom 通过类的简单名称寻找游戏项目中的状态、输入处理器、交互监听器、碰撞监听器和 Shader uniform 类：
 
 ```java
-ReflectionManager.setRootClass(MainGame.class);
+Worldloom.setGameRootClass(MainGame.class);
 ```
 
 传入游戏项目根包内的类。未调用时，引擎只能扫描自己的包，游戏侧扩展类将无法实例化。
 
 ### 3.3 加载资源
 
-这里使用的是 `org.ltae.manager.AssetManager`，不是直接使用 LibGDX 同名类：
+这里使用的是 `org.worldloom.manager.AssetManager`，不是直接使用 LibGDX 同名类：
 
 ```java
 AssetManager assets = AssetManager.getInstance();
@@ -115,87 +113,96 @@ float progress = assets.getProgress();
 当 `progress >= 1f` 后初始化地图数据：
 
 ```java
-MapManager.init(
-    LtaePluginRule.ENTITY_LAYERS,
-    LtaePluginRule.PHY_LAYERS
-);
+Worldloom.initializeMaps();
 ```
 
-`MapManager.init` 在一个应用进程中只会初始化一次。不要在每次进入游戏页面时重复调用。
+地图初始化在一个应用进程中只执行一次。不要在每次进入游戏页面时重复调用。
 
 ### 3.4 建立新游戏或读取存档
 
 新游戏：
 
 ```java
-WorldStateManager.getInstance()
-    .startNewGame(LtaePluginRule.MAP_NAME);
+Worldloom.startNewGame();
 ```
 
 读取已有 JSON 存档：
 
 ```java
-WorldStateManager.getInstance().loadSaveJson(saveJson);
+Worldloom.loadGame(saveJson);
 ```
 
-二者必须在 `new World(...)` 之前完成，因为 `LtaePlugin` 创建地图系统和存档恢复系统时就会读取当前 `WorldState`。
+二者必须在 `engineBuilder().build()` 之前完成，因为地图系统和存档恢复系统在创建 Artemis World 时就需要当前会话。
 
-### 3.5 创建并驱动 ECS World
+### 3.5 注册游戏系统并驱动引擎
 
 ```java
-WorldConfiguration configuration = new WorldConfigurationBuilder()
-    .with(new LtaePlugin())
-    // 游戏自己的系统可继续添加
+public final class GameModule implements WorldloomGameModule {
+    @Override
+    public void registerSystems(WorldloomSystemRegistry systems) {
+        systems.add(EnginePhase.INPUT, new KeyboardSystem());
+        systems.add(EnginePhase.UPDATE, new WeatherSystem());
+        systems.add(EnginePhase.PRE_RENDER, new CharacterSliceSystem());
+    }
+}
+
+WorldloomEngine engine = Worldloom.engineBuilder()
+    .addModule(new GameModule())
     .build();
-
-World world = new World(configuration);
-
-EntityEvent build = new EntityEvent(EntityEvent.BUILD_ALL);
-world.getSystem(EventSystem.class).dispatch(build);
 ```
 
 每帧：
 
 ```java
-world.setDelta(Gdx.graphics.getDeltaTime());
-world.process();
+engine.update(Gdx.graphics.getDeltaTime());
 ```
 
 窗口尺寸变化时通知相机：
 
 ```java
-CameraEvent resize = new CameraEvent(CameraEvent.RESIZE);
-resize.width = width;
-resize.height = height;
-world.getSystem(EventSystem.class).dispatch(resize);
+engine.resize(width, height);
 ```
 
-页面退出时调用 `world.dispose()`；应用退出时再释放资源：
+页面退出时调用 `engine.dispose()`；应用退出时再释放资源：
 
 ```java
 AssetManager.getInstance().dispose();
 ```
 
-## 4. `LtaePluginRule` 配置表
+## 4. 配置与游戏系统阶段
 
-| 字段 | 默认值 | 作用 |
+| Builder 方法 | 默认值 | 作用 |
 | --- | --- | --- |
-| `ENTITY_LAYERS` | 空 | `地图名 -> 实体对象层名` |
-| `PHY_LAYERS` | 空 | `地图名 -> 物理层名数组` |
-| `UI_WIDTH`, `UI_HEIGHT` | `640`, `480` | Scene2D UI 的逻辑尺寸 |
-| `UI_ZOOM` | `1` | `UIStage` 私有视口缩放默认值 |
-| `GAME_WIDTH`, `GAME_HEIGHT` | `640`, `480` | 游戏相机逻辑尺寸 |
-| `CAMERA_ZOOM` | `1` | 初始相机缩放 |
-| `WORLD_SCALE` | `1` | 像素到世界单位的转换比例 |
-| `G_X`, `G_Y` | `0`, `-9.8` | Box2D 重力 |
-| `B2D_SLEEP` | `false` | Box2D 是否允许休眠 |
-| `COMB_TILE` | `true` | 是否合并地图瓦片碰撞形状 |
-| `MAP_NAME` | `defaultMap` | 默认初始地图名 |
-| `SKIN_PATH` | `skin/main.json` | Scene2D `Skin` 路径 |
-| `AUTO_COMP_CLASSES` | `Pos`, `Render`, `ZIndex` | Tiled 对象未显式声明时仍自动创建的组件 |
-| `ENABLE_LIGHT` | `false` | 是否启用 box2dlights |
+| `ui(640, 480, 1)` | `640 × 480` | Scene2D UI 的逻辑尺寸与缩放 |
+| `game(640, 480)` | `640 × 480` | 游戏相机逻辑尺寸 |
+| `cameraZoom(1)` | `1` | 初始相机缩放 |
+| `worldScale(1)` | `1` | 像素到物理世界单位的转换比例 |
+| `gravity(0, -9.8)` | 地球重力 | Box2D 重力 |
+| `allowPhysicsSleep(false)` | `false` | Box2D 是否允许休眠 |
+| `combineTileShapes(true)` | `true` | 是否合并地图瓦片碰撞形状 |
+| `legacyBox2dLights(false)` | `false` | 是否启用原 box2dlights 环境光管线 |
+| `initialMap("defaultMap")` | `defaultMap` | 新游戏初始地图 |
+| `skin("skin/main.json")` | `skin/main.json` | Scene2D Skin 路径 |
+| `entityLayer(map, layer)` | 空 | 每张地图的实体对象层 |
+| `physicsLayers(map, layers...)` | 空 | 每张地图的静态物理层 |
+| `autoComponents(...)` | `Pos/Render/ZIndex` | 地图对象默认创建的组件 |
 
-`PREFABRICATED_MAP_NAME`、`PHY_LAYER`、`ENTITY_LAYER` 仍保留在规则类中，但当前引擎实现没有读取它们。新代码应使用按地图配置的 `ENTITY_LAYERS` 和 `PHY_LAYERS`，不要依赖这三个兼容字段。
+游戏模块只能注册到以下稳定阶段，引擎内部系统顺序不向游戏项目开放：
+
+| 阶段 | 用途 |
+| --- | --- |
+| `INITIALIZE` | 业务管理器和只提供服务的系统 |
+| `INPUT` | 游戏输入 |
+| `PRE_UPDATE` | 引擎地图事务之后的前置逻辑 |
+| `UPDATE` | 时间、天气、角色和一般玩法 |
+| `POST_UPDATE` | 坐标、动画、ZIndex 更新后的逻辑 |
+| `PRE_RENDER` | 实体绘制前的视觉状态准备 |
+| `WORLD_EFFECT` | 世界渲染效果 |
+| `POST_AMBIENT` | 环境光之后、点光源之前的效果 |
+| `POST_RENDER` | 点光源后的叠加效果 |
+| `UI` | ECS UI 之前的游戏 UI 系统 |
+
+同一阶段默认按注册顺序运行，也可以使用 `.before(Type.class)` 或 `.after(Type.class)` 声明游戏系统之间的依赖。循环依赖会在构建 World 前直接报错。
 
 ## 5. 资源管线
 
@@ -232,7 +239,7 @@ ObjectMap<String, TiledMap> maps = assets.getObjects(".tmx", TiledMap.class);
 5. 类属性内字段名必须与组件的公共字段名一致。
 6. 只有带 `@SerializeParam` 的字段会进入实体快照和存档。
 
-LTAE 使用 `fromMap + mapObjectId` 重新关联实体和原始 Tiled `MapObject`。Artemis 运行时 `entityId` 在重建后可能改变，不应作为跨存档的业务主键。
+Worldloom 使用 `fromMap + mapObjectId` 重新关联实体和原始 Tiled `MapObject`。Artemis 运行时 `entityId` 在重建后可能改变，不应作为跨存档的业务主键。
 
 仓库内的基础 `src/main/resources/propertytypes.json` 可作为起点，但游戏项目应维护与当前组件类一致的版本。当前基础文件仍含历史名称 `OnInteractive`（Java 中实际为 `Interactive`）和 `TileAnimation.playModeName`（Java 中实际为 `playMode`），并缺少若干较新的组件；不要未经核对直接照搬。
 
@@ -244,7 +251,7 @@ LTAE 使用 `fromMap + mapObjectId` 重新关联实体和原始 Tiled `MapObject
 - `Render`：纹理帧、翻转、可见性和渲染参数。
 - `ZIndex`：渲染顺序，可通过 `followY` 根据 Y 坐标动态计算。
 
-可在创建世界前替换 `LtaePluginRule.AUTO_COMP_CLASSES`。自定义类必须是 Artemis `Component`。
+可通过 `WorldloomConfig.Builder.autoComponents(...)` 替换默认组件。自定义类必须是 Artemis `Component`。
 
 ### 6.3 自定义可序列化组件
 
@@ -483,32 +490,32 @@ public final class WaterUniforms implements TileLayerShaderUniforms {
 }
 ```
 
-创建 `World` 前把图层交给同一个 `LtaePlugin`：
+创建引擎时把图层配置交给 `WorldloomBuilder`：
 
 ```java
-LtaePlugin plugin = new LtaePlugin()
+WorldloomEngine engine = Worldloom.engineBuilder()
     .addShaderTileLayer(new TileLayerShaderConfig(
-        "WATER", "water_layer", "water", new WaterUniforms()));
+        "WATER", "water_layer", "water", new WaterUniforms()))
+    .build();
 ```
 
-对应 Tiled 图层可以保持隐藏，`ShaderTileLayerRenderSystem` 会直接绘制摄像机范围内的瓦片，并保留 Tiled 动画。系统由插件固定安排在普通地图与实体批次之间；游戏项目不应再次注册该系统。`TileLayerShaderUniforms.initialize` 适合缓存资源，`dispose` 用于释放实现类自行创建的资源。辅助纹理由 AssetManager 持有时不要重复释放。
+对应 Tiled 图层可以保持隐藏，`ShaderTileLayerRenderSystem` 会直接绘制摄像机范围内的瓦片，并保留 Tiled 动画。系统由引擎固定安排在普通地图与实体批次之间；游戏项目不应再次注册该系统。`TileLayerShaderUniforms.initialize` 适合缓存资源，`dispose` 用于释放实现类自行创建的资源。辅助纹理由 AssetManager 持有时不要重复释放。
 
 瓦片层顶点 Shader 应从 `a_position.xy` 传出世界坐标，不能用单块瓦片的 `v_texCoords` 推导整张地图坐标。
 
 ### 10.4 环境光后的游戏系统
 
-天气、云影、海洋等具体视觉效果属于游戏项目。游戏侧系统需要在环境光之后、俯视角点光源和 UI 之前合成时，通过插件注册其顺序：
+天气、云影、海洋等具体视觉效果属于游戏项目。游戏侧系统需要在环境光之后、俯视角点光源和 UI 之前合成时，注册到 `POST_AMBIENT`：
 
 ```java
-LtaePlugin plugin = new LtaePlugin()
-    .addPostAmbientSystem(gameCloudShadowSystem);
+systems.add(EnginePhase.POST_AMBIENT, gameCloudShadowSystem);
 ```
 
-`addPostAmbientSystem` 只提供通用渲染阶段，不依赖任何天气类型或 Shader。游戏侧仍拥有系统的配置、资源和生命周期；LTAE 负责保证环境光不会覆盖该效果，后续点光源仍可照亮它，并且效果不会覆盖 UI。
+`POST_AMBIENT` 只定义执行阶段，不依赖任何天气类型或 Shader。游戏侧仍拥有系统的配置、资源和生命周期；Worldloom 负责保证环境光不会覆盖该效果，后续点光源仍可照亮它，并且效果不会覆盖 UI。
 
 ### 10.5 光照
 
-创建 `World` 前设置 `LtaePluginRule.ENABLE_LIGHT = true`。`LightSystem` 与引擎 Box2D World 和相机协同更新；关闭时保留系统但不启用实际光照流程。
+需要原 box2dlights 管线时，在 `WorldloomConfig` 中设置 `.legacyBox2dLights(true)`。`LightSystem` 与引擎 Box2D World 和相机协同更新；关闭时保留系统，但不启用实际光照流程。
 
 #### 动态环境光与地图配置
 
@@ -544,18 +551,16 @@ AmbientLightConfig lightConfig = new AmbientLightConfig(worldProfile)
     .setMapProfile("shop", indoorProfile);
 ```
 
-构建 World 时，把时间和光照配置交给 `LtaePlugin`：
+构建引擎时，把时间和光照配置交给 `WorldloomBuilder`，并把时间系统注册为游戏系统：
 
 ```java
 DateTimeSystem dateTimeSystem = new DateTimeSystem();
 TopDownShadowConfig shadowConfig = new TopDownShadowConfig();
 SunLightConfig sunConfig = new SunLightConfig();
-LtaePlugin ltaePlugin = new LtaePlugin().configureLighting(
-    dateTimeSystem, lightConfig, shadowConfig, sunConfig);
-
-WorldConfiguration configuration = new WorldConfigurationBuilder()
-    .with(ltaePlugin)
-    .with(dateTimeSystem)
+WorldloomEngine engine = Worldloom.engineBuilder()
+    .configureLighting(dateTimeSystem, lightConfig, shadowConfig, sunConfig)
+    .addModule(systems ->
+        systems.add(EnginePhase.UPDATE, dateTimeSystem))
     .build();
 ```
 
@@ -565,9 +570,9 @@ WorldConfiguration configuration = new WorldConfigurationBuilder()
 2. 当前地图没有专用配置时，自动使用 `AmbientLightConfig` 的默认配置。
 3. 地图切换后不需要手动通知动态光照系统，下一帧会根据新的当前地图自动选择配置。
 
-游戏侧只提供时间来源和配置，不直接注册引擎系统。`LtaePlugin` 会统一安排 `DynamicAmbientLight`、`DynamicSunLight`、`TopDownShadowSystem`、`LightSystem` 与 UI 的顺序。
+游戏侧只提供时间来源和配置，不直接注册光影引擎系统。Worldloom 会统一安排 `DynamicAmbientLight`、`DynamicSunLight`、`TopDownShadowSystem`、`LightSystem` 与 UI 的顺序。
 
-### 10.4 俯视角太阳光、点光源与精灵阴影
+### 10.6 俯视角太阳光、点光源与精灵阴影
 
 `TopDownShadowSystem` 使用同一套纹理高度投影处理太阳光和点光源。太阳光只产生阴影；`TopDownPointLight` 使用 box2dlights 生成实际光照，同时使用纹理高度生成阴影。系统逐个渲染并累加点光源，因此不同点光源的阴影不会错误遮挡其他点光源。
 
@@ -584,15 +589,18 @@ SunLightConfig sunConfig = new SunLightConfig()
     .setDailyBearingSweepDegree(-360f)
     .setElevationRange(26.56505f, 51.34019f);
 
-LtaePlugin ltaePlugin = new LtaePlugin().configureLighting(
-    dateTimeSystem, lightConfig, shadowConfig, sunConfig);
+WorldloomEngine engine = Worldloom.engineBuilder()
+    .configureLighting(dateTimeSystem, lightConfig, shadowConfig, sunConfig)
+    .addModule(systems ->
+        systems.add(EnginePhase.UPDATE, dateTimeSystem))
+    .build();
 ```
 
 `SunLightConfig` 描述太阳本身，不描述角色阴影。默认以 6 点、屏幕 3 点方向为轨迹参考点，并在 24 小时内顺时针旋转完整一圈。太阳在 6、12、18、24 点依次位于钟表的 3、6、9、12 点方向。`TopDownSunLight` 自动把太阳方位增加 180 度得到光线传播和阴影方向，因此阴影始终位于物体背向太阳的一侧。
 
 太阳高度每 12 小时完成一次最低点到最高点再回到最低点的变化。默认最低高度为 `26.56505` 度，最高高度为 `51.34019` 度。阴影投影比例由 `1 / tan(太阳高度)` 实时计算，因此在 6、12、18、24 点依次形成约 `2.0 -> 0.8 -> 2.0 -> 0.8` 倍。太阳阴影不会在夜间被代码关闭；夜间是否容易观察由环境光亮度决定。
 
-系统顺序由 `LtaePlugin` 内部固定：先更新时间和太阳，再绘制地图与实体，随后合成俯视角阴影，最后执行 box2dlights 与 UI。游戏项目不应直接把这些引擎系统加入 `WorldConfigurationBuilder`。
+系统顺序由 Worldloom 内部固定：先更新时间和太阳，再绘制地图与实体，随后合成俯视角阴影，最后执行 box2dlights 与 UI。游戏项目不应直接注册这些引擎内部系统。
 
 在 Tiled 的 `propertytypes.json` 中添加并挂载以下组件：
 
@@ -627,7 +635,7 @@ shadows.getSunLight().setElevationDegree(50f);
 
 俯视角光影使用的 GLSL 位于引擎资源目录 `shader/topdown/`。系统通过 `ShaderManager` 按完整 internal/classpath 路径加载，不再把 Shader 字符串写在 Java 类中。`ShaderManager` 仍优先使用游戏 `assets.txt` 中的同名文件，找不到时才回退读取引擎内置资源。
 
-### 10.5 图层采样
+### 10.7 图层采样
 
 `SamplingUtils.getInstance().samplingLayer(map, layerName)` 可直接把一个瓦片层渲染到 `TextureRegion`。`LayerSampling` + `LayerSamplingSystem` 则将这项能力绑定到 ECS 实体，并处理动画层的逐帧采样。返回纹理由 FrameBuffer 持有，长期反复创建时应自行规划释放时机。
 
@@ -753,7 +761,7 @@ events.dispatch(only);
 
 `RenderUISystem` 以 Table 的具体 `Class` 为键，同一类只能注册一个实例。`GET_TABLE` 派发后从 `event.table` 读取结果。
 
-`UIStage` 是使用 LTAE UI 尺寸和 FitViewport 的独立 Stage，可为特殊页面传入私有 zoom。主 ECS UI 则由 `RenderUISystem` 的 `ExtendViewport` 管理。
+`UIStage` 是使用 Worldloom UI 尺寸和 FitViewport 的独立 Stage，可为特殊页面传入私有 zoom。主 ECS UI 则由 `RenderUISystem` 的 `ExtendViewport` 管理。
 
 ### 13.2 库存网格
 
@@ -826,10 +834,11 @@ GameManager.getCurrent().setScreen(menu);
 
 ### 15.1 数据模型
 
-一次游戏会话由单例 `WorldStateManager` 持有：
+一次游戏会话由单例 `GameSnapshotManager` 持有：
 
 ```text
-WorldState
+GameSnapshot
+├── saveFormatVersion               独立存档格式版本
 ├── curtMap                         当前地图
 ├── entityData[mapName]             每张地图的实体快照
 └── systemProps[systemClassName]    可序列化系统属性
@@ -840,8 +849,7 @@ WorldState
 ### 15.2 保存
 
 ```java
-String json = WorldStateManager.getInstance()
-    .createSaveJson(world);
+String json = engine.createSaveJson();
 ```
 
 `createSaveJson` 会先：
@@ -849,24 +857,17 @@ String json = WorldStateManager.getInstance()
 1. 从当前 ECS World 序列化当前地图全部实体。
 2. 把结果覆盖到 `entityData[currentMap]`。
 3. 采集所有 `@SerializeSystem` 系统中的 `@SerializeParam` 公共字段。
-4. 序列化完整 `WorldState`。
+4. 序列化完整 `GameSnapshot`。
 
 仅调用 `getSaveJson()` 不会先捕获运行时变化；正常保存应使用 `createSaveJson(world)`。
 
 ### 15.3 读档
 
 ```java
-WorldStateManager state = WorldStateManager.getInstance();
-state.loadSaveJson(json);
-
-World world = new World(
-    new WorldConfigurationBuilder()
-        .with(new LtaePlugin())
-        .build()
-);
-
-events = world.getSystem(EventSystem.class);
-events.dispatch(new EntityEvent(EntityEvent.BUILD_ALL));
+Worldloom.loadGame(json);
+WorldloomEngine engine = Worldloom.engineBuilder()
+    .addModule(new GameModule())
+    .build();
 ```
 
 读档的正确含义是“先用 JSON 替换会话状态，再创建新的 ECS World”。不要先创建 World 再调用 `loadSaveJson`，否则地图系统已经按旧状态初始化。
@@ -884,7 +885,7 @@ public class QuestSystem extends BaseSystem {
 }
 ```
 
-`SysPropsRestoreSystem` 在 World 初始化阶段按系统完整类名恢复字段。改动系统包名或类名会使旧存档找不到对应记录；字段类型和字段名同样属于存档格式。
+`SysRestoreSystem` 在 World 初始化阶段按系统完整类名恢复字段。Worldloom 4.0.0 会自动把旧存档中的 `org.ltae.*` 类型名迁移为 `org.worldloom.*`；其他系统改名仍需要新增迁移规则。字段类型和字段名同样属于存档格式。
 
 ### 15.5 Portal 切图
 
@@ -907,7 +908,7 @@ portal.teleport(carried, playerId, true);
 sequenceDiagram
     participant Game as 游戏代码
     participant Transition as MapTransitionSystem
-    participant State as WorldStateManager
+    participant State as GameSnapshotManager
     participant Runtime as ECS / 地图 / Box2D
 
     Game->>Transition: portal.teleport(..., true)
@@ -931,18 +932,19 @@ sequenceDiagram
 - `playerEntityId` 仅用于切图后相机跳转。
 - 携带实体应有 `Pos`；有 `B2dBody` 时位置会同步到 Body。
 - 找不到目标 Tag 时实体会被放到 `(0, 0)` 并记录错误日志。
-- 目标地图快照由 `WorldStateManager.getEntityData(targetMap)` 提供，不存在时会创建空数据。
+- 目标地图快照由 `GameSnapshotManager.getEntityData(targetMap)` 提供，不存在时会创建空数据。
 
-## 16. LtaePlugin 安装的系统
+## 16. Worldloom 安装的系统
 
-正常设计下，插件负责以下系统：
+正常设计下，引擎负责以下系统，游戏项目不要重复注册：
 
 | 阶段 | 系统 |
 | --- | --- |
 | 基础设施 | `EventSystem`, `AssetSystem`, `TiledMapSystem`, `B2dSystem` |
-| 游戏逻辑 | `InputProcessSystem`, `OnInteractSystem`, `MapTransitionSystem`, `PosFollowBodySystem`, `BTreeSystem`, `StateSystem`, `CameraSystem`, `KeyframeShapeSystem`, `TileAnimSystem`, `LayerSamplingSystem`, `ZIndexSystem` |
-| 渲染 | `RenderTiledSystem`, `RenderBatchingSystem`, `RenderFrameSystem`, `RenderPhysicsSystem` |
-| 最低优先级 | `SysPropsRestoreSystem`, `EntityFactory`, `LightSystem`, `RenderUISystem` |
+| 游戏逻辑 | `InputProcessSystem`, `OnInteractSystem`, `MapTransitionSystem`, `PosFollowBodySystem`, `BTreeSystem`, `StateSystem`, `CameraSystem`, `AudioSystem`, `KeyframeShapeSystem`, `TileAnimSystem`, `LayerSamplingSystem`, `ZIndexSystem` |
+| 光影 | `DynamicAmbientLight`, `DynamicSunLight`, `TopDownShadowSystem`, `LightSystem`, `TopDownPointLightRenderSystem` |
+| 渲染 | `RenderTiledSystem`, `ShaderTileLayerRenderSystem`, `RenderBatchingSystem`, `RenderFrameSystem`, `RenderPhysicsSystem` |
+| 恢复与 UI | `SysRestoreSystem`, `EntityFactory`, `RenderUISystem` |
 
 同时依赖：
 
@@ -952,6 +954,7 @@ sequenceDiagram
 - `PlayerManager`
 - `TeamManager`
 - `EntityLinkManager`
+- `WorldSerializationManager`
 
 ## 17. 实用工具与底层入口
 
@@ -963,23 +966,23 @@ sequenceDiagram
 - `MapManager.getTiledMap(name)`：按地图名取 TiledMap。
 - `MapManager.getMapObject(map, id)`：按来源地图和对象 ID 重新关联对象。
 - `MapManager.getPhyLayer(map)`：取得配置的物理层。
-- `EntityBuilder` / `EntitySerializer` / `EntityDeleter`：底层实体构建、快照和删除 API。业务代码优先使用事件或 `WorldStateManager`，避免绕过会话状态。
+- `EntityBuilder` / `EntitySerializer` / `EntityDeleter`：底层实体构建、快照和删除 API。业务代码优先使用事件或 `GameSnapshotManager`，避免绕过会话状态。
 
-`org.ltae.script.Script` 和 `LtaePluginRuleChange` 当前也是未接入运行时流程的预留类型，不应把它们视为已经完成的脚本系统或自动规则配置入口。
+`org.worldloom.script.Script` 当前是未接入运行时流程的预留类型，不应把它视为已经完成的脚本系统。
 
 ## 18. 已知限制与排查
 
 ### `WorldState is not initialized`
 
-创建 `World` 之前未调用 `startNewGame` 或 `loadSaveJson`。
+调用 `engineBuilder().build()` 前未执行 `Worldloom.startNewGame()` 或 `Worldloom.loadGame(json)`。
 
 ### 地图或实体层为空
 
-确认资源已经 `update()` 到 100%，随后才调用 `MapManager.init`；同时检查地图名是否与 `ENTITY_LAYERS` 的 key 一致。
+确认资源已经 `update()` 到 100%，随后才调用 `Worldloom.initializeMaps()`；同时检查配置中的地图名和实体层名。
 
 ### 游戏侧反射类找不到
 
-确认已调用 `ReflectionManager.setRootClass(MainGame.class)`，类位于该根包下，Tiled 中填写的是简单类名，并满足构造器约定。
+确认已调用 `Worldloom.setGameRootClass(MainGame.class)`，类位于该根包下，Tiled 中填写的是简单类名，并满足构造器约定。
 
 ### Tiled 组件没有生成
 
@@ -1009,18 +1012,18 @@ sequenceDiagram
 
 为了避免存读档和切图逻辑再次分散，游戏项目建议保持以下边界：
 
-- 菜单/存档 UI：只负责读取文件或字符串，并调用 `startNewGame` / `loadSaveJson`。
-- 游戏 Screen：只负责按既定状态创建、驱动、销毁 ECS World，并派发首次 `BUILD_ALL`。
-- 存档服务：只通过 `createSaveJson(world)` 获取最新完整存档。
+- 菜单/存档 UI：只负责读取文件或字符串，并调用 `Worldloom.startNewGame()` / `Worldloom.loadGame(json)`。
+- 游戏 Screen：只负责创建、驱动和销毁 `WorldloomEngine`，首次实体构建由引擎完成。
+- 存档服务：只通过 `engine.createSaveJson()` 获取最新完整存档。
 - 门、剧情和交互代码：只调用 `Portal.teleport(...)`，不自行拼接删除、建图、重建和相机步骤。
-- 自定义组件：只声明可保存数据与 `reload` 生命周期，不直接管理整个 WorldState。
+- 自定义组件：只声明可保存数据与 `reload` 生命周期，不直接管理整个 `GameSnapshot`。
 - 自定义系统：需要跨存档的数据统一使用 `@SerializeSystem` + `@SerializeParam`。
 
-这样，Tiled 负责静态初始定义，`WorldStateManager` 负责会话数据，`MapTransitionSystem` 负责切图事务，游戏层只负责触发流程和持久化 JSON。
+这样，Tiled 负责静态初始定义，`GameSnapshotManager` 负责会话数据，`MapTransitionSystem` 负责切图事务，游戏层只负责触发流程和持久化 JSON。
 
 ## 20. 声音系统
 
-LTAE 使用 LibGDX 原生音频后端，并通过现有 `EventSystem` 接收播放与控制消息。短音效使用内存中的 `Sound`，长音乐使用流式 `Music`。声音资源属于游戏内容，应放在游戏项目而不是 LTAE：
+Worldloom 使用 LibGDX 原生音频后端，并通过现有 `EventSystem` 接收播放与控制消息。短音效使用内存中的 `Sound`，长音乐使用流式 `Music`。声音资源属于游戏内容，应放在游戏项目而不是 Worldloom：
 
 ```text
 assets/audio/sounds/   短音效、循环环境声，可并发播放
@@ -1031,7 +1034,7 @@ assets/audio/music/    背景音乐、较长音轨，流式播放
 
 播放事件只需要传入对应目录下的相对名称，并可省略默认的 `.ogg` 后缀。例如 `playSound("ui/click")` 对应 `audio/sounds/ui/click.ogg`，`playMusic("island_day")` 对应 `audio/music/island_day.ogg`。传入 `.wav`、`.mp3` 或完整标准路径时会原样保留；声音事件传入音乐目录或音乐事件传入声音目录会立即报错。
 
-声音系统由 `LtaePlugin` 自动注册，游戏项目不要手动添加 `AudioSystem`。可在创建插件时覆盖默认配置：
+声音系统由 Worldloom 自动注册，游戏项目不要手动添加 `AudioSystem`。可在构建引擎时覆盖默认配置：
 
 ```java
 AudioConfig audioConfig = new AudioConfig()
@@ -1044,7 +1047,10 @@ AudioConfig audioConfig = new AudioConfig()
     .setDefaultRolloff(1f)
     .setDefaultPanningStrength(1f);
 
-LtaePlugin plugin = new LtaePlugin().configureAudio(audioConfig);
+WorldloomEngine engine = Worldloom.engineBuilder()
+    .configureAudio(audioConfig)
+    .addModule(new GameModule())
+    .build();
 ```
 
 ### 20.1 播放音效和音乐
@@ -1123,3 +1129,18 @@ events.dispatch(AudioEvent.useCameraListener());
 - `Music` 是单个流式播放器，适合背景音乐，不适合同一资源的并发复音。需要空间复音的长循环环境声可酌情作为 `Sound` 加载。
 - `Sound` 后端没有完成回调。一次性音效的句柄会在配置的跟踪时间后清理，但声音本身由 LibGDX 正常播放。
 - 音频偏好设置可直接转换成 master 与各总线音量事件，不需要业务系统持有 LibGDX 音频对象。
+
+## 21. 从 LTAE 3.8.2.37 迁移
+
+Worldloom 4.0.0 是一次破坏性升级，旧版本和旧 Git 标签继续保留。迁移时需要同时完成以下修改：
+
+1. 依赖改为 `com.github.IteratingSystem:worldloom:4.0.0`。
+2. Java 包从 `org.ltae` 改为 `org.worldloom`。
+3. 用 `WorldloomConfig` 和 `Worldloom.configure(...)` 替换静态 `LtaePluginRule`。
+4. 资源完成后调用 `Worldloom.initializeMaps()`。
+5. 用 `Worldloom.startNewGame()` 或 `Worldloom.loadGame(json)` 建立会话。
+6. 用 `WorldloomEngine` 替代游戏项目直接创建 Artemis World。
+7. 游戏业务系统通过 `WorldloomGameModule` 和 `EnginePhase` 注册。
+8. Scene2D Skin 中的完整样式类名同步改为 `org.worldloom.*`。
+
+Tiled 中使用的组件简单名称保持不变，不需要为了品牌迁移修改地图对象。旧存档中的 `org.ltae.*` 系统类名和字段类型会在读取时自动迁移，加载成功后再次保存即可写成当前格式。

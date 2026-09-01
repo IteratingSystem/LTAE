@@ -17,12 +17,16 @@ jobs:
 
       - name: Extract version
         id: get_version
-        run: echo "VERSION=$(grep 'projectVersion' gradle.properties | cut -d'=' -f2 | tr -d ' ')" >> $GITHUB_OUTPUT
+        run: echo "VERSION=$(grep 'worldloomVersion' gradle.properties | cut -d'=' -f2 | tr -d ' ')" >> $GITHUB_OUTPUT
 
       - name: Create Git Tag
         run: |
-          git tag ${{ steps.get_version.outputs.VERSION }}
-          git push origin ${{ steps.get_version.outputs.VERSION }}
+          if git rev-parse "${{ steps.get_version.outputs.VERSION }}" >/dev/null 2>&1; then
+            echo "Tag already exists: ${{ steps.get_version.outputs.VERSION }}"
+          else
+            git tag "${{ steps.get_version.outputs.VERSION }}"
+            git push origin "${{ steps.get_version.outputs.VERSION }}"
+          fi
 
       - name: Get commit message
         id: commit_msg
