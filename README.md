@@ -4,7 +4,7 @@ Worldloom 是基于 LibGDX、Artemis-ODB 和 Tiled 的嵌入式 2D ECS 游戏引
 
 Worldloom 不接管 LibGDX 的 `ApplicationListener` 或 `Screen`。游戏项目仍然拥有平台启动、页面和业务内容；引擎通过 `WorldloomEngine` 统一管理 ECS World 的创建、系统顺序、每帧更新、窗口变化和释放。
 
-当前版本：`4.0.0`
+当前版本：`4.0.1`。版本号的选择与发布步骤见 [VERSIONING.md](VERSIONING.md)。
 
 ## 1. 环境与依赖
 
@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    api "com.github.IteratingSystem:worldloom:4.0.0"
+    api "com.github.IteratingSystem:worldloom:4.0.1"
 }
 ```
 
@@ -31,18 +31,18 @@ Worldloom 还集成了 box2dlights、gdx-ai、blade-ink、Artemis contrib event 
 
 ## 2. 总体架构
 
-```mermaid
-flowchart LR
-    Tiled["Tiled .tmx / propertytypes.json"] --> Asset["AssetManager"]
-    Asset --> Map["MapManager"]
-    Map --> State["GameSnapshotManager"]
-    State --> Factory["EntityFactory"]
-    Factory --> ECS["Artemis World"]
-    Runtime["WorldloomEngine"] --> ECS
-    ECS --> Physics["Box2D / Light"]
-    ECS --> Render["地图 / 实体 / UI 渲染"]
-    ECS --> Logic["输入 / 交互 / AI / 状态机"]
-    ECS --> Save["多地图存档"]
+```text
+[Tiled .tmx / propertytypes.json]
+                |
+                v
+[AssetManager] -> [MapManager] -> [GameSnapshotManager] -> [EntityFactory]
+                                                                    |
+[WorldloomEngine] --------------------------------------------------+-> [Artemis World]
+                                                                          |
+                                                                          +-> [Box2D / Light]
+                                                                          +-> [地图 / 实体 / UI 渲染]
+                                                                          +-> [输入 / 交互 / AI / 状态机]
+                                                                          +-> [多地图存档]
 ```
 
 主要职责如下：
@@ -904,23 +904,15 @@ portal.teleport(carried, playerId, true);
 
 `switchMap = true` 的事务顺序：
 
-```mermaid
-sequenceDiagram
-    participant Game as 游戏代码
-    participant Transition as MapTransitionSystem
-    participant State as GameSnapshotManager
-    participant Runtime as ECS / 地图 / Box2D
-
-    Game->>Transition: portal.teleport(..., true)
-    Transition->>State: 捕获当前地图与系统状态
-    Transition->>State: 从来源地图快照移除携带实体
-    Transition->>Runtime: 保留携带实体，删除其他实体
-    Transition->>Runtime: 切换地图、渲染器与瓦片碰撞
-    Transition->>Runtime: 从目标地图快照构建实体
-    Transition->>Runtime: 把携带实体移动到目标 Tag
-    Transition->>Runtime: 相机跳到玩家位置
-    Transition->>State: 更新 curtMap
-```
+1. 游戏代码调用 `portal.teleport(..., true)`。
+2. `MapTransitionSystem` 捕获当前地图的实体快照和系统状态。
+3. 从来源地图快照中移除需要携带的实体。
+4. 保留携带实体，删除当前 ECS World 中的其他实体。
+5. 切换 Tiled 地图、渲染器和瓦片碰撞。
+6. 根据目标地图快照重建目标地图实体。
+7. 把携带实体移动到 `targetPosEntity` 对应的位置。
+8. 把相机跳转到 `playerEntityId` 对应实体的位置。
+9. 把当前地图更新为 `targetMap`。
 
 目标地图与当前地图相同时，不重建世界，只把携带实体移动到 `targetPosEntity`。
 

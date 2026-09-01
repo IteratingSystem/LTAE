@@ -19,16 +19,24 @@ jobs:
         id: get_version
         run: echo "VERSION=$(grep 'worldloomVersion' gradle.properties | cut -d'=' -f2 | tr -d ' ')" >> $GITHUB_OUTPUT
 
-      - name: Create Git Tag
+      - name: Check Git Tag
+        id: check_tag
         run: |
-          if git rev-parse "${{ steps.get_version.outputs.VERSION }}" >/dev/null 2>&1; then
+          if git rev-parse "refs/tags/${{ steps.get_version.outputs.VERSION }}" >/dev/null 2>&1; then
             echo "Tag already exists: ${{ steps.get_version.outputs.VERSION }}"
+            echo "exists=true" >> $GITHUB_OUTPUT
           else
-            git tag "${{ steps.get_version.outputs.VERSION }}"
-            git push origin "${{ steps.get_version.outputs.VERSION }}"
+            echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Create Git Tag
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          git tag "${{ steps.get_version.outputs.VERSION }}"
+          git push origin "${{ steps.get_version.outputs.VERSION }}"
+
       - name: Get commit message
+        if: steps.check_tag.outputs.exists == 'false'
         id: commit_msg
         run: |
           echo "msg<<EOF" >> $GITHUB_OUTPUT
@@ -36,6 +44,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
+        if: steps.check_tag.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
