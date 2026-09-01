@@ -16,6 +16,7 @@ import org.ltae.light.AmbientLightConfig;
 import org.ltae.light.AmbientLightTimeSource;
 import org.ltae.light.SunLightConfig;
 import org.ltae.light.TopDownShadowConfig;
+import org.ltae.audio.AudioConfig;
 import org.ltae.manager.map.GameSnapshotManager;
 import org.ltae.shader.TileLayerShaderConfig;
 import org.ltae.system.*;
@@ -33,12 +34,24 @@ public class LtaePlugin implements ArtemisPlugin {
     private AmbientLightConfig ambientLightConfig;
     private TopDownShadowConfig topDownShadowConfig;
     private SunLightConfig sunLightConfig;
+    private AudioConfig audioConfig = new AudioConfig();
     private final Array<TileLayerShaderConfig> tileLayerShaderConfigs =
         new Array<>();
     private final Array<BaseSystem> postAmbientSystems = new Array<>();
 
 
     public LtaePlugin(){}
+
+    /**
+     * 配置声音系统。未调用时使用引擎默认配置。
+     */
+    public LtaePlugin configureAudio(AudioConfig audioConfig) {
+        if (audioConfig == null) {
+            throw new IllegalArgumentException("audioConfig cannot be null");
+        }
+        this.audioConfig = audioConfig;
+        return this;
+    }
 
     /**
      * 配置由引擎统一排序和注册的动态环境光与俯视角光影系统。
@@ -130,6 +143,7 @@ public class LtaePlugin implements ArtemisPlugin {
         worldConfigurationBuilder.with(new BTreeSystem());//行为树系统
         worldConfigurationBuilder.with(new StateSystem());//状态机系统
         worldConfigurationBuilder.with(cameraSystem);//摄像机系统
+        worldConfigurationBuilder.with(new AudioSystem(audioConfig));//声音系统
         worldConfigurationBuilder.with(new KeyframeShapeSystem());//动画帧形状系统
         worldConfigurationBuilder.with(new TileAnimSystem());//动画系统
         worldConfigurationBuilder.with(new LayerSamplingSystem());//图层采样

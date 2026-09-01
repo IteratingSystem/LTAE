@@ -8,12 +8,15 @@ import com.badlogic.gdx.assets.loaders.AssetLoader;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.bladecoder.ink.runtime.Story;
 import org.ltae.loader.EcsMapLoader;
 import org.ltae.loader.InkStoryLoader;
+import org.ltae.audio.AudioAssetPath;
 
 
 /**
@@ -28,6 +31,8 @@ public class AssetManager {
     public static final String STORY_EXT = ".ink.json";
     public static final String NOISE_EXT = ".noise.png";
     public static final String TEXTURE_EXT = ".png";
+    public static final String SOUND_DIR = AudioAssetPath.SOUND_DIRECTORY;
+    public static final String MUSIC_DIR = AudioAssetPath.MUSIC_DIRECTORY;
     private static AssetManager instance;
     private static FileHandleResolver resolver;
     private FileHandle assetsHandle;
@@ -92,6 +97,18 @@ public class AssetManager {
      */
     public void loadAssets() {
         for (String path : assetPathList) {
+            path = path.trim().replace('\\', '/');
+            if (path.isEmpty()) {
+                continue;
+            }
+            if (path.startsWith(SOUND_DIR) && isAudioPath(path)) {
+                loadAsset(path, Sound.class);
+                continue;
+            }
+            if (path.startsWith(MUSIC_DIR) && isAudioPath(path)) {
+                loadAsset(path, Music.class);
+                continue;
+            }
             if (path.endsWith(TILED_EXT)) {
                 loadAsset(path,TiledMap.class);
                 continue;
@@ -113,6 +130,12 @@ public class AssetManager {
                 continue;
             }
         }
+    }
+
+    private boolean isAudioPath(String path) {
+        String lowerPath = path.toLowerCase();
+        return lowerPath.endsWith(".ogg") || lowerPath.endsWith(".wav")
+            || lowerPath.endsWith(".mp3");
     }
 
 

@@ -4,7 +4,7 @@ LTAE（LibGDX Tiled Artemis Engine）是一个面向 2D 游戏的 Artemis-ODB �
 
 LTAE 不是一个独立运行的游戏，也不接管 LibGDX 的 `ApplicationListener` 或 `Screen` 生命周期。游戏项目负责配置规则、加载资源、创建 Artemis `World` 和驱动每帧更新；LTAE 负责解释地图数据并安装通用 ECS 系统。
 
-当前版本：`3.8.2.36`
+当前版本：`3.8.2.37`
 
 ## 1. 环境与依赖
 
@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    api "com.github.IteratingSystem:LTAE:3.8.2.36"
+    api "com.github.IteratingSystem:LTAE:3.8.2.37"
 }
 ```
 
@@ -49,7 +49,7 @@ flowchart LR
 
 | 模块 | 职责 |
 | --- | --- |
-| `AssetManager` | 根据 `assets.txt` 批量加载地图、纹理、行为树、Ink 和噪声纹理 |
+| `AssetManager` | 根据 `assets.txt` 批量加载地图、纹理、行为树、Ink、噪声纹理和音频 |
 | `MapManager` | 解析全部地图的实体层与物理层，保存不可变的初始实体数据 |
 | `WorldStateManager` | 管理一次游戏会话的当前地图、各地图实体快照和系统属性 |
 | `EntityBuilder` / `EntitySerializer` | 在 Tiled 数据、存档数据和运行时实体之间转换 |
@@ -1003,7 +1003,7 @@ sequenceDiagram
 
 ### 自动化验证范围
 
-当前仓库没有 `src/test` 下的自动化测试套件，只有 `src/main/java/org/ltae/test/ReflectionsTest.java` 辅助类。版本升级后应至少在实际游戏项目中验证：新游戏、保存、读档、同图传送、跨图传送、携带实体、系统字段恢复和 UI 输入链路。
+当前仓库包含环境光曲线与二维空间音频的自动化测试。版本升级后仍应在实际游戏项目中验证：新游戏、保存、读档、同图传送、跨图传送、携带实体、系统字段恢复、UI 输入链路以及真实音频后端播放。
 
 ## 19. 推荐的项目侧分层
 
@@ -1017,3 +1017,109 @@ sequenceDiagram
 - 自定义系统：需要跨存档的数据统一使用 `@SerializeSystem` + `@SerializeParam`。
 
 这样，Tiled 负责静态初始定义，`WorldStateManager` 负责会话数据，`MapTransitionSystem` 负责切图事务，游戏层只负责触发流程和持久化 JSON。
+
+## 20. 声音系统
+
+LTAE 使用 LibGDX 原生音频后端，并通过现有 `EventSystem` 接收播放与控制消息。短音效使用内存中的 `Sound`，长音乐使用流式 `Music`。声音资源属于游戏内容，应放在游戏项目而不是 LTAE：
+
+```text
+assets/audio/sounds/   短音效、循环环境声，可并发播放
+assets/audio/music/    背景音乐、较长音轨，流式播放
+```
+
+`AssetManager.loadAssets()` 会根据目录决定相同扩展名的加载类型，支持 `.ogg`、`.wav` 和 `.mp3`。推荐使用 OGG。资源必须出现在游戏生成的 `assets.txt` 中。
+
+播放事件只需要传入对应目录下的相对名称，并可省略默认的 `.ogg` 后缀。例如 `playSound("ui/click")` 对应 `audio/sounds/ui/click.ogg`，`playMusic("island_day")` 对应 `audio/music/island_day.ogg`。传入 `.wav`、`.mp3` 或完整标准路径时会原样保留；声音事件传入音乐目录或音乐事件传入声音目录会立即报错。
+
+声音系统由 `LtaePlugin` 自动注册，游戏项目不要手动添加 `AudioSystem`。可在创建插件时覆盖默认配置：
+
+```java
+AudioConfig audioConfig = new AudioConfig()
+    .setMasterVolume(0.9f)
+    .setBusVolume(AudioBus.MUSIC, 0.7f)
+    .setMaxSoundInstances(48)
+    .setMaxInstancesPerSound(6)
+    .setDefaultMinDistance(32f)
+    .setDefaultMaxDistance(480f)
+    .setDefaultRolloff(1f)
+    .setDefaultPanningStrength(1f);
+
+LtaePlugin plugin = new LtaePlugin().configureAudio(audioConfig);
+```
+
+### 20.1 播放音效和音乐
+
+```java
+EventSystem events = world.getSystem(EventSystem.class);
+
+// 普通 UI 音效，不计算空间位置
+events.dispatch(AudioEvent.playSound("ui/click")
+    .bus(AudioBus.UI));
+
+// 世界音效：监听者左侧为左声道，右侧为右声道，并按距离衰减
+AudioEvent footstep = AudioEvent.playSound(
+        "world/footstep_grass")
+    .at(x, y)
+    .distances(24f, 300f)
+    .rolloff(1.2f)
+    .volume(0.8f)
+    .pitch(1f);
+events.dispatch(footstep);
+
+// 循环声源跟随实体，系统每帧读取该实体的 Pos
+AudioEvent campfire = AudioEvent.playSound(
+        "world/fire_loop")
+    .bus(AudioBus.AMBIENT)
+    .loop()
+    .follow(campfireEntityId)
+    .distances(32f, 420f);
+events.dispatch(campfire);
+long campfireHandle = campfire.handle;
+
+// 背景音乐；switchMusic 会让旧音乐淡出、新音乐淡入
+events.dispatch(AudioEvent.switchMusic(
+    "island_day", 1.5f).loop().volume(0.7f));
+```
+
+`dispatch` 是同步的，播放成功后句柄写入同一个事件的 `handle`。加载失败时句柄保持 `-1`，并由 `AudioSystem` 记录英文错误日志。
+
+### 20.2 控制播放实例
+
+```java
+events.dispatch(AudioEvent.pause(campfireHandle));
+events.dispatch(AudioEvent.resume(campfireHandle));
+events.dispatch(AudioEvent.move(campfireHandle, newX, newY));
+events.dispatch(AudioEvent.fade(campfireHandle, 0f, 0.8f));
+events.dispatch(AudioEvent.stop(campfireHandle));
+```
+
+总线可统一控制同类声音：
+
+```java
+events.dispatch(AudioEvent.setMasterVolume(0.8f));
+events.dispatch(AudioEvent.setBusVolume(AudioBus.MUSIC, 0.5f));
+events.dispatch(AudioEvent.pauseBus(AudioBus.SFX));
+events.dispatch(AudioEvent.resumeBus(AudioBus.SFX));
+events.dispatch(AudioEvent.stopBus(AudioBus.AMBIENT));
+```
+
+### 20.3 监听者与二维立体声
+
+默认监听者是 `CameraSystem` 摄像机中心，适合摄像机跟随玩家的常规场景。也可以让监听者直接跟随带有 `Pos` 的实体，或设为固定坐标：
+
+```java
+events.dispatch(AudioEvent.followListener(playerEntityId));
+events.dispatch(AudioEvent.listenerAt(x, y));
+events.dispatch(AudioEvent.useCameraListener());
+```
+
+空间声音按声源与监听者的距离计算音量衰减，并按水平相对位置计算 `pan`。这属于俯视角 2D 立体声，不是带耳廓、遮挡和混响模拟的 HRTF。瞬时音效在触发时取得位置；使用 `.follow(entityId)` 的声音会持续更新，实体被删除后循环声音会自动停止。
+
+`minDistance` 内保持完整音量，`maxDistance` 外静音，二者之间按 `rolloff` 衰减。`panningStrength` 为 `0` 时关闭左右声像，默认值 `1`。
+
+### 20.4 使用边界
+
+- 同一个 `Sound` 可以并发播放，系统会限制全局实例数和同资源实例数，超出时停止最早实例。
+- `Music` 是单个流式播放器，适合背景音乐，不适合同一资源的并发复音。需要空间复音的长循环环境声可酌情作为 `Sound` 加载。
+- `Sound` 后端没有完成回调。一次性音效的句柄会在配置的跟踪时间后清理，但声音本身由 LibGDX 正常播放。
+- 音频偏好设置可直接转换成 master 与各总线音量事件，不需要业务系统持有 LibGDX 音频对象。
