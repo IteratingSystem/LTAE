@@ -326,6 +326,28 @@ public class Health extends SerializeComponent {
 
 `Slice` 需要同时挂载 `Render` 和 `TileAnimation`。引擎会暂停该动画的普通逐帧播放，把动画帧反转后写入 `Render.textureSheets`，并按 `0.75` 世界单位逐层偏移。游戏项目不需要再注册切片系统。
 
+迁入 Worldloom 的通用组件使用约定：
+
+- `Owner.id`：归属者实体 ID，默认值为 `-1`。适合表达“物品属于谁”；实体 ID 会随存档保存，但业务层仍应负责在实体删除或重建时维护关系。
+- `User.id`：当前使用者实体 ID，默认值为 `-1`。适合表达“载具或设备正在被谁使用”，不用时应恢复为 `-1`。
+- `Slice`：无字段标记组件，必须与 `Render + TileAnimation` 同时存在。`SliceSystem` 已由引擎自动安装，不要在游戏模块重复添加。
+- `PointLight`：传统 box2dlights 光源，必须与 `Pos` 同时存在，并要求 `WorldloomConfig.Builder.legacyBox2dLights(true)`。`offsetX/offsetY` 是相对实体坐标，`distance` 是光照半径，`color` 是光色，`rays` 是射线数，`onOff` 控制开关；运行时 `light` 字段由引擎管理，不进入存档。
+
+Tiled 中只需给对象添加对应类属性。代码创建时可直接填写数据字段，例如：
+
+```java
+Owner owner = world.getMapper(Owner.class).create(itemId);
+owner.id = playerId;
+
+PointLight light = world.getMapper(PointLight.class).create(lampId);
+light.offsetX = 8f;
+light.offsetY = 20f;
+light.distance = 96f;
+light.color = new Color(1f, 0.82f, 0.55f, 1f);
+light.rays = 64;
+light.onOff = true;
+```
+
 ### 7.1 动画切换
 
 在 tileset 的动画瓦片上添加名为 `TileAnimation` 的类属性，并设置 `name`、`playMode`、`offsetX`、`offsetY`。实体挂载 `TileAnimations` 后：
