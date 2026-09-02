@@ -100,15 +100,20 @@ public class CameraSystem extends BaseSystem {
         float activeWidth = cameraTarget.activeWidth;
         float activeHeight = cameraTarget.activeHeight;
 
-        // 计算当前偏差
-        float dx = centerX - logicalX;
-        float dy = centerY - logicalY;
+        float halfWidth = Math.max(0f, activeWidth) * 0.5f;
+        float halfHeight = Math.max(0f, activeHeight) * 0.5f;
+        float minX = centerX + cameraTarget.offsetX - halfWidth;
+        float maxX = centerX + cameraTarget.offsetX + halfWidth;
+        float minY = centerY + cameraTarget.offsetY - halfHeight;
+        float maxY = centerY + cameraTarget.offsetY + halfHeight;
 
-        // 检查是否超出活动区域
-        boolean outX = logicalX < centerX - activeWidth / 2 + cameraTarget.offsetX ||
-                logicalX > centerX + activeWidth / 2 + cameraTarget.offsetX;
-        boolean outY = logicalY < centerY - activeHeight / 2 + cameraTarget.offsetY ||
-                logicalY > centerY + activeHeight / 2 + cameraTarget.offsetY;
+        // 目标取安全区内离当前相机最近的点，避免越界后重新追向实体中心。
+        float targetX = MathUtils.clamp(logicalX, minX, maxX);
+        float targetY = MathUtils.clamp(logicalY, minY, maxY);
+        float dx = targetX - logicalX;
+        float dy = targetY - logicalY;
+        boolean outX = Math.abs(dx) > POSITION_EPSILON;
+        boolean outY = Math.abs(dy) > POSITION_EPSILON;
 
         // 如果未超出，则无需移动
         if (!outX && !outY) {
@@ -122,22 +127,18 @@ public class CameraSystem extends BaseSystem {
 
         // 分别对超出方向进行平滑插值
         if (outX) {
-            logicalX = Math.abs(dx) <= POSITION_EPSILON
-                ? centerX
-                : MathUtils.lerp(logicalX, centerX, smoothFactor);
+            logicalX = MathUtils.lerp(logicalX, targetX, smoothFactor);
         }
         if (outY) {
-            logicalY = Math.abs(dy) <= POSITION_EPSILON
-                ? centerY
-                : MathUtils.lerp(logicalY, centerY, smoothFactor);
+            logicalY = MathUtils.lerp(logicalY, targetY, smoothFactor);
         }
 
         // 仅消除浮点尾差，不对正在移动的摄像机做像素取整。
-        if (Math.abs(centerX - logicalX) <= POSITION_EPSILON) {
-            logicalX = centerX;
+        if (Math.abs(targetX - logicalX) <= POSITION_EPSILON) {
+            logicalX = targetX;
         }
-        if (Math.abs(centerY - logicalY) <= POSITION_EPSILON) {
-            logicalY = centerY;
+        if (Math.abs(targetY - logicalY) <= POSITION_EPSILON) {
+            logicalY = targetY;
         }
     }
 
