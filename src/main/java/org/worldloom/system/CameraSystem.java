@@ -33,6 +33,8 @@ public class CameraSystem extends BaseSystem {
     private float gameWidth;
     private float gameHeight;
     private float zoom;
+    private float logicalX;
+    private float logicalY;
     public CameraSystem(float gameWidth,float gameHeight,float zoom,float worldScale){
         this.zoom = zoom;
         this.gameWidth = gameWidth;
@@ -43,6 +45,8 @@ public class CameraSystem extends BaseSystem {
     protected void initialize() {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, worldScale * gameWidth/zoom,worldScale * gameHeight/zoom);
+        logicalX = camera.position.x;
+        logicalY = camera.position.y;
 //        camera.zoom = zoom;
 //        camera.update();
     }
@@ -53,6 +57,7 @@ public class CameraSystem extends BaseSystem {
             cameraCtrl();
         }
         followTarget();
+        applyPixelSnappedPosition();
         camera.update();
     }
 
@@ -78,8 +83,8 @@ public class CameraSystem extends BaseSystem {
         return true;
     }
     private void jumpToPos(Pos pos){
-        camera.position.x = pos.x;
-        camera.position.y = pos.y;
+        logicalX = pos.x;
+        logicalY = pos.y;
     }
     private void followTarget() {
         if (!verifyTarget()) {
@@ -95,22 +100,16 @@ public class CameraSystem extends BaseSystem {
         float activeHeight = cameraTarget.activeHeight;
 
         // 计算当前偏差
-        float dx = centerX - camera.position.x;
-        float dy = centerY - camera.position.y;
-        final float THRESHOLD = 1.0f;
-
-        // 偏差极小则直接吸附，彻底消除残余抖动（放在最前面）
-        if (Math.abs(dx) < THRESHOLD && Math.abs(dy) < THRESHOLD) {
-            camera.position.x = centerX;
-            camera.position.y = centerY;
-            return;
-        }
+        float dx = centerX - logicalX;
+        float dy = centerY - logicalY;
+        float thresholdX = getWorldUnitsPerPixelX() * 0.25f;
+        float thresholdY = getWorldUnitsPerPixelY() * 0.25f;
 
         // 检查是否超出活动区域
-        boolean outX = camera.position.x < centerX - activeWidth / 2 + cameraTarget.offsetX ||
-                camera.position.x > centerX + activeWidth / 2 + cameraTarget.offsetX;
-        boolean outY = camera.position.y < centerY - activeHeight / 2 + cameraTarget.offsetY ||
-                camera.position.y > centerY + activeHeight / 2 + cameraTarget.offsetY;
+        boolean outX = logicalX < centerX - activeWidth / 2 + cameraTarget.offsetX ||
+                logicalX > centerX + activeWidth / 2 + cameraTarget.offsetX;
+        boolean outY = logicalY < centerY - activeHeight / 2 + cameraTarget.offsetY ||
+                logicalY > centerY + activeHeight / 2 + cameraTarget.offsetY;
 
         // 如果未超出，则无需移动
         if (!outX && !outY) {
@@ -124,18 +123,22 @@ public class CameraSystem extends BaseSystem {
 
         // 分别对超出方向进行平滑插值
         if (outX) {
-            camera.position.x = MathUtils.lerp(camera.position.x, centerX, smoothFactor);
+            logicalX = Math.abs(dx) <= thresholdX
+                ? centerX
+                : MathUtils.lerp(logicalX, centerX, smoothFactor);
         }
         if (outY) {
-            camera.position.y = MathUtils.lerp(camera.position.y, centerY, smoothFactor);
+            logicalY = Math.abs(dy) <= thresholdY
+                ? centerY
+                : MathUtils.lerp(logicalY, centerY, smoothFactor);
         }
 
-        // 插值后再次检查偏差，若小于阈值则强制吸附（双重保险）
-        dx = centerX - camera.position.x;
-        dy = centerY - camera.position.y;
-        if (Math.abs(dx) < THRESHOLD && Math.abs(dy) < THRESHOLD) {
-            camera.position.x = centerX;
-            camera.position.y = centerY;
+        // 只在误差小于四分之一屏幕像素时吸附，避免正常移动跳过平滑。
+        if (Math.abs(centerX - logicalX) <= thresholdX) {
+            logicalX = centerX;
+        }
+        if (Math.abs(centerY - logicalY) <= thresholdY) {
+            logicalY = centerY;
         }
     }
 
@@ -152,22 +155,52 @@ public class CameraSystem extends BaseSystem {
      */
     private void cameraCtrl(){
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            camera.position.x = camera.position.x+MOVE_SPEED;
+            logicalX += MOVE_SPEED;
         }else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            camera.position.x = camera.position.x-MOVE_SPEED;
+            logicalX -= MOVE_SPEED;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.UP)){
-            camera.position.y = camera.position.y+MOVE_SPEED;
+            logicalY += MOVE_SPEED;
         }else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-            camera.position.y = camera.position.y-MOVE_SPEED;
+            logicalY -= MOVE_SPEED;
         }
+    }
+
+    /** 将逻辑位置转换为与当前BackBuffer像素网格对齐的渲染位置。 */
+    private void applyPixelSnappedPosition() {
+        camera.position.x = snapToPixel(logicalX, getWorldUnitsPerPixelX());
+        camera.position.y = snapToPixel(logicalY, getWorldUnitsPerPixelY());
+    }
+
+    private float snapToPixel(float value, float worldUnitsPerPixel) {
+        if (worldUnitsPerPixel <= 0f) {
+            return value;
+        }
+        return Math.round(value / worldUnitsPerPixel) * worldUnitsPerPixel;
+    }
+
+    private float getWorldUnitsPerPixelX() {
+        if (Gdx.graphics == null) {
+            return 0f;
+        }
+        int width = Math.max(1, Gdx.graphics.getBackBufferWidth());
+        return camera.viewportWidth * camera.zoom / width;
+    }
+
+    private float getWorldUnitsPerPixelY() {
+        if (Gdx.graphics == null) {
+            return 0f;
+        }
+        int height = Math.max(1, Gdx.graphics.getBackBufferHeight());
+        return camera.viewportHeight * camera.zoom / height;
     }
 
     private void resize(float width, float height) {
         float zoom = this.zoom * width / gameWidth;
         camera.viewportWidth = width/zoom;
         camera.viewportHeight = height/zoom;
+        applyPixelSnappedPosition();
         camera.update();
     }
     private void updateZoom(float zoom){
