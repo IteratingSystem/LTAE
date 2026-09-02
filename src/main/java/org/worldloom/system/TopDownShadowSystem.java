@@ -74,6 +74,7 @@ public class TopDownShadowSystem extends BaseSystem {
 
     private B2dSystem b2dSystem;
     private CameraSystem cameraSystem;
+    private PixelPerfectRenderSystem pixelPerfectRenderSystem;
     private M<Pos> mPos;
     private M<Render> mRender;
     private M<ZIndex> mZIndex;
@@ -1174,6 +1175,7 @@ public class TopDownShadowSystem extends BaseSystem {
     }
 
     private void compositeSunShadow() {
+        pixelPerfectRenderSystem.resumeWorldTarget();
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         bindCompositeMasks(sunCompositeShader);
@@ -1184,6 +1186,7 @@ public class TopDownShadowSystem extends BaseSystem {
     }
 
     private void compositePointLight() {
+        pixelPerfectRenderSystem.resumeWorldTarget();
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE);
         receiverShadowMask.getColorBufferTexture().bind(3);
@@ -1224,9 +1227,11 @@ public class TopDownShadowSystem extends BaseSystem {
 
     private void resizeBuffersIfNeeded() {
         int width = Math.max(1, Math.round(
-            Gdx.graphics.getBackBufferWidth() * config.getResolutionScale()));
+            pixelPerfectRenderSystem.getRenderWidth()
+                * config.getResolutionScale()));
         int height = Math.max(1, Math.round(
-            Gdx.graphics.getBackBufferHeight() * config.getResolutionScale()));
+            pixelPerfectRenderSystem.getRenderHeight()
+                * config.getResolutionScale()));
         if (width == bufferWidth && height == bufferHeight) {
             return;
         }

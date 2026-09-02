@@ -4,7 +4,7 @@ Worldloom 是基于 LibGDX、Artemis-ODB 和 Tiled 的嵌入式 2D ECS 游戏引
 
 Worldloom 不接管 LibGDX 的 `ApplicationListener` 或 `Screen`。游戏项目仍然拥有平台启动、页面和业务内容；引擎通过 `WorldloomEngine` 统一管理 ECS World 的创建、系统顺序、每帧更新、窗口变化和释放。
 
-当前版本：`4.1.0`。版本号的选择与发布步骤见 [VERSIONING.md](VERSIONING.md)。
+当前版本：`4.2.0`。版本号的选择与发布步骤见 [VERSIONING.md](VERSIONING.md)。
 
 ## 1. 环境与依赖
 
@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    api "com.github.IteratingSystem:worldloom:4.1.0"
+    api "com.github.IteratingSystem:worldloom:4.2.0"
 }
 ```
 
@@ -70,6 +70,7 @@ WorldloomConfig config = WorldloomConfig.builder()
     .ui(640, 360, 1f)
     .game(640, 360)
     .cameraZoom(1f)
+    .pixelPerfectCamera(PixelPerfectCameraConfig.enabled())
     .worldScale(1f / 16f)
     .gravity(0f, -9.8f)
     .allowPhysicsSleep(false)
@@ -176,6 +177,7 @@ AssetManager.getInstance().dispose();
 | `ui(640, 480, 1)` | `640 × 480` | Scene2D UI 的逻辑尺寸与缩放 |
 | `game(640, 480)` | `640 × 480` | 游戏相机逻辑尺寸 |
 | `cameraZoom(1)` | `1` | 初始相机缩放 |
+| `pixelPerfectCamera(config)` | 关闭 | 平滑像素摄像机与扩边世界缓冲 |
 | `worldScale(1)` | `1` | 像素到物理世界单位的转换比例 |
 | `gravity(0, -9.8)` | 地球重力 | Box2D 重力 |
 | `allowPhysicsSleep(false)` | `false` | Box2D 是否允许休眠 |
@@ -488,6 +490,32 @@ CameraEvent jump = new CameraEvent(CameraEvent.JUMP_POS);
 jump.pos = playerPos;
 events.dispatch(jump);
 ```
+
+#### 平滑像素摄像机
+
+像素风项目使用最近邻采样时，连续摄像机位置会让不同精灵边缘分别跨越屏幕像素，产生闪烁；直接取整摄像机又会形成逐像素阶梯移动。可在应用配置中启用平滑像素摄像机：
+
+```java
+WorldloomConfig.builder()
+    .pixelPerfectCamera(PixelPerfectCameraConfig.enabled())
+    // 其它配置
+    .build();
+```
+
+引擎会使用当前 BackBuffer 尺寸建立一圈扩边的世界缓冲。世界渲染时摄像机对齐屏幕像素，合成时再用逻辑摄像机与对齐位置之间的小数差整体移动缓冲。该模式不会修改实体坐标，也不会把纹理过滤改为线性；UI 在世界缓冲合成后单独绘制。
+
+窗口尺寸变化后，世界缓冲会在下一帧自动重建，因此不需要游戏项目额外处理。默认一像素扩边已经足够；特殊后处理需要更宽采样范围时可以使用 `PixelPerfectCameraConfig.enabled(pixels)`。
+
+游戏系统如果在 `WORLD_EFFECT`、`POST_AMBIENT` 或 `POST_RENDER` 阶段自行使用 `FrameBuffer`，结束临时缓冲后必须恢复世界目标：
+
+```java
+private PixelPerfectRenderSystem pixelPerfectRenderSystem;
+
+temporaryBuffer.end();
+pixelPerfectRenderSystem.resumeWorldTarget();
+```
+
+关闭该模式时，`resumeWorldTarget()` 是空操作，同一套游戏系统无需分支判断。引擎内置阴影以及 Island 使用的海洋缓冲均遵循这个约定。
 
 ### 10.2 Shader
 

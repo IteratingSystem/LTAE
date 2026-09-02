@@ -14,6 +14,7 @@ public class LightSystem extends BaseSystem {
 
     private CameraSystem cameraSystem;
     private B2dSystem b2dSystem;
+    private PixelPerfectRenderSystem pixelPerfectRenderSystem;
 
     public RayHandler rayHandler;
     private boolean enable;
@@ -45,7 +46,11 @@ public class LightSystem extends BaseSystem {
             return;
         }
         rayHandler.setCombinedMatrix(cameraSystem.camera);
-        rayHandler.updateAndRender();
+        rayHandler.update();
+        rayHandler.prepareRender();
+        // box2dlights结束内部光照缓冲后会绑定默认屏幕，需要恢复世界目标。
+        pixelPerfectRenderSystem.resumeWorldTarget();
+        rayHandler.renderOnly();
     }
     public void setAmbientLight(Color color){
         if(!enable){

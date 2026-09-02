@@ -38,6 +38,8 @@ import org.worldloom.system.LightSystem;
 import org.worldloom.system.MapTransitionSystem;
 import org.worldloom.system.OnInteractSystem;
 import org.worldloom.system.PointLightSystem;
+import org.worldloom.system.PixelPerfectCompositeSystem;
+import org.worldloom.system.PixelPerfectRenderSystem;
 import org.worldloom.system.PosFollowBodySystem;
 import org.worldloom.system.RenderBatchingSystem;
 import org.worldloom.system.RenderFrameSystem;
@@ -120,6 +122,11 @@ public final class ArtemisInstaller {
         add(builder, gameSystems.systemsFor(EnginePhase.POST_UPDATE));
         add(builder, gameSystems.systemsFor(EnginePhase.PRE_RENDER));
 
+        PixelPerfectRenderSystem pixelPerfectRenderSystem =
+            new PixelPerfectRenderSystem(
+                config.getPixelPerfectCameraConfig());
+        builder.with(pixelPerfectRenderSystem);
+
         if (lightTimeSource != null) {
             builder.with(new DynamicAmbientLight(lightTimeSource, ambientLightConfig));
             builder.with(new DynamicSunLight(lightTimeSource, sunLightConfig));
@@ -159,6 +166,9 @@ public final class ArtemisInstaller {
                 new TopDownPointLightRenderSystem());
         }
         addLowest(builder, gameSystems.systemsFor(EnginePhase.POST_RENDER));
+        builder.with(
+            WorldConfigurationBuilder.Priority.LOWEST,
+            new PixelPerfectCompositeSystem(pixelPerfectRenderSystem));
         addLowest(builder, gameSystems.systemsFor(EnginePhase.UI));
         builder.with(
             WorldConfigurationBuilder.Priority.LOWEST,

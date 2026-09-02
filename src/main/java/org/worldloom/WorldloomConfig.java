@@ -3,6 +3,7 @@ package org.worldloom;
 import com.artemis.Component;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import org.worldloom.camera.PixelPerfectCameraConfig;
 import org.worldloom.component.Pos;
 import org.worldloom.component.Render;
 import org.worldloom.component.ZIndex;
@@ -28,6 +29,7 @@ public final class WorldloomConfig {
     private final boolean allowPhysicsSleep;
     private final boolean combineTileShapes;
     private final boolean legacyBox2dLightsEnabled;
+    private final PixelPerfectCameraConfig pixelPerfectCameraConfig;
     private final String initialMap;
     private final String skinPath;
 
@@ -47,6 +49,7 @@ public final class WorldloomConfig {
         allowPhysicsSleep = builder.allowPhysicsSleep;
         combineTileShapes = builder.combineTileShapes;
         legacyBox2dLightsEnabled = builder.legacyBox2dLightsEnabled;
+        pixelPerfectCameraConfig = builder.pixelPerfectCameraConfig;
         initialMap = builder.initialMap;
         skinPath = builder.skinPath;
     }
@@ -68,6 +71,9 @@ public final class WorldloomConfig {
     public boolean isPhysicsSleepAllowed() { return allowPhysicsSleep; }
     public boolean isCombineTileShapes() { return combineTileShapes; }
     public boolean isLegacyBox2dLightsEnabled() { return legacyBox2dLightsEnabled; }
+    public PixelPerfectCameraConfig getPixelPerfectCameraConfig() {
+        return pixelPerfectCameraConfig;
+    }
     public String getInitialMap() { return initialMap; }
     public String getSkinPath() { return skinPath; }
 
@@ -101,6 +107,8 @@ public final class WorldloomConfig {
         private boolean allowPhysicsSleep;
         private boolean combineTileShapes = true;
         private boolean legacyBox2dLightsEnabled;
+        private PixelPerfectCameraConfig pixelPerfectCameraConfig =
+            PixelPerfectCameraConfig.disabled();
         private String initialMap = "defaultMap";
         private String skinPath = "skin/main.json";
 
@@ -135,6 +143,14 @@ public final class WorldloomConfig {
         public Builder allowPhysicsSleep(boolean allow) { allowPhysicsSleep = allow; return this; }
         public Builder combineTileShapes(boolean combine) { combineTileShapes = combine; return this; }
         public Builder legacyBox2dLights(boolean enabled) { legacyBox2dLightsEnabled = enabled; return this; }
+        public Builder pixelPerfectCamera(PixelPerfectCameraConfig config) {
+            if (config == null) {
+                throw new IllegalArgumentException(
+                    "pixel perfect camera config cannot be null");
+            }
+            pixelPerfectCameraConfig = config;
+            return this;
+        }
         public Builder initialMap(String mapName) { initialMap = mapName; return this; }
         public Builder skin(String path) { skinPath = path; return this; }
 
