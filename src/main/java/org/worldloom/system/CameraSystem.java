@@ -24,6 +24,7 @@ import org.worldloom.serialize.SerializeSystem;
 public class CameraSystem extends BaseSystem {
     private final static String TAG = CameraSystem.class.getSimpleName();
     private final static float MOVE_SPEED = 5;
+    private final static float POSITION_EPSILON = 0.0001f;
     public M<Pos> mPos;
 
     public OrthographicCamera camera;
@@ -57,7 +58,7 @@ public class CameraSystem extends BaseSystem {
             cameraCtrl();
         }
         followTarget();
-        applyPixelSnappedPosition();
+        applyLogicalPosition();
         camera.update();
     }
 
@@ -102,8 +103,6 @@ public class CameraSystem extends BaseSystem {
         // 计算当前偏差
         float dx = centerX - logicalX;
         float dy = centerY - logicalY;
-        float thresholdX = getWorldUnitsPerPixelX() * 0.25f;
-        float thresholdY = getWorldUnitsPerPixelY() * 0.25f;
 
         // 检查是否超出活动区域
         boolean outX = logicalX < centerX - activeWidth / 2 + cameraTarget.offsetX ||
@@ -123,21 +122,21 @@ public class CameraSystem extends BaseSystem {
 
         // 分别对超出方向进行平滑插值
         if (outX) {
-            logicalX = Math.abs(dx) <= thresholdX
+            logicalX = Math.abs(dx) <= POSITION_EPSILON
                 ? centerX
                 : MathUtils.lerp(logicalX, centerX, smoothFactor);
         }
         if (outY) {
-            logicalY = Math.abs(dy) <= thresholdY
+            logicalY = Math.abs(dy) <= POSITION_EPSILON
                 ? centerY
                 : MathUtils.lerp(logicalY, centerY, smoothFactor);
         }
 
-        // 只在误差小于四分之一屏幕像素时吸附，避免正常移动跳过平滑。
-        if (Math.abs(centerX - logicalX) <= thresholdX) {
+        // 仅消除浮点尾差，不对正在移动的摄像机做像素取整。
+        if (Math.abs(centerX - logicalX) <= POSITION_EPSILON) {
             logicalX = centerX;
         }
-        if (Math.abs(centerY - logicalY) <= thresholdY) {
+        if (Math.abs(centerY - logicalY) <= POSITION_EPSILON) {
             logicalY = centerY;
         }
     }
@@ -167,40 +166,17 @@ public class CameraSystem extends BaseSystem {
         }
     }
 
-    /** 将逻辑位置转换为与当前BackBuffer像素网格对齐的渲染位置。 */
-    private void applyPixelSnappedPosition() {
-        camera.position.x = snapToPixel(logicalX, getWorldUnitsPerPixelX());
-        camera.position.y = snapToPixel(logicalY, getWorldUnitsPerPixelY());
-    }
-
-    private float snapToPixel(float value, float worldUnitsPerPixel) {
-        if (worldUnitsPerPixel <= 0f) {
-            return value;
-        }
-        return Math.round(value / worldUnitsPerPixel) * worldUnitsPerPixel;
-    }
-
-    private float getWorldUnitsPerPixelX() {
-        if (Gdx.graphics == null) {
-            return 0f;
-        }
-        int width = Math.max(1, Gdx.graphics.getBackBufferWidth());
-        return camera.viewportWidth * camera.zoom / width;
-    }
-
-    private float getWorldUnitsPerPixelY() {
-        if (Gdx.graphics == null) {
-            return 0f;
-        }
-        int height = Math.max(1, Gdx.graphics.getBackBufferHeight());
-        return camera.viewportHeight * camera.zoom / height;
+    /** 将连续的逻辑位置直接用于渲染，避免屏幕像素量化造成阶梯移动。 */
+    private void applyLogicalPosition() {
+        camera.position.x = logicalX;
+        camera.position.y = logicalY;
     }
 
     private void resize(float width, float height) {
         float zoom = this.zoom * width / gameWidth;
         camera.viewportWidth = width/zoom;
         camera.viewportHeight = height/zoom;
-        applyPixelSnappedPosition();
+        applyLogicalPosition();
         camera.update();
     }
     private void updateZoom(float zoom){
