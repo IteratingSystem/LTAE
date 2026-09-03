@@ -22,6 +22,7 @@ public final class ShaderTileLayerRenderSystem extends BaseSystem {
     private TiledMapSystem tiledMapSystem;
     private RenderTiledSystem renderTiledSystem;
     private CameraSystem cameraSystem;
+    private PixelPerfectRenderSystem pixelPerfectRenderSystem;
     private ShaderProgram shaderProgram;
     private TiledMap warnedMap;
 
@@ -84,6 +85,8 @@ public final class ShaderTileLayerRenderSystem extends BaseSystem {
         try {
             config.getUniforms().apply(
                 tiledMap, shaderProgram, world.getDelta());
+            pixelPerfectRenderSystem.resumeWorldTarget();
+            restoreBatchState(batch);
             Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
             renderTiledSystem.mapRenderer.renderTileLayer(tileLayer);
         } finally {
@@ -91,6 +94,20 @@ public final class ShaderTileLayerRenderSystem extends BaseSystem {
             batch.end();
             batch.setShader(previousShader);
         }
+    }
+
+    /** 恢复Uniform回调中临时Batch或FrameBuffer可能改变的GL状态。 */
+    private void restoreBatchState(Batch batch) {
+        Gdx.gl.glBlendEquation(GL20.GL_FUNC_ADD);
+        if (batch.isBlendingEnabled()) {
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glBlendFuncSeparate(
+                batch.getBlendSrcFunc(), batch.getBlendDstFunc(),
+                batch.getBlendSrcFuncAlpha(), batch.getBlendDstFuncAlpha());
+        } else {
+            Gdx.gl.glDisable(GL20.GL_BLEND);
+        }
+        shaderProgram.bind();
     }
 
     @Override
