@@ -6,6 +6,7 @@ uniform sampler2D u_groundShadow;
 uniform sampler2D u_entityMask;
 uniform sampler2D u_receiverShadow;
 uniform vec2 u_shadowTexel;
+uniform vec2 u_shadowUvOffset;
 uniform float u_shadowOpacity;
 uniform float u_time;
 
@@ -22,10 +23,11 @@ float softShadow(sampler2D textureSampler, vec2 uv) {
 }
 
 void main() {
-    float entity = texture2D(u_entityMask, v_texCoords).r;
-    float ground = softShadow(u_groundShadow, v_texCoords)
+    vec2 shadowUv = v_texCoords + u_shadowUvOffset;
+    float entity = texture2D(u_entityMask, shadowUv).r;
+    float ground = softShadow(u_groundShadow, shadowUv)
         * (1.0 - entity);
-    float receiver = softShadow(u_receiverShadow, v_texCoords);
+    float receiver = softShadow(u_receiverShadow, shadowUv);
     float shadow = max(ground, receiver);
     gl_FragColor = vec4(0.02, 0.035, 0.06,
         shadow * u_shadowOpacity);

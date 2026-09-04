@@ -123,6 +123,11 @@ public class TopDownShadowSystem extends BaseSystem {
     private float lightDepthMin;
     private float lightDepthMax;
     private float lightDepthBias;
+    private float shadowCameraOriginalX;
+    private float shadowCameraOriginalY;
+    private float shadowUvOffsetX;
+    private float shadowUvOffsetY;
+    private boolean shadowCameraActive;
     public TopDownShadowSystem(float worldScale, TopDownShadowConfig config) {
         this(worldScale, config, new SunLightConfig());
     }
@@ -255,6 +260,7 @@ public class TopDownShadowSystem extends BaseSystem {
 
         int previousActiveTexture = captureTextureBindings();
         try {
+            beginShadowCamera();
             sortShadowEntities();
             renderEntityMask();
             renderHeightMap();
@@ -265,6 +271,7 @@ public class TopDownShadowSystem extends BaseSystem {
                 compositeSunShadow();
             }
         } finally {
+            endShadowCamera();
             restoreTextureBindings(previousActiveTexture);
         }
     }
@@ -277,10 +284,57 @@ public class TopDownShadowSystem extends BaseSystem {
 
         int previousActiveTexture = captureTextureBindings();
         try {
+            beginShadowCamera();
             renderPointLights();
         } finally {
+            endShadowCamera();
             restoreTextureBindings(previousActiveTexture);
         }
+    }
+
+    /**
+     * 将阴影视图对齐到阴影缓冲自身的纹素网格。
+     * 主世界仍按屏幕像素移动，二者的差值在最终合成时补偿。
+     */
+    private void beginShadowCamera() {
+        if (shadowCameraActive || bufferWidth <= 0 || bufferHeight <= 0) {
+            return;
+        }
+        shadowCameraOriginalX = cameraSystem.camera.position.x;
+        shadowCameraOriginalY = cameraSystem.camera.position.y;
+        float viewWidth = cameraSystem.camera.viewportWidth
+            * cameraSystem.camera.zoom;
+        float viewHeight = cameraSystem.camera.viewportHeight
+            * cameraSystem.camera.zoom;
+        float texelX = viewWidth / bufferWidth;
+        float texelY = viewHeight / bufferHeight;
+        float shadowX = snapDown(shadowCameraOriginalX, texelX);
+        float shadowY = snapDown(shadowCameraOriginalY, texelY);
+        shadowUvOffsetX = (shadowCameraOriginalX - shadowX) / viewWidth;
+        shadowUvOffsetY = (shadowCameraOriginalY - shadowY) / viewHeight;
+        cameraSystem.camera.position.set(
+            shadowX, shadowY, cameraSystem.camera.position.z);
+        cameraSystem.camera.update();
+        shadowCameraActive = true;
+    }
+
+    /** 恢复像素相机本帧用于世界渲染的位置。 */
+    private void endShadowCamera() {
+        if (!shadowCameraActive) {
+            return;
+        }
+        cameraSystem.camera.position.set(
+            shadowCameraOriginalX, shadowCameraOriginalY,
+            cameraSystem.camera.position.z);
+        cameraSystem.camera.update();
+        shadowCameraActive = false;
+    }
+
+    private float snapDown(float value, float step) {
+        if (step <= 0f) {
+            return value;
+        }
+        return (float) Math.floor(value / step) * step;
     }
 
     /**
@@ -1222,6 +1276,8 @@ public class TopDownShadowSystem extends BaseSystem {
     private void setCompositeCommonUniforms(ShaderProgram shader) {
         shader.setUniformf("u_shadowTexel",
             1f / bufferWidth, 1f / bufferHeight);
+        shader.setUniformf("u_shadowUvOffset",
+            shadowUvOffsetX, shadowUvOffsetY);
         shader.setUniformf("u_time", shadowTime);
     }
 
