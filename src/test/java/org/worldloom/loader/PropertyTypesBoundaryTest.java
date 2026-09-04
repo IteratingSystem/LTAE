@@ -27,7 +27,7 @@ class PropertyTypesBoundaryTest {
 
         assertTrue(names.containsAll(Set.of(
             "Interactive", "Owner", "User", "Slice", "PointLight",
-            "TopDownPointLight", "TopDownShadow")));
+            "StoryComp", "TopDownPointLight", "TopDownShadow")));
         assertTrue(Set.of(
             "RPGProp", "Inventory", "Item", "ShipProp",
             "WaterReflection", "Broadcaster", "Prefabricated",

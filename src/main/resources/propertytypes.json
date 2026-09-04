@@ -266,6 +266,25 @@
     {
         "color": "#ffa0a0a4",
         "drawFill": true,
+        "id": 26,
+        "members": [
+            {
+                "name": "storyName",
+                "type": "string",
+                "value": "str"
+            }
+        ],
+        "name": "StoryComp",
+        "type": "class",
+        "useAs": [
+            "property",
+            "object",
+            "project"
+        ]
+    },
+    {
+        "color": "#ffa0a0a4",
+        "drawFill": true,
         "id": 14,
         "members": [
             {

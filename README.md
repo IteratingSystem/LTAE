@@ -303,6 +303,7 @@ public class Health extends SerializeComponent {
 | `ZIndex` | 控制批次排序；`followY` 开启后按纵坐标更新 |
 | `B2dBody` | 根据 Tiled 对象/瓦片对象重建 Body 和 Fixture；支持 `setPos`、`flipX` |
 | `StateComp` | 通过枚举简单类名建立 gdx-ai 状态机，保存前记录当前状态 |
+| `StoryComp` | 保存 Ink 剧本名称、运行状态和初始节点；语言与具体剧情逻辑由游戏实现 |
 | `BTree` | 通过 `treeName` 绑定 `.tree` 资源并以实体作为黑板对象 |
 | `TileAnimation` | 单个 Tiled 动画，支持 LibGDX `Animation.PlayMode`、暂停和帧查询 |
 | `TileAnimations` | 从 tileset 收集多个具名动画，通过 `current` 切换 |
@@ -871,6 +872,15 @@ boolean finished = StoryManager.isFinished();
 ```
 
 `getLines()` 会反复调用 Ink 的 `Continue()`，一次取完当前所有可继续文本，通常会停在选项或故事结束处。`StoryManager.Continue()` 只推进一次；不要在 `getLines()` 已经耗尽当前段落后无条件继续调用。使用前先通过 `changeStory` 选择已加载故事。
+
+需要让地图实体持有剧情时，可在 Tiled 中挂载 `StoryComp` 并填写 `storyName`：
+
+```java
+StoryComp storyComp = entity.getComponent(StoryComp.class);
+StoryManager.changeStory(storyComp.storyName);
+```
+
+`saveJson` 用于保存 Ink 运行状态，`startNode` 是首次进入剧本时的起始 knot 或 stitch，未填写时默认为 `start`。组件只保存通用剧本状态；语言后缀、剧情标签到游戏事件的转换以及对话 UI 均由游戏项目实现。
 
 ### 14.2 本地化
 
