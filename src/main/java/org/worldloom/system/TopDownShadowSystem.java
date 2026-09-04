@@ -75,6 +75,7 @@ public class TopDownShadowSystem extends BaseSystem {
     private B2dSystem b2dSystem;
     private CameraSystem cameraSystem;
     private PixelPerfectRenderSystem pixelPerfectRenderSystem;
+    private TiledMapSystem tiledMapSystem;
     private M<Pos> mPos;
     private M<Render> mRender;
     private M<ZIndex> mZIndex;
@@ -245,8 +246,10 @@ public class TopDownShadowSystem extends BaseSystem {
         resizeBuffersIfNeeded();
         shadowTime = (shadowTime + Math.min(world.getDelta(), 1f / 15f)) % 1000f;
         synchronizePointLights();
-        if (shadowSubscription.getEntities().isEmpty()
-            && pointLightSubscription.getEntities().isEmpty()) {
+        boolean hasPointLights = !pointLightSubscription.getEntities().isEmpty();
+        boolean sunEnabled = config.isSunEnabled(tiledMapSystem.getCurrent());
+        if ((!sunEnabled && !hasPointLights)
+            || (shadowSubscription.getEntities().isEmpty() && !hasPointLights)) {
             return;
         }
 
@@ -256,9 +259,11 @@ public class TopDownShadowSystem extends BaseSystem {
             renderEntityMask();
             renderHeightMap();
 
-            renderSunShadowMap();
-            renderShadowMasks(sunLight);
-            compositeSunShadow();
+            if (sunEnabled) {
+                renderSunShadowMap();
+                renderShadowMasks(sunLight);
+                compositeSunShadow();
+            }
         } finally {
             restoreTextureBindings(previousActiveTexture);
         }

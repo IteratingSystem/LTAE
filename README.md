@@ -4,7 +4,7 @@ Worldloom 是基于 LibGDX、Artemis-ODB 和 Tiled 的嵌入式 2D ECS 游戏引
 
 Worldloom 不接管 LibGDX 的 `ApplicationListener` 或 `Screen`。游戏项目仍然拥有平台启动、页面和业务内容；引擎通过 `WorldloomEngine` 统一管理 ECS World 的创建、系统顺序、每帧更新、窗口变化和释放。
 
-当前版本：`4.2.2`。版本号的选择与发布步骤见 [VERSIONING.md](VERSIONING.md)。
+当前版本：`4.2.3`。版本号的选择与发布步骤见 [VERSIONING.md](VERSIONING.md)。
 
 ## 1. 环境与依赖
 
@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    api "com.github.IteratingSystem:worldloom:4.2.2"
+    api "com.github.IteratingSystem:worldloom:4.2.3"
 }
 ```
 
@@ -645,7 +645,9 @@ WorldloomEngine engine = Worldloom.engineBuilder()
 TopDownShadowConfig shadowConfig = new TopDownShadowConfig()
     .setSunShadowOpacity(0.52f)
     .setHeightRange(256f)
-    .setResolutionScale(0.5f);
+    .setResolutionScale(0.5f)
+    .setDefaultSunEnabled(false)
+    .setMapSunEnabled("world", true);
 
 SunLightConfig sunConfig = new SunLightConfig()
     .setReference(6f, 0f)
@@ -660,6 +662,8 @@ WorldloomEngine engine = Worldloom.engineBuilder()
 ```
 
 `SunLightConfig` 描述太阳本身，不描述角色阴影。默认以 6 点、屏幕 3 点方向为轨迹参考点，并在 24 小时内顺时针旋转完整一圈。太阳在 6、12、18、24 点依次位于钟表的 3、6、9、12 点方向。`TopDownSunLight` 自动把太阳方位增加 180 度得到光线传播和阴影方向，因此阴影始终位于物体背向太阳的一侧。
+
+`TopDownShadowConfig` 默认在所有地图启用太阳阴影，以兼容未配置地图规则的游戏。游戏也可以使用 `setDefaultSunEnabled(false)` 默认关闭，再通过 `setMapSunEnabled(mapName, true)` 只为室外地图开启。关闭太阳阴影不会关闭俯视角点光源及其阴影，地图切换后下一帧自动应用新配置。
 
 太阳高度每 12 小时完成一次最低点到最高点再回到最低点的变化。默认最低高度为 `26.56505` 度，最高高度为 `51.34019` 度。阴影投影比例由 `1 / tan(太阳高度)` 实时计算，因此在 6、12、18、24 点依次形成约 `2.0 -> 0.8 -> 2.0 -> 0.8` 倍。太阳阴影不会在夜间被代码关闭；夜间是否容易观察由环境光亮度决定。
 
