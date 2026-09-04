@@ -5,5 +5,6 @@ package org.worldloom.audio;
  */
 public enum AudioPlayMode {
     ONCE,
-    LOOP
+    LOOP,
+    INTERVAL_LOOP
 }

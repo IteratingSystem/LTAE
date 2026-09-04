@@ -69,7 +69,7 @@ public class AudioSystem extends BaseSystem {
     protected void processSystem() {
         Long completedHandle;
         while ((completedHandle = completedMusicHandles.poll()) != null) {
-            removeInstance(completedHandle, false);
+            handleMusicCompletion(completedHandle);
         }
         updateListener();
         float delta = world.getDelta();
@@ -89,6 +89,7 @@ public class AudioSystem extends BaseSystem {
                 instance.y = pos.y;
             }
 
+            updateIntervalLoop(instance, delta);
             updateFade(instance, delta, toRemove);
             if (!instance.paused && !instance.pausedByBus) {
                 instance.age += delta;
@@ -180,6 +181,11 @@ public class AudioSystem extends BaseSystem {
         AudioInstance instance = createInstance(event);
         instance.music = music;
         instance.looping = event.playMode == AudioPlayMode.LOOP;
+        instance.intervalLooping =
+            event.playMode == AudioPlayMode.INTERVAL_LOOP;
+        instance.loopIntervalSeconds = event.loopIntervalSeconds;
+        instance.restartFadeSeconds = event.fadeSeconds;
+        instance.playbackVolume = event.volume;
         if (!updateSourceFromEntity(instance)) {
             logError("Audio source entity has no active Pos: "
                 + instance.sourceEntityId);
@@ -194,6 +200,46 @@ public class AudioSystem extends BaseSystem {
         music.play();
         applyInitialBusPause(instance);
         event.handle = instance.handle;
+    }
+
+    private void handleMusicCompletion(long handle) {
+        AudioInstance instance = instances.get(handle);
+        if (instance == null) {
+            return;
+        }
+        if (!instance.intervalLooping) {
+            removeInstance(handle, false);
+            return;
+        }
+
+        instance.waitingForRestart = true;
+        instance.restartDelayRemaining = instance.loopIntervalSeconds;
+        instance.baseVolume = 0f;
+        instance.fadeDuration = 0f;
+        instance.fadeElapsed = 0f;
+        instance.stopAfterFade = false;
+    }
+
+    private void updateIntervalLoop(AudioInstance instance, float delta) {
+        if (!instance.waitingForRestart || instance.paused
+            || instance.pausedByBus) {
+            return;
+        }
+        instance.restartDelayRemaining = Math.max(0f,
+            instance.restartDelayRemaining - delta);
+        if (instance.restartDelayRemaining > 0f) {
+            return;
+        }
+
+        instance.waitingForRestart = false;
+        instance.music.setPosition(0f);
+        instance.baseVolume = instance.restartFadeSeconds > 0f
+            ? 0f : instance.playbackVolume;
+        if (instance.restartFadeSeconds > 0f) {
+            startFade(instance, instance.playbackVolume,
+                instance.restartFadeSeconds, false);
+        }
+        instance.music.play();
     }
 
     private AudioInstance createInstance(AudioEvent event) {
@@ -317,7 +363,9 @@ public class AudioSystem extends BaseSystem {
             || pausedBuses.contains(instance.bus)) {
             return;
         }
-        instance.resume();
+        if (!instance.waitingForRestart) {
+            instance.resume();
+        }
         instance.paused = false;
         applyInstanceVolume(instance);
     }
@@ -407,7 +455,7 @@ public class AudioSystem extends BaseSystem {
         }
         for (AudioInstance instance : instances.values()) {
             if (instance.bus == bus && instance.pausedByBus) {
-                if (!instance.paused) {
+                if (!instance.paused && !instance.waitingForRestart) {
                     instance.resume();
                 }
                 instance.pausedByBus = false;
@@ -555,6 +603,11 @@ public class AudioSystem extends BaseSystem {
         if (event.bus == null || event.playMode == null) {
             throw new IllegalArgumentException("audio bus and play mode are required");
         }
+        if (event.type == AudioEvent.PLAY_SOUND
+            && event.playMode == AudioPlayMode.INTERVAL_LOOP) {
+            throw new IllegalArgumentException(
+                "interval loop is only supported for music");
+        }
     }
 
     private static void logError(String message) {
@@ -589,6 +642,7 @@ public class AudioSystem extends BaseSystem {
         private float baseVolume;
         private float pitch;
         private boolean looping;
+        private boolean intervalLooping;
         private boolean spatial;
         private int sourceEntityId;
         private float x;
@@ -605,6 +659,11 @@ public class AudioSystem extends BaseSystem {
         private float fadeDuration;
         private float fadeElapsed;
         private boolean stopAfterFade;
+        private float loopIntervalSeconds;
+        private float restartDelayRemaining;
+        private float restartFadeSeconds;
+        private float playbackVolume;
+        private boolean waitingForRestart;
 
         private void pause() {
             if (sound != null) {

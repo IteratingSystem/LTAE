@@ -45,4 +45,17 @@ class AudioConfigTest {
         assertThrows(IllegalArgumentException.class,
             () -> AudioEvent.playSound("audio/music/island_day.ogg"));
     }
+
+    @Test
+    void configuresMusicIntervalLoop() {
+        AudioEvent event = AudioEvent.playMusic("town_theme.mp3")
+            .fadeIn(1.5f)
+            .loop(5f);
+
+        assertEquals(AudioPlayMode.INTERVAL_LOOP, event.playMode);
+        assertEquals(5f, event.loopIntervalSeconds);
+        assertEquals(1.5f, event.fadeSeconds);
+        assertThrows(IllegalArgumentException.class,
+            () -> AudioEvent.playMusic("town_theme.mp3").loop(-1f));
+    }
 }

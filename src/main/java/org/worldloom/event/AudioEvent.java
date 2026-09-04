@@ -42,6 +42,7 @@ public class AudioEvent extends TypeEvent {
     public float fadeSeconds;
     public float targetVolume;
     public boolean replaceMusic;
+    public float loopIntervalSeconds;
     public int listenerEntityId = -1;
 
     /**
@@ -277,6 +278,24 @@ public class AudioEvent extends TypeEvent {
      */
     public AudioEvent loop() {
         playMode = AudioPlayMode.LOOP;
+        loopIntervalSeconds = 0f;
+        return this;
+    }
+
+    /**
+     * 把流式音乐设为带间隔的循环播放。
+     * 当前音轨自然播放结束后，声音系统会等待指定时间再从头播放；
+     * {@link #fadeIn(float)} 或 {@link #switchMusic(String, float)} 设置的淡入
+     * 会在每次重新播放时再次生效。间隔为 0 时使用原生无缝循环。
+     *
+     * @param intervalSeconds 两次播放之间的静音时间，单位为秒
+     * @return 当前事件，便于链式调用
+     */
+    public AudioEvent loop(float intervalSeconds) {
+        loopIntervalSeconds = requireNonNegative(intervalSeconds,
+            "intervalSeconds");
+        playMode = intervalSeconds == 0f
+            ? AudioPlayMode.LOOP : AudioPlayMode.INTERVAL_LOOP;
         return this;
     }
 
