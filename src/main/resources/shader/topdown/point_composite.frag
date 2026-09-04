@@ -23,16 +23,18 @@ float softShadow(sampler2D textureSampler, vec2 uv) {
 
 void main() {
     vec4 light = texture2D(u_lightMap, v_texCoords);
-    if (light.a < 0.001) {
+    float rgbIntensity = max(light.r, max(light.g, light.b));
+    if (rgbIntensity < 0.001) {
         gl_FragColor = vec4(0.0);
         return;
     }
+    float intensity = light.a >= 0.001 ? light.a : rgbIntensity;
     float entity = texture2D(u_entityMask, v_texCoords).r;
     float ground = softShadow(u_groundShadow, v_texCoords)
         * (1.0 - entity);
     float receiver = softShadow(u_receiverShadow, v_texCoords);
     float visibility = 1.0 - max(ground, receiver);
     gl_FragColor = vec4(
-        light.rgb * light.a * visibility,
-        light.a * visibility);
+        light.rgb * intensity * visibility,
+        intensity * visibility);
 }
